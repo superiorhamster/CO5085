@@ -30,6 +30,14 @@ def code(text: str) -> dict:
     }
 
 
+def describe_cell(title: str, objective: str, result: str, note: str | None = None) -> dict:
+    """Create the short Markdown guide placed immediately before a code cell."""
+    lines = [f"### {title}", "", f"**Mục tiêu:** {objective}", "", f"**Kết quả:** {result}"]
+    if note:
+        lines.extend(["", f"**Lưu ý:** {note}"])
+    return md("\n".join(lines))
+
+
 def notebook(cells: list[dict]) -> dict:
     return {
         "cells": cells,
@@ -235,7 +243,7 @@ def classification_epoch(model, loader, criterion, optimizer=None, scaler=None,
             if max_batches is not None and batch_index >= max_batches:
                 break
             images, labels = images.to(DEVICE), labels.to(DEVICE)
-            with torch.cuda.amp.autocast(enabled=AMP_ENABLED):
+            with torch.amp.autocast("cuda", enabled=AMP_ENABLED):
                 logits = model(images)
                 loss = criterion(logits, labels)
                 backward_loss = loss / grad_accum
@@ -299,7 +307,7 @@ def fit_classifier(model, loaders, optimizer, scheduler, run_dir, run_config,
     json_dump(run_config, run_dir / "config.json")
     json_dump(environment_info(), run_dir / "environment.json")
     criterion = nn.CrossEntropyLoss()
-    scaler = torch.cuda.amp.GradScaler(enabled=AMP_ENABLED)
+    scaler = torch.amp.GradScaler("cuda", enabled=AMP_ENABLED)
     start_epoch, best_accuracy, best_loss, history = 0, -1.0, float("inf"), []
     if run_config.get("evaluate_only"):
         evaluation_path = run_dir / "best.pt"
@@ -613,18 +621,71 @@ print("Artifacts:", OUTPUT_BASE)
 **Câu hỏi nghiên cứu:** tăng độ phức tạp từ mô hình tuyến tính đến CNN cải thiện accuracy và thay đổi loại lỗi như thế nào?
 
 Notebook dùng cùng split 54k/6k/10k với E2–E3, tự viết training loop PyTorch và chỉ đưa kết quả `full` vào báo cáo.'''),
-        md("## 1. Môi trường"), code(INSTALL_BASE), code(COMMON_IMPORTS),
-        md("## 2. Cấu hình"), code(COMMON_CONFIG), code(COMMON_UTILS),
-        md("## 3. Dữ liệu, split và EDA"), code(FASHION_DATA),
-        code('''figure, axes = plt.subplots(2, 5, figsize=(11, 5))
+        md("## 1. Môi trường"),
+        describe_cell(
+            "1.1. Cài đặt thư viện",
+            "Kiểm tra các dependency nền tảng và chỉ cài những gói còn thiếu trong runtime.",
+            "Môi trường có đủ PyTorch, torchvision, NumPy, pandas, scikit-learn và các thư viện vẽ biểu đồ.",
+            "Kaggle hoặc Colab có thể yêu cầu khởi động lại kernel nếu pip thay đổi package đã được nạp.",
+        ), code(INSTALL_BASE),
+        describe_cell(
+            "1.2. Import và chọn thiết bị",
+            "Nạp thư viện dùng chung, chọn CPU/GPU và xác định có bật mixed precision hay không.",
+            "Tạo `DEVICE`, `AMP_ENABLED` và các namespace được dùng trong toàn notebook.",
+        ), code(COMMON_IMPORTS),
+        md("## 2. Cấu hình"),
+        describe_cell(
+            "2.1. Khai báo cấu hình chạy",
+            "Thiết lập đường dẫn dữ liệu/artifact, seed, batch size, số epoch, chế độ `smoke` hoặc `full` và danh sách experiment.",
+            "Tạo dictionary `CONFIG`; ở chế độ `smoke`, notebook tự giảm ngân sách để kiểm tra pipeline.",
+        ), code(COMMON_CONFIG),
+        describe_cell(
+            "2.2. Khởi tạo tiện ích thực nghiệm",
+            "Định nghĩa các hàm seed, hash split, checkpoint nguyên tử, resume, training loop, metric và biểu đồ dùng chung.",
+            "Cung cấp toàn bộ hàm hạ tầng cho các cell dữ liệu, huấn luyện và đánh giá phía sau.",
+            "Cell này chỉ định nghĩa hàm, chưa bắt đầu huấn luyện.",
+        ), code(COMMON_UTILS),
+        md("## 3. Dữ liệu, split và EDA"),
+        describe_cell(
+            "3.1. Chuẩn bị Fashion-MNIST",
+            "Tải dữ liệu, tạo split phân tầng 54.000/6.000/10.000, tính thống kê chuẩn hóa từ train và dựng DataLoader.",
+            "Tạo `train_dataset`, `val_dataset`, `test_dataset`, `loaders`, `CLASS_NAMES` và `SPLIT_HASH`.",
+            "Nếu file split đã tồn tại nhưng khác seed 42, notebook dừng để bảo vệ tính tái lập.",
+        ), code(FASHION_DATA),
+        describe_cell(
+            "3.2. Quan sát mẫu dữ liệu",
+            "Hiển thị mười ảnh train sau khi hoàn nguyên chuẩn hóa để kiểm tra nhãn và chất lượng đầu vào.",
+            "Sinh một lưới ảnh Fashion-MNIST phục vụ EDA; cell không thay đổi dataset.",
+        ), code('''figure, axes = plt.subplots(2, 5, figsize=(11, 5))
 for axis, (image, label) in zip(axes.ravel(), [train_full[i] for i in range(10)]):
     axis.imshow(image.squeeze() * std + mean, cmap="gray", vmin=0, vmax=1)
     axis.set_title(CLASS_NAMES[label]); axis.axis("off")
 plt.tight_layout(); plt.show()'''),
-        md("## 4. Mô hình"), code(models),
-        md("## 5. Kiểm tra nhanh: overfit một batch và gradient hữu hạn"), code(sanity),
-        md("## 6. Huấn luyện và chọn checkpoint"), code(run),
-        md("## 7. Đánh giá, phân tích lỗi và xuất artifact"), code(errors),
+        md("## 4. Mô hình"),
+        describe_cell(
+            "4.1. Định nghĩa ba baseline",
+            "Cài đặt Softmax tuyến tính, MLP hai tầng ẩn và CNN hai block tích chập với cùng đầu ra 10 logits.",
+            "Tạo `MODEL_FACTORIES`, ba experiment ID và danh sách `selected` lấy từ cấu hình.",
+        ), code(models),
+        md("## 5. Kiểm tra nhanh: overfit một batch và gradient hữu hạn"),
+        describe_cell(
+            "5.1. Chạy sanity check",
+            "Huấn luyện mô hình đầu tiên trên một mini-batch nhỏ để xác nhận loss giảm và mọi gradient đều hữu hạn.",
+            "In loss đầu/cuối; assertion sẽ dừng notebook nếu pipeline forward/backward có lỗi.",
+        ), code(sanity),
+        md("## 6. Huấn luyện và chọn checkpoint"),
+        describe_cell(
+            "6.1. Chạy ma trận E1",
+            "Huấn luyện các experiment đã chọn, resume khi cần, đánh giá checkpoint tốt nhất và đo latency/bộ nhớ.",
+            "Ghi config, history, checkpoint, predictions, metrics, learning curves, confusion matrix và `summary.csv`.",
+            "Run đã hoàn tất sẽ được bỏ qua; chỉ kết quả `full` nên dùng trong báo cáo chính.",
+        ), code(run),
+        md("## 7. Đánh giá, phân tích lỗi và xuất artifact"),
+        describe_cell(
+            "7.1. Trực quan hóa dự đoán sai",
+            "Chọn các mẫu test bị phân loại sai có độ tin cậy cao nhất và hoàn nguyên ảnh để quan sát.",
+            "Lưu `failures.png` trong thư mục từng experiment và in đường dẫn artifact gốc.",
+        ), code(errors),
         md('''## 8. Câu hỏi phân tích
 
 1. Khoảng cách train/validation của ba mô hình cho biết gì về underfitting và overfitting?
@@ -829,12 +890,53 @@ display(summary_frame)
         md('''# E2 — Multi-head self-attention và tokenization
 
 So sánh MSA viết từ các phép toán nền tảng với `nn.MultiheadAttention`, đồng thời khảo sát patch/row/CNN tokenization trên cùng Fashion-MNIST split.'''),
-        md("## 1. Môi trường"), code(INSTALL_BASE), code(COMMON_IMPORTS),
-        md("## 2. Cấu hình"), code(COMMON_CONFIG), code(COMMON_UTILS),
-        md("## 3. Dữ liệu"), code(FASHION_DATA),
-        md("## 4. Tokenizer, attention và mô hình encoder"), code(models),
-        md("## 5. Kiểm chứng tương đương số học"), code(equivalence),
-        md("## 6. Huấn luyện và đánh giá ma trận 2 × 3"), code(run),
+        md("## 1. Môi trường"),
+        describe_cell(
+            "1.1. Cài đặt thư viện",
+            "Kiểm tra các dependency nền tảng và chỉ cài những gói còn thiếu trong runtime.",
+            "Môi trường có đủ thư viện để xử lý dữ liệu, huấn luyện attention và trực quan hóa kết quả.",
+        ), code(INSTALL_BASE),
+        describe_cell(
+            "1.2. Import và chọn thiết bị",
+            "Nạp thư viện dùng chung, chọn CPU/GPU và cấu hình mixed precision theo thiết bị.",
+            "Tạo `DEVICE`, `AMP_ENABLED` và các namespace được dùng ở các cell sau.",
+        ), code(COMMON_IMPORTS),
+        md("## 2. Cấu hình"),
+        describe_cell(
+            "2.1. Khai báo cấu hình chạy",
+            "Thiết lập đường dẫn, seed, batch size, epoch, chế độ chạy và các experiment cần thực hiện.",
+            "Tạo `CONFIG`; chế độ `smoke` tự giảm ngân sách để kiểm tra nhanh.",
+        ), code(COMMON_CONFIG),
+        describe_cell(
+            "2.2. Khởi tạo tiện ích thực nghiệm",
+            "Định nghĩa hàm tái lập, checkpoint, resume, training loop, benchmark và biểu đồ dùng chung.",
+            "Cung cấp hạ tầng cho toàn bộ sáu cấu hình E2 mà chưa bắt đầu train.",
+        ), code(COMMON_UTILS),
+        md("## 3. Dữ liệu"),
+        describe_cell(
+            "3.1. Chuẩn bị Fashion-MNIST",
+            "Dùng đúng split phân tầng và thống kê chuẩn hóa của E1/E3, sau đó dựng DataLoader cho train/validation/test.",
+            "Tạo các dataset, `loaders`, `CLASS_NAMES` và `SPLIT_HASH` để đối chiếu giữa notebook.",
+        ), code(FASHION_DATA),
+        md("## 4. Tokenizer, attention và mô hình encoder"),
+        describe_cell(
+            "4.1. Xây dựng tokenizer và encoder",
+            "Cài đặt patch, row, CNN-stem tokenizer; MSA tự viết; MSA PyTorch; encoder hai block và classifier dùng mean pooling.",
+            "Tạo sáu experiment ID từ hai backend attention và ba tokenizer, cùng hàm đồng bộ khởi tạo giữa hai backend.",
+        ), code(models),
+        md("## 5. Kiểm chứng tương đương số học"),
+        describe_cell(
+            "5.1. So sánh MSA và kiểm tra pipeline",
+            "Sao chép trọng số giữa hai MSA, so output/gradient trên CPU FP32, kiểm tra shape tokenizer và overfit một batch.",
+            "Các assertion xác nhận tolerance `atol=1e-5`, `rtol=1e-4`, shape token đúng và loss có giảm.",
+        ), code(equivalence),
+        md("## 6. Huấn luyện và đánh giá ma trận 2 × 3"),
+        describe_cell(
+            "6.1. Chạy sáu cấu hình E2",
+            "Huấn luyện từng cặp backend–tokenizer với cùng seed và ngân sách, sau đó đo accuracy, latency, memory và số token.",
+            "Lưu checkpoint, metrics, predictions, curves, confusion matrix và bảng tổng hợp `summary.csv`.",
+            "Run đã hoàn tất được bỏ qua trừ khi bật chế độ đánh giá lại checkpoint.",
+        ), code(run),
         md('''## 7. Câu hỏi phân tích
 
 1. Sau khi đồng bộ trọng số, sai số output/gradient có nằm trong tolerance đã công bố không?
@@ -983,12 +1085,53 @@ display(summary_frame)
         md('''# E3 — LSTM và GRU trên chuỗi ảnh
 
 Ảnh Fashion-MNIST được xem như chuỗi hàng hoặc chuỗi patch. Bốn mô hình recurrent được so sánh với MLP/CNN E1 trên đúng split.'''),
-        md("## 1. Môi trường"), code(INSTALL_BASE), code(COMMON_IMPORTS),
-        md("## 2. Cấu hình"), code(COMMON_CONFIG), code(COMMON_UTILS),
-        md("## 3. Dữ liệu và split dùng chung"), code(FASHION_DATA),
-        md("## 4. Biểu diễn chuỗi và mô hình"), code(models),
-        md("## 5. Nhập baseline E1 có kiểm tra provenance"), code(baseline),
-        md("## 6. Huấn luyện và đánh giá"), code(run),
+        md("## 1. Môi trường"),
+        describe_cell(
+            "1.1. Cài đặt thư viện",
+            "Kiểm tra các dependency nền tảng và chỉ cài những gói còn thiếu trong runtime.",
+            "Môi trường sẵn sàng cho xử lý Fashion-MNIST, huấn luyện recurrent model và xuất biểu đồ.",
+        ), code(INSTALL_BASE),
+        describe_cell(
+            "1.2. Import và chọn thiết bị",
+            "Nạp thư viện dùng chung, chọn CPU/GPU và bật mixed precision khi có CUDA.",
+            "Tạo `DEVICE`, `AMP_ENABLED` và các namespace dùng trong notebook.",
+        ), code(COMMON_IMPORTS),
+        md("## 2. Cấu hình"),
+        describe_cell(
+            "2.1. Khai báo cấu hình chạy",
+            "Thiết lập đường dẫn, seed, batch size, epoch, resume, chế độ `smoke`/`full` và experiment ID.",
+            "Tạo dictionary `CONFIG` điều khiển toàn bộ pipeline E3.",
+        ), code(COMMON_CONFIG),
+        describe_cell(
+            "2.2. Khởi tạo tiện ích thực nghiệm",
+            "Định nghĩa các hàm seed, split hash, checkpoint, training loop, metric, benchmark và trực quan hóa.",
+            "Cung cấp hạ tầng dùng chung cho baseline và recurrent model.",
+        ), code(COMMON_UTILS),
+        md("## 3. Dữ liệu và split dùng chung"),
+        describe_cell(
+            "3.1. Chuẩn bị Fashion-MNIST",
+            "Tạo lại đúng split 54.000/6.000/10.000 và normalization đã dùng trong E1/E2.",
+            "Tạo dataset, DataLoader, tên lớp và `SPLIT_HASH` để kiểm tra provenance của baseline.",
+        ), code(FASHION_DATA),
+        md("## 4. Biểu diễn chuỗi và mô hình"),
+        describe_cell(
+            "4.1. Xây dựng LSTM/GRU và baseline",
+            "Biểu diễn ảnh theo 28 hàng hoặc 49 patch, cài đặt LSTM/GRU một chiều và định nghĩa lại MLP/CNN của E1.",
+            "Tạo bốn experiment recurrent, kiểm tra shape chuỗi và xác nhận GRU có thể overfit một batch nhỏ.",
+        ), code(models),
+        md("## 5. Nhập baseline E1 có kiểm tra provenance"),
+        describe_cell(
+            "5.1. Đọc kết quả MLP/CNN từ E1",
+            "Tìm artifact `E1/full`, kiểm tra split hash, seed, experiment ID và `run_mode` trước khi tái sử dụng metric.",
+            "Tạo `baseline_results` và `missing_baselines`; baseline thiếu sẽ được chạy lại ở cell kế tiếp.",
+        ), code(baseline),
+        md("## 6. Huấn luyện và đánh giá"),
+        describe_cell(
+            "6.1. Chạy baseline thiếu và bốn mô hình chuỗi",
+            "Tái tạo baseline khi cần, huấn luyện LSTM/GRU với gradient clipping và đánh giá trên cùng split.",
+            "Lưu checkpoint, metrics, curves, confusion matrix và `summary.csv` kết hợp E1–E3.",
+            "Bảng báo cáo chính nên dùng baseline E1/full thay vì baseline smoke được tái tạo tại đây.",
+        ), code(run),
         md('''## 7. Câu hỏi phân tích
 
 1. Row và patch representation thay đổi độ dài chuỗi, input dimension và latency ra sao?
@@ -1201,16 +1344,58 @@ display(summary_frame)
         md('''# A1 — CNN và Transformer trên CIFAR-100
 
 So sánh ResNet-18 với DeiT-Tiny trong bốn chế độ: scratch, head-only, partial freeze và full fine-tune. Kết quả là so sánh dưới ngân sách 20 epoch, không phải tuyên bố scratch đã hội tụ.'''),
-        md("## 1. Môi trường"), code(install), code(imports),
-        md("## 2. Cấu hình"), code(config), code(COMMON_UTILS),
-        md("## 3. Dữ liệu, augmentation và protocol"), code(data),
+        md("## 1. Môi trường"),
+        describe_cell(
+            "1.1. Cài đặt thư viện",
+            "Kiểm tra dependency chung và cài thêm `timm` nếu runtime chưa có.",
+            "Môi trường có đủ package để tải ResNet-18/DeiT-Tiny và chạy pipeline CIFAR-100.",
+        ), code(install),
+        describe_cell(
+            "1.2. Import và chọn thiết bị",
+            "Nạp thư viện dùng chung cùng `timm`, chọn CPU/GPU và cấu hình mixed precision.",
+            "Tạo `DEVICE`, `AMP_ENABLED` và các namespace cần cho A1.",
+        ), code(imports),
+        md("## 2. Cấu hình"),
+        describe_cell(
+            "2.1. Khai báo cấu hình A1",
+            "Thiết lập đường dẫn, seed, chế độ chạy và effective batch 64 thông qua gradient accumulation.",
+            "Tạo `CONFIG` với microbatch 32, accumulation 2 và ngân sách 1 hoặc 20 epoch.",
+        ), code(config),
+        describe_cell(
+            "2.2. Khởi tạo tiện ích thực nghiệm",
+            "Định nghĩa hàm tái lập, checkpoint, resume, training loop, metric, benchmark và biểu đồ dùng chung.",
+            "Cung cấp hạ tầng train/evaluate cho cả ResNet-18 và DeiT-Tiny.",
+        ), code(COMMON_UTILS),
+        md("## 3. Dữ liệu, augmentation và protocol"),
+        describe_cell(
+            "3.1. Chuẩn bị CIFAR-100",
+            "Tạo split phân tầng 45.000/5.000/10.000, augmentation train, resize 224×224 và ImageNet normalization.",
+            "Tạo dataset, DataLoader, `CLASS_NAMES` và `SPLIT_HASH`; validation/test dùng transform xác định.",
+            "Ảnh 32×32 được upscale lên 224×224 để hai kiến trúc nhận cùng đầu vào.",
+        ), code(data),
         md('''### Nguồn và phạm vi sử dụng
 
 - CIFAR-100: trang chính thức của Alex Krizhevsky/University of Toronto. Ghi citation dataset trong báo cáo; không tự gán license nếu nguồn không công bố rõ.
 - Checkpoint pretrained do `timm` phân phối. Ghi chính xác model ID, phiên bản timm và model card vào artifact.'''),
-        md("## 4. Mô hình và freeze strategies"), code(models),
-        md("## 5. Kiểm tra frozen parameters và BatchNorm statistics"), code(invariant),
-        md("## 6. Huấn luyện và đánh giá ma trận 8 thí nghiệm"), code(run),
+        md("## 4. Mô hình và freeze strategies"),
+        describe_cell(
+            "4.1. Xây dựng mô hình và chiến lược fine-tune",
+            "Khởi tạo ResNet-18/DeiT-Tiny từ scratch hoặc pretrained, cấu hình head-only, partial và full fine-tune.",
+            "Tạo tám experiment ID, nhóm tham số optimizer, learning rate riêng cho head/backbone và cosine scheduler.",
+        ), code(models),
+        md("## 5. Kiểm tra frozen parameters và BatchNorm statistics"),
+        describe_cell(
+            "5.1. Xác minh bất biến khi đóng băng",
+            "Chạy một optimizer step thử và so sánh tuyệt đối tham số cùng buffer của các module frozen.",
+            "Assertion bảo đảm trọng số frozen và BatchNorm running statistics không đổi trước khi train dài.",
+        ), code(invariant),
+        md("## 6. Huấn luyện và đánh giá ma trận 8 thí nghiệm"),
+        describe_cell(
+            "6.1. Chạy ma trận A1",
+            "Huấn luyện tám cấu hình độc lập, đánh giá accuracy/macro-F1, benchmark chi phí và phân tích failure case.",
+            "Lưu checkpoint, history, predictions, metrics, curves, confusion matrix, failures và `summary.csv`.",
+            "Mỗi chế độ pretrained khởi tạo lại từ checkpoint gốc; run hoàn tất được bỏ qua an toàn.",
+        ), code(run),
         md('''## 7. Phân tích cho A1.1/A1.2
 
 1. So sánh độ lợi của pretraining trong từng họ kiến trúc.
@@ -1449,7 +1634,7 @@ def train_diffusion(experiment_id):
     lr_scheduler = torch.optim.lr_scheduler.LambdaLR(
         optimizer, lambda step: min(1.0, (step + 1) / 500) if step < 500 else
         .5 * (1 + math.cos(math.pi * (step - 500) / max(1, CONFIG["max_steps"] - 500))))
-    scaler = torch.cuda.amp.GradScaler(enabled=AMP_ENABLED)
+    scaler = torch.amp.GradScaler("cuda", enabled=AMP_ENABLED)
     ema = EMA(model, .999)
     sampler = StatefulRandomSampler(train_dataset, CONFIG["seed"])
     train_loader = DataLoader(train_dataset, batch_size=CONFIG["batch_size"], sampler=sampler,
@@ -1480,7 +1665,7 @@ def train_diffusion(experiment_id):
             noise = torch.randn_like(clean)
             timesteps = torch.randint(0, scheduler.config.num_train_timesteps, (len(clean),), device=DEVICE)
             noisy = scheduler.add_noise(clean, noise, timesteps)
-            with torch.cuda.amp.autocast(enabled=AMP_ENABLED):
+            with torch.amp.autocast("cuda", enabled=AMP_ENABLED):
                 prediction = model(noisy, timesteps).sample
                 loss = F.mse_loss(prediction, noise) / CONFIG["gradient_accumulation"]
             scaler.scale(loss).backward(); accumulation += 1
@@ -1590,15 +1775,58 @@ display(summary_frame)
 **Đề tài:** ảnh hưởng của noise schedule tới mô hình sinh khuôn mặt không điều kiện ở 32×32.
 
 Paper chính: *Improved Denoising Diffusion Probabilistic Models* — Nichol & Dhariwal, ICML 2021. Thực nghiệm này chỉ tái hiện ablation linear/cosine schedule; không tái hiện learned variance hoặc toàn bộ kết quả paper.'''),
-        md("## 1. Môi trường"), code(install), code(imports),
-        md("## 2. Cấu hình"), code(config), code(COMMON_UTILS),
+        md("## 1. Môi trường"),
+        describe_cell(
+            "1.1. Cài đặt thư viện",
+            "Kiểm tra dependency chung và cài thêm Diffusers, Accelerate, TorchMetrics cùng torch-fidelity khi còn thiếu.",
+            "Môi trường có đủ package để train U-Net, lấy mẫu DDPM và tính FID/IS.",
+            "Việc cài package có thể cần khởi động lại kernel trên một số runtime.",
+        ), code(install),
+        describe_cell(
+            "1.2. Import và chọn thiết bị",
+            "Nạp thư viện dùng chung cùng Diffusers, PIL, sampler, FID, IS và tiện ích tạo lưới ảnh.",
+            "Tạo `DEVICE`, `AMP_ENABLED` và các namespace cần cho pipeline diffusion.",
+        ), code(imports),
+        md("## 2. Cấu hình"),
+        describe_cell(
+            "2.1. Khai báo cấu hình A2",
+            "Thiết lập CelebA root, effective batch, số optimizer step, chu kỳ checkpoint và ngân sách sampling/evaluation.",
+            "Tạo `CONFIG`; chế độ `smoke` dùng 2 step và 64 mẫu để kiểm tra nhanh toàn pipeline.",
+            "`num_workers=0` được giữ cố định để resume sampler chính xác theo step.",
+        ), code(config),
+        describe_cell(
+            "2.2. Khởi tạo tiện ích thực nghiệm",
+            "Định nghĩa hàm seed, RNG state, checkpoint nguyên tử, environment log và các tiện ích artifact dùng chung.",
+            "Cung cấp nền tảng lưu/khôi phục đầy đủ trạng thái huấn luyện A2.",
+        ), code(COMMON_UTILS),
         md('''## 3. Dữ liệu CelebA và điều khoản sử dụng
 
 CelebA chỉ được dùng cho nghiên cứu phi thương mại. Không commit hoặc phân phối lại ảnh. Mount bản Align&Cropped cùng `list_eval_partition.txt`, sau đó đặt `CO5085_CELEBA_ROOT`. Notebook lưu manifest filename để tái tạo subset.'''),
-        code(data),
-        md("## 4. Stateful sampler, EMA, mô hình U-Net và noise scheduler"), code(model_code),
-        md("## 5. Vòng lặp huấn luyện và checkpoint theo optimizer step"), code(training),
-        md("## 6. Đánh giá FID, Inception Score và denoising trace"), code(evaluation),
+        describe_cell(
+            "3.1. Tạo subset CelebA xác định",
+            "Đọc official partition, lấy cố định 20.000/2.000/5.000 ảnh, lưu manifest và dựng pipeline crop–resize–normalize.",
+            "Tạo `train_dataset`, `val_dataset`, `test_dataset`, loader đánh giá và `MANIFEST_HASH`.",
+            "Cell dừng nếu thiếu ảnh hoặc `list_eval_partition.txt`; ảnh gốc không được ghi vào repository.",
+        ), code(data),
+        md("## 4. Stateful sampler, EMA, mô hình U-Net và noise scheduler"),
+        describe_cell(
+            "4.1. Xây dựng thành phần diffusion",
+            "Cài đặt sampler có thể resume, EMA, U-Net 32×32 và hai DDPM scheduler linear/cosine.",
+            "Tạo hai experiment ID và kiểm tra beta hợp lệ, add-noise/reverse-step hữu hạn cùng khởi tạo U-Net giống nhau.",
+        ), code(model_code),
+        md("## 5. Vòng lặp huấn luyện và checkpoint theo optimizer step"),
+        describe_cell(
+            "5.1. Định nghĩa train và sampling",
+            "Cài đặt validation noise loss, reverse sampling, preview cố định và vòng lặp train epsilon prediction với AMP, EMA, clipping và resume.",
+            "Mỗi mốc lưu history, preview, checkpoint theo step và `last.pt` chứa optimizer, scheduler, scaler, EMA, sampler cùng RNG state.",
+        ), code(training),
+        md("## 6. Đánh giá FID, Inception Score và denoising trace"),
+        describe_cell(
+            "6.1. Đánh giá hai noise schedule",
+            "Cache feature ảnh thật, sinh cùng số mẫu cho mỗi schedule, tính FID/IS và ghi chuỗi khử nhiễu.",
+            "Lưu `metrics.json`, `denoising_trace.png` và `summary.csv` kèm thời gian sampling, memory và protocol đánh giá.",
+            "FID chỉ được so sánh giữa hai run dùng cùng cache, sampler, số mẫu và preprocessing.",
+        ), code(evaluation),
         md('''## 7. Khung phân tích paper
 
 1. **Phương pháp:** giải thích forward noising, epsilon prediction loss, reverse process và vai trò của beta schedule.

@@ -27,6 +27,13 @@ def validate(path: Path, expected_experiments: int) -> None:
     combined_code = "\n".join("".join(cell["source"]) for cell in payload["cells"] if cell["cell_type"] == "code")
     for index, cell in enumerate(payload["cells"]):
         if cell["cell_type"] == "code":
+            assert index > 0 and payload["cells"][index - 1]["cell_type"] == "markdown", (
+                f"Code cell {index} in {path} must be preceded by a Markdown description"
+            )
+            description = "".join(payload["cells"][index - 1]["source"])
+            assert "**Mục tiêu:**" in description and "**Kết quả:**" in description, (
+                f"Markdown before code cell {index} in {path} must state Mục tiêu and Kết quả"
+            )
             try:
                 ast.parse("".join(cell["source"]), filename=f"{path}:cell-{index}")
             except SyntaxError as error:
