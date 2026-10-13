@@ -1,0 +1,58 @@
+name: Deploy CO5085 GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Synchronize artifacts and reports into docs/
+        run: python3 tools/sync_site_data.py
+
+      - name: Validate notebooks integrity
+        run: python3 tools/validate_notebooks.py
+
+      - name: Validate GitHub Pages structure and links
+        run: python3 tools/validate_site.py
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artifact (docs/)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "./docs"
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build-and-validate
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+

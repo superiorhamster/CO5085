@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bài tập E1–E3: Phân loại ảnh, Self-Attention &amp; Chuỗi RNN | CO5085 HCMUT</title>
+  <meta name="description" content="Chi tiết thực nghiệm chuỗi bài tập E1 (Softmax, MLP, CNN), E2 (Multi-Head Self-Attention & Tokenization) và E3 (LSTM/GRU trên chuỗi ảnh) trên Fashion-MNIST." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <!-- Sticky Header -->
+  <header class="site-header">
+    <div class="nav-inner">
+      <a href="index.html" class="brand-link">
+        <span class="brand-crest">BK</span>
+        <span class="brand-text">
+          <span class="brand-title">CO5085 • Deep Learning &amp; CV</span>
+          <span class="brand-subtitle" data-bind="course-semester">Học kỳ 261 (2026–2027)</span>
+        </span>
+      </a>
+      <nav class="nav-links" aria-label="Điều hướng chính">
+        <a href="index.html" class="nav-link">Trang chủ</a>
+        <a href="exercises.html" class="nav-link active">Bài tập E1–E3</a>
+        <a href="a1.html" class="nav-link">Bài tập lớn A1</a>
+        <a href="a2.html" class="nav-link">Bài tập lớn A2</a>
+      </nav>
+      <div class="nav-actions">
+        <button type="button" class="mode-toggle-btn js-preview-toggle">🔒 Chế độ: Chính thức</button>
+        <button type="button" id="theme-toggle-btn" class="theme-btn" aria-label="Đổi giao diện Sáng/Tối">🌙</button>
+        <a href="reports/exercises.pdf" target="_blank" rel="noopener" class="btn btn-primary btn-sm">📄 exercises.pdf ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <nav class="mobile-nav-bar" aria-label="Điều hướng di động">
+    <a href="index.html" class="nav-link">Trang chủ</a>
+    <a href="exercises.html" class="nav-link active">Bài tập E1–E3</a>
+    <a href="a1.html" class="nav-link">Bài tập lớn A1</a>
+    <a href="a2.html" class="nav-link">Bài tập lớn A2</a>
+  </nav>
+
+  <!-- Preview Mode Banner -->
+  <div id="preview-mode-banner" class="preview-banner" role="status">
+    <div class="preview-banner-inner">
+      <span>
+        <strong>⚡ Đang bật Chế độ Xem thử Bố cục (Preview Demo Mode):</strong>
+        Các số liệu gắn nhãn <code>[Demo]</code> dùng để kiểm tra biểu đồ tương tác. Số liệu chính thức sẽ tự động nạp từ <code>artifacts/{E1,E2,E3}/full/</code>.
+      </span>
+      <button type="button" class="btn btn-outline btn-sm js-preview-toggle">Chuyển về Chế độ Chính thức</button>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">CHUỖI BÀI TẬP THỰC HÀNH E1 – E3 • 40% ĐIỂM COURSEWORK</div>
+      <h1 class="serif-heading">Từ Bộ Phân Loại Tuyến Tính, CNN đến Self-Attention và Chuỗi Tuần Tự RNN trên Fashion-MNIST</h1>
+      <p class="hero-lead">
+        Ba bài tập thực hành sử dụng chung một phân chia dữ liệu phân tầng <strong>Fashion-MNIST (54,000 Train / 6,000 Val / 10,000 Test)</strong> có đối chiếu hàm băm SHA-256 và vòng lặp huấn luyện PyTorch chuẩn tự cài đặt.
+      </p>
+
+      <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
+        <a href="#e1-section" class="btn btn-primary">1. Bài tập E1 (Softmax, MLP, CNN)</a>
+        <a href="#e2-section" class="btn btn-outline">2. Bài tập E2 (MSA &amp; Tokenization)</a>
+        <a href="#e3-section" class="btn btn-outline">3. Bài tập E3 (LSTM / GRU Sequence)</a>
+        <a href="reports/exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline">📄 Báo cáo chung exercises.pdf</a>
+      </div>
+
+      <!-- Shared Protocol Summary -->
+      <div class="hero-meta-grid">
+        <div class="meta-card">
+          <div class="meta-label">Tập dữ liệu dùng chung</div>
+          <div class="meta-value">Fashion-MNIST ($28 \times 28 \times 1$)</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);">10 lớp trang phục • Chuẩn hóa theo $\mu, \sigma$ tập Train</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Phân chia &amp; Kiểm chứng SHA-256</div>
+          <div class="meta-value">54,000 / 6,000 / 10,000</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);"><code>StratifiedShuffleSplit(seed=42)</code> • <code>fashion_mnist_split_seed42.npz</code></div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Chuẩn Vòng lặp Huấn luyện</div>
+          <div class="meta-value">PyTorch Native Loop + AMP</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);">$\text{Forward} \to \mathcal{L}_{\text{CE}} \to \text{backward}() \to \text{step}()$</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Quy tắc Chọn Checkpoint</div>
+          <div class="meta-value">Best Validation Accuracy</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);">Nếu bằng nhau chọn Validation Loss thấp hơn; chỉ mở Test 1 lần</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+    <!-- ==================================================================
+         SECTION E1: SOFTMAX, MLP, CNN
+         ================================================================== -->
+    <section id="e1-section" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">BÀI TẬP E1 • HẠN NỘP: 02/11/2026 (W9) • 3 CẤU HÌNH</div>
+          <h2 class="section-title">E1 — Phân loại ảnh cơ bản: Softmax, MLP và CNN</h2>
+          <p class="section-desc">
+            Câu hỏi nghiên cứu: Việc tăng độ phức tạp từ ánh xạ tuyến tính phẳng (Softmax), mạng đa tầng phi tuyến (MLP) đến mạng tích chập có cấu trúc cục bộ 2D (CNN) cải thiện độ chính xác và làm thay đổi phân bố lỗi như thế nào?
+          </p>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <a href="https://github.com/anhpd/AllInOneAssignment/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-repo-path="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Mã nguồn E1/ ↗</a>
+          <a href="https://colab.research.google.com/github/anhpd/AllInOneAssignment/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-colab-notebook="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Chạy trên Colab ↗</a>
+        </div>
+      </div>
+
+      <!-- Architecture Cards -->
+      <div class="grid-3" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">1. Softmax Classifier</h3>
+            <span class="badge badge-ready">7,850 params</span>
+          </div>
+          <p style="font-size:0.86rem;color:var(--text-secondary);">
+            Làm phẳng ảnh $x \in \mathbb{R}^{1 \times 28 \times 28}$ thành vector $z \in \mathbb{R}^{784}$, áp dụng phép biến đổi affine duy nhất:
+            $$f(z) = W z + b, \quad W \in \mathbb{R}^{10 \times 784}$$
+          </p>
+          <div style="font-size:0.8rem;color:var(--text-muted);">
+            <strong>Đặc trưng:</strong> Biên quyết định siêu phẳng tuyến tính trong không gian pixel; nhạy cảm với mọi biến dạng dịch chuyển.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">2. MLP Classifier</h3>
+            <span class="badge badge-ready">235,146 params</span>
+          </div>
+          <p style="font-size:0.86rem;color:var(--text-secondary);">
+            Mạng truyền thẳng 2 tầng ẩn với hàm kích hoạt phi tuyến $\text{ReLU}$:
+            $$784 \xrightarrow{\text{Linear+ReLU}} 256 \xrightarrow{\text{Linear+ReLU}} 128 \xrightarrow{\text{Linear}} 10$$
+          </p>
+          <div style="font-size:0.8rem;color:var(--text-muted);">
+            <strong>Đặc trưng:</strong> Học được tổ hợp phi tuyến toàn cục giữa các điểm ảnh nhưng làm mất cấu trúc lân cận không gian 2D khi flatten.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">3. CNN Classifier</h3>
+            <span class="badge badge-completed">421,642 params</span>
+          </div>
+          <p style="font-size:0.86rem;color:var(--text-secondary);">
+            Hai khối tích chập $\text{Conv2d}(3\times 3, \text{pad}=1) \to \text{ReLU} \to \text{MaxPool2d}(2\times 2)$ (kênh $1 \to 32 \to 64$, giảm kích thước $28 \to 14 \to 7$), tiếp nối bởi head $3136 \to 128 \to 10$.
+          </p>
+          <div style="font-size:0.8rem;color:var(--text-muted);">
+            <strong>Đặc trưng:</strong> Khai thác tính cục bộ không gian, chia sẻ trọng số và bất biến dịch chuyển cục bộ.
+          </div>
+        </div>
+      </div>
+
+      <!-- E1 Quantitative Comparison Table -->
+      <div class="table-wrapper" style="margin-bottom:1.5rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Mô hình</th>
+              <th>Kiến trúc chi tiết</th>
+              <th class="num-col">Số tham số</th>
+              <th class="num-col">Dung lượng</th>
+              <th class="num-col">Val Accuracy</th>
+              <th class="num-col">Test Accuracy</th>
+              <th class="num-col">Test Loss</th>
+              <th class="num-col">Latency / ảnh</th>
+            </tr>
+          </thead>
+          <tbody id="e1-table-body"></tbody>
+        </table>
+      </div>
+
+      <!-- E1 Interactive Curve Chart & Discussion -->
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <div class="chart-box">
+          <div id="e1-chart-empty" style="display:none;padding:0.75rem;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:0.82rem;margin-bottom:0.75rem;">
+            💡 Đang ở chế độ Chính thức (chưa có file <code>artifacts/E1/full/*/history.csv</code>). Bấm nút <strong>"Chế độ: Xem thử biểu đồ"</strong> trên thanh điều hướng để kiểm tra đồ thị đường cong học tập.
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="e1-chart-canvas"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.75rem;">Phân tích Chuyên sâu &amp; Error Analysis (E1)</h3>
+          <ul style="font-size:0.86rem;color:var(--text-secondary);padding-left:1.15rem;margin:0;display:flex;flex-direction:column;gap:0.55rem;">
+            <li><strong>Underfitting vs Overfitting:</strong> <code>softmax</code> bão hòa sớm (cả train và val accuracy đều thấp ~84–85%) do giới hạn biểu diễn tuyến tính. <code>mlp</code> và <code>cnn</code> đạt train accuracy cao hơn nhiều; trong đó <code>cnn</code> giữ khoảng cách tổng quát hóa (generalization gap) tốt hơn nhờ inductive bias tích chập.</li>
+            <li><strong>Các cặp lớp nhầm lẫn điển hình:</strong> Trên ma trận nhầm lẫn 10 lớp của Fashion-MNIST, nhóm trang phục thân trên (<code>T-shirt/top</code>, <code>Pullover</code>, <code>Coat</code>, <code>Shirt</code>) có hình dáng bao ngoài (silhouette) rất giống nhau ở ảnh xám $28\times 28$, gây ra phần lớn lỗi phân loại.</li>
+            <li><strong>Ưu thế của CNN trước MLP:</strong> CNN nhận diện tốt các chi tiết cấu trúc cục bộ như cổ áo, khóa kéo, cổ giày (phân biệt rõ <code>Sneaker</code>, <code>Sandal</code>, <code>Ankle boot</code>), nhưng vẫn có thể nhầm các mẫu <code>Shirt</code> vs <code>T-shirt/top</code> khi độ phân giải $28\times 28$ làm mờ ranh giới tay áo.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 style="font-size:1.05rem;margin-bottom:0.75rem;">Trực quan hóa Artifacts E1 (Curves, Confusion Matrix &amp; High-Confidence Failures)</h3>
+      <div id="e1-artifact-gallery" class="artifact-grid"></div>
+    </section>
+
+    <!-- ==================================================================
+         SECTION E2: MULTI-HEAD SELF-ATTENTION & TOKENIZATION
+         ================================================================== -->
+    <section id="e2-section" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">BÀI TẬP E2 • HẠN NỘP: 02/11/2026 (W9) • 6 CẤU HÌNH (2 × 3 MATRIX)</div>
+          <h2 class="section-title">E2 — Multi-Head Self-Attention (Scratch vs PyTorch) &amp; Chiến lược Tokenization</h2>
+          <p class="section-desc">
+            Hiện thực cơ chế Multi-Head Self-Attention từ các phép toán ma trận cơ bản, kiểm chứng tương đương số học tuyệt đối với <code>nn.MultiheadAttention</code>, và khảo sát 3 phương pháp trích xuất token từ ảnh.
+          </p>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <a href="https://github.com/anhpd/AllInOneAssignment/blob/main/E2/e2_attention_tokenization.ipynb" data-repo-path="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Mã nguồn E2/ ↗</a>
+          <a href="https://colab.research.google.com/github/anhpd/AllInOneAssignment/blob/main/E2/e2_attention_tokenization.ipynb" data-colab-notebook="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Chạy trên Colab ↗</a>
+        </div>
+      </div>
+
+      <!-- Mathematical & Numerical Verification Box -->
+      <div class="callout callout-teal" style="margin-bottom:1.5rem;">
+        <div class="callout-title">🔬 Công thức Toán học &amp; Kiểm chứng Tương đương Số học (Numerical Equivalence Check)</div>
+        <p style="font-size:0.88rem;color:var(--text-secondary);margin:0 0 0.5rem;">
+          Trong <code>ScratchMSA</code>, đầu vào $X \in \mathbb{R}^{B \times N \times D}$ ($D=64, H=4, d_k = D/H = 16$) được chiếu qua tầng tuyến tính gộp $W_{qkv} \in \mathbb{R}^{D \times 3D}$, tách thành $Q, K, V \in \mathbb{R}^{B \times H \times N \times d_k}$ và tính:
+          $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V, \qquad \text{MSA}(X) = \text{ reshape}\big(\text{Attention}(Q,K,V)\big) W_{\text{out}}$$
+        </p>
+        <p style="font-size:0.86rem;color:var(--text-secondary);margin:0;">
+          <strong>Quy trình đối chiếu trước khi huấn luyện:</strong> Hàm <code>copy_attention(scratch, torch_msa)</code> sao chép trực tiếp trọng số sang <code>nn.MultiheadAttention</code>. Trên CPU FP32, phép kiểm tra <code>torch.testing.assert_close(..., atol=1e-5, rtol=1e-4)</code> xác nhận cả 3 đại lượng: <strong>(1) Output tensor $Y$</strong>, <strong>(2) Input gradient $\nabla_X \mathcal{L}$</strong> và <strong>(3) Parameter gradients $\nabla_{W} \mathcal{L}$</strong> trùng khớp hoàn toàn.
+        </p>
+      </div>
+
+      <!-- 3 Tokenization Strategies Cards -->
+      <div class="grid-3" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Tokenizer 1: Patch-based</h3>
+            <span class="badge badge-ready">N = 49 tokens</span>
+          </div>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin:0;">
+            Chia ảnh $28\times 28$ thành lưới $7\times 7$ ô vuông không chồng lấn kích thước $4\times 4$ bằng <code>F.unfold(kernel_size=4, stride=4)</code>. Mỗi patch 16 chiều được chiếu tuyến tính <code>Linear(16 → 64)</code>. Ma trận chú ý có kích thước $49 \times 49$.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Tokenizer 2: Row-based</h3>
+            <span class="badge badge-ready">N = 28 tokens</span>
+          </div>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin:0;">
+            Xem mỗi hàng ngang 28 điểm ảnh là một token độc lập, chiếu qua <code>Linear(28 → 64)</code>. Giảm độ dài chuỗi xuống $N=28$ (ma trận chú ý chỉ $28\times 28$, nhanh và tốn ít bộ nhớ nhất) nhưng gộp cứng thông tin theo phương ngang.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Tokenizer 3: CNN-Stem</h3>
+            <span class="badge badge-completed">N = 49 tokens</span>
+          </div>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin:0;">
+            Đưa ảnh qua 2 tầng tích chập có bước nhảy <code>stride=2</code>: $\text{Conv}(1\to 32, 3\times 3, s=2) \to \text{ReLU} \to \text{Conv}(32\to 64, 3\times 3, s=2) \to \text{ReLU}$, thu được bản đồ đặc trưng $64 \times 7 \times 7$ ($49$ spatial tokens), kết hợp lợi thế cục bộ của CNN và toàn cục của MSA.
+          </p>
+        </div>
+      </div>
+
+      <!-- Interactive Filter Bar for E2 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <span style="font-size:0.82rem;font-weight:600;color:var(--text-secondary);">Lọc Backend:</span>
+          <div class="pill-group">
+            <button type="button" class="pill-btn active" data-e2-backend="all">Tất cả (2)</button>
+            <button type="button" class="pill-btn" data-e2-backend="scratch">ScratchMSA</button>
+            <button type="button" class="pill-btn" data-e2-backend="torch">TorchMSA</button>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <span style="font-size:0.82rem;font-weight:600;color:var(--text-secondary);">Lọc Tokenizer:</span>
+          <div class="pill-group">
+            <button type="button" class="pill-btn active" data-e2-tokenizer="all">Tất cả (3)</button>
+            <button type="button" class="pill-btn" data-e2-tokenizer="patch">Patch (49)</button>
+            <button type="button" class="pill-btn" data-e2-tokenizer="row">Row (28)</button>
+            <button type="button" class="pill-btn" data-e2-tokenizer="cnn">CNN-Stem (49)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrapper" style="margin-bottom:1.5rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Experiment ID</th>
+              <th>Attention Backend</th>
+              <th>Chiến lược Tokenization</th>
+              <th class="num-col">Số tham số</th>
+              <th class="num-col">Val Accuracy</th>
+              <th class="num-col">Test Accuracy</th>
+              <th class="num-col">Latency / ảnh</th>
+              <th class="num-col">Peak GPU Memory</th>
+            </tr>
+          </thead>
+          <tbody id="e2-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-canvas-wrap">
+          <canvas id="e2-chart-canvas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         SECTION E3: LSTM / GRU SEQUENCE MODELING
+         ================================================================== -->
+    <section id="e3-section" class="section" style="border-bottom:none;">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">BÀI TẬP E3 • HẠN NỘP: 09/11/2026 (W10) • 4 CẤU HÌNH RNN + 2 BASELINE E1</div>
+          <h2 class="section-title">E3 — Mô hình hóa ảnh dưới dạng chuỗi bằng LSTM &amp; GRU</h2>
+          <p class="section-desc">
+            Khảo sát khả năng nắm bắt phụ thuộc không gian khi ép ảnh 2D thành chuỗi 1D tuần tự qua <code>nn.LSTM</code> và <code>nn.GRU</code>, đối chiếu trực tiếp với baseline không hồi quy (MLP &amp; CNN từ E1).
+          </p>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <a href="https://github.com/anhpd/AllInOneAssignment/blob/main/E3/e3_sequence_models.ipynb" data-repo-path="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Mã nguồn E3/ ↗</a>
+          <a href="https://colab.research.google.com/github/anhpd/AllInOneAssignment/blob/main/E3/e3_sequence_models.ipynb" data-colab-notebook="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Chạy trên Colab ↗</a>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.5rem;">Biểu diễn Chuỗi &amp; Kiến trúc Hồi quy</h3>
+          <p style="font-size:0.86rem;color:var(--text-secondary);">
+            Ảnh $x \in \mathbb{R}^{1 \times 28 \times 28}$ được chuyển thành chuỗi $S \in \mathbb{R}^{T \times D}$ theo 2 cách:
+          </p>
+          <ul style="font-size:0.85rem;color:var(--text-secondary);padding-left:1.15rem;">
+            <li><strong>Row Sequence ($T=28, D=28$):</strong> Quét từ hàng trên cùng xuống hàng dưới cùng; mỗi bước thời gian $t$ nhận 1 dòng ngang 28 điểm ảnh.</li>
+            <li><strong>Patch Sequence ($T=49, D=16$):</strong> Quét theo thứ tự raster (trái sang phải, trên xuống dưới) qua 49 ô vuông $4\times 4$. Chuỗi dài gấp $1.75\times$ so với biểu diễn hàng.</li>
+          </ul>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0;">
+            Trạng thái ẩn cuối cùng $h_T \in \mathbb{R}^{128}$ của mạng 1 chiều 1 tầng (<code>hidden_size=128</code>, <code>grad_clip=1.0</code>) đi qua tầng phân loại <code>Linear(128 → 10)</code>.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.5rem;">Kiểm tra Provenance khi Nhập Baseline E1</h3>
+          <p style="font-size:0.86rem;color:var(--text-secondary);">
+            Để đảm bảo tính công bằng khoa học tuyệt đối, hàm <code>load_e1_baseline()</code> trong notebook E3 chỉ chấp nhận kết quả <code>mlp</code> và <code>cnn</code> từ E1 khi thỏa mãn đồng thời 3 điều kiện:
+          </p>
+          <ol style="font-size:0.85rem;color:var(--text-secondary);padding-left:1.15rem;margin-bottom:0;">
+            <li><code>config["split_hash"] == SPLIT_HASH</code> (khớp tuyệt đối mã SHA-256 của 54k train / 6k val).</li>
+            <li><code>config["seed"] == 42</code>.</li>
+            <li><code>metrics["run_mode"] == "full"</code> (loại trừ hoàn toàn kết quả chạy thử <code>smoke</code>).</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="table-wrapper" style="margin-bottom:1.5rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Experiment ID</th>
+              <th>Loại Mô hình</th>
+              <th>Biểu diễn Đầu vào</th>
+              <th class="num-col">Số tham số</th>
+              <th class="num-col">Val Accuracy</th>
+              <th class="num-col">Test Accuracy</th>
+              <th class="num-col">Latency / ảnh</th>
+            </tr>
+          </thead>
+          <tbody id="e3-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-canvas-wrap">
+          <canvas id="e3-chart-canvas"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Native Dialog Lightbox -->
+  <dialog id="artifact-lightbox" class="lightbox-dialog">
+    <div class="lightbox-header">
+      <strong id="lightbox-title">Chi tiết biểu đồ thực nghiệm</strong>
+      <button type="button" id="lightbox-close-btn" class="btn btn-outline btn-sm">✕ Đóng</button>
+    </div>
+    <div class="lightbox-body">
+      <img id="lightbox-img" src="" alt="Artifact preview" />
+    </div>
+  </dialog>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div style="font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">
+          CO5085 — Chuỗi Bài tập Thực hành E1, E2, E3
+        </div>
+        <div>Khoa Khoa học và Kỹ thuật Máy tính • Trường Đại học Bách Khoa – ĐHQG TP.HCM</div>
+      </div>
+      <div style="display:flex;gap:1.25rem;flex-wrap:wrap;">
+        <a href="index.html">Trang chủ</a>
+        <a href="exercises.html">Bài tập E1–E3</a>
+        <a href="a1.html">Bài tập lớn A1</a>
+        <a href="a2.html">Bài tập lớn A2</a>
+        <a href="reports/exercises.pdf" target="_blank" rel="noopener">📄 exercises.pdf</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/fallback_data.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script defer src="assets/js/site.js"></script>
+</body>
+</html>
+

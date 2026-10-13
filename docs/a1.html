@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bài tập lớn A1: CNN (ResNet-18) vs Transformer (DeiT-Tiny) trên CIFAR-100 | CO5085</title>
+  <meta name="description" content="Báo cáo thực nghiệm Bài tập lớn A1 môn CO5085: So sánh ResNet-18 và DeiT-Tiny qua 4 chế độ huấn luyện (Scratch, Head-Only, Partial Freeze, Full Fine-Tune) trên CIFAR-100." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <!-- Sticky Header -->
+  <header class="site-header">
+    <div class="nav-inner">
+      <a href="index.html" class="brand-link">
+        <span class="brand-crest">BK</span>
+        <span class="brand-text">
+          <span class="brand-title">CO5085 • Deep Learning &amp; CV</span>
+          <span class="brand-subtitle" data-bind="course-semester">Học kỳ 261 (2026–2027)</span>
+        </span>
+      </a>
+      <nav class="nav-links" aria-label="Điều hướng chính">
+        <a href="index.html" class="nav-link">Trang chủ</a>
+        <a href="exercises.html" class="nav-link">Bài tập E1–E3</a>
+        <a href="a1.html" class="nav-link active">Bài tập lớn A1</a>
+        <a href="a2.html" class="nav-link">Bài tập lớn A2</a>
+      </nav>
+      <div class="nav-actions">
+        <button type="button" class="mode-toggle-btn js-preview-toggle">🔒 Chế độ: Chính thức</button>
+        <button type="button" id="theme-toggle-btn" class="theme-btn" aria-label="Đổi giao diện Sáng/Tối">🌙</button>
+        <a href="reports/assignment1.pdf" target="_blank" rel="noopener" class="btn btn-primary btn-sm">📄 assignment1.pdf ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <nav class="mobile-nav-bar" aria-label="Điều hướng di động">
+    <a href="index.html" class="nav-link">Trang chủ</a>
+    <a href="exercises.html" class="nav-link">Bài tập E1–E3</a>
+    <a href="a1.html" class="nav-link active">Bài tập lớn A1</a>
+    <a href="a2.html" class="nav-link">Bài tập lớn A2</a>
+  </nav>
+
+  <!-- Preview Banner -->
+  <div id="preview-mode-banner" class="preview-banner" role="status">
+    <div class="preview-banner-inner">
+      <span>
+        <strong>⚡ Đang bật Chế độ Xem thử Bố cục (Preview Demo Mode):</strong>
+        Các số liệu gắn nhãn <code>[Demo]</code> dùng để kiểm tra biểu đồ tương tác. Số liệu chính thức tự động nạp từ <code>artifacts/A1/full/*/metrics.json</code>.
+      </span>
+      <button type="button" class="btn btn-outline btn-sm js-preview-toggle">Chuyển về Chế độ Chính thức</button>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">BÀI TẬP LỚN A1 • 30% ĐIỂM COURSEWORK • MA TRẬN 8 THÍ NGHIỆM</div>
+      <h1 class="serif-heading">So sánh Toàn diện Kiến trúc CNN (ResNet-18) và Vision Transformer (DeiT-Tiny) trên CIFAR-100</h1>
+      <p class="hero-lead">
+        Khảo sát sự đánh đổi giữa <strong>Inductive Bias cục bộ của tích chập</strong> và <strong>Cơ chế Chú ý Toàn cục (Global Self-Attention)</strong> qua 4 chế độ huấn luyện: <code>scratch</code>, <code>head_only</code>, <code>partial</code> freeze và <code>full</code> fine-tune dưới cùng ngân sách 20 epoch.
+      </p>
+
+      <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
+        <a href="#milestone-a1-1" class="btn btn-primary">Mốc A1.1: Dataset &amp; Protocol</a>
+        <a href="#freeze-inspector" class="btn btn-outline">Sơ đồ Freeze Strategies</a>
+        <a href="#milestone-a1-2" class="btn btn-outline">Mốc A1.2: Bảng Kết quả &amp; Biểu đồ</a>
+        <a href="https://github.com/anhpd/AllInOneAssignment/blob/main/A1/a1_cnn_vs_transformer.ipynb" data-repo-path="A1/a1_cnn_vs_transformer.ipynb" target="_blank" rel="noopener" class="btn btn-outline">Mã nguồn A1/ ↗</a>
+        <a href="https://colab.research.google.com/github/anhpd/AllInOneAssignment/blob/main/A1/a1_cnn_vs_transformer.ipynb" data-colab-notebook="A1/a1_cnn_vs_transformer.ipynb" target="_blank" rel="noopener" class="btn btn-outline">Open in Colab ↗</a>
+        <a href="reports/assignment1.pdf" target="_blank" rel="noopener" class="btn btn-outline">📄 Báo cáo assignment1.pdf</a>
+      </div>
+
+      <div class="hero-meta-grid">
+        <div class="meta-card">
+          <div class="meta-label">Tập dữ liệu &amp; Phân chia</div>
+          <div class="meta-value">CIFAR-100 (100 lớp)</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);">45,000 Train / 5,000 Val / 10,000 Test (<code>seed=42</code>)</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Hai Kiến trúc Đối chiếu (timm)</div>
+          <div class="meta-value">ResNet-18 vs DeiT-Tiny</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);"><code>resnet18.a1_in1k</code> (11.2M) • <code>deit_tiny_patch16_224.fb_in1k</code> (5.5M)</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Ngân sách &amp; Tối ưu hóa</div>
+          <div class="meta-value">20 Epochs • Effective Batch 64</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);">Batch 32 × Accum 2 • AdamW + Cosine LR (Warmup 2 ep)</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Các mốc đánh giá</div>
+          <div class="meta-value">A1.1 (26/10) &amp; A1.2 (09/11)</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);">A1.1: 25% điểm A1 • A1.2: 75% điểm A1</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+    <!-- ==================================================================
+         SECTION 1: MILESTONE A1.1 — DATASET, EDA & PROTOCOL
+         ================================================================== -->
+    <section id="milestone-a1-1" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">MỐC A1.1 (25% ĐIỂM A1) • HẠN NỘP: 26/10/2026 (W8)</div>
+          <h2 class="section-title">Thiết kế Tập dữ liệu CIFAR-100, EDA &amp; Giao thức Tiền xử lý</h2>
+          <p class="section-desc">
+            Lựa chọn CIFAR-100 để kiểm nghiệm khả năng phân biệt 100 lớp chi tiết (fine-grained classes) khi số mẫu mỗi lớp ở mức trung bình (450 ảnh train/lớp), nơi sự khác biệt giữa học từ đầu và chuyển giao tri thức (transfer learning) bộc lộ rõ nhất.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:1.25rem;">
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.5rem;">1. Đặc tả Tập dữ liệu, Bản quyền &amp; Chia tách Phân tầng</h3>
+          <ul style="font-size:0.86rem;color:var(--text-secondary);padding-left:1.15rem;margin:0;display:flex;flex-direction:column;gap:0.45rem;">
+            <li><strong>Nguồn gốc &amp; Trích dẫn:</strong> Bộ dữ liệu công khai học thuật <em>Learning Multiple Layers of Features from Tiny Images</em> (Alex Krizhevsky, 2009, University of Toronto).</li>
+            <li><strong>Cấu trúc phân bố nhãn (EDA):</strong> Gồm 100 lớp cân bằng tuyệt đối. Tập huấn luyện gốc (50,000 ảnh) được chia bằng <code>StratifiedShuffleSplit(test_size=5000, random_state=42)</code> thành:
+              <ul>
+                <li><strong>Train set:</strong> 45,000 ảnh (đúng 450 ảnh / lớp).</li>
+                <li><strong>Validation set:</strong> 5,000 ảnh (đúng 50 ảnh / lớp).</li>
+                <li><strong>Official Test set:</strong> 10,000 ảnh (đúng 100 ảnh / lớp).</li>
+              </ul>
+            </li>
+            <li><strong>Kiểm chứng bất biến dữ liệu:</strong> Mảng chỉ số được lưu vào <code>cifar100_split_seed42.npz</code> và kiểm tra khớp mã băm <code>SPLIT_HASH</code> SHA-256 trước mọi lần chạy.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.5rem;">2. Pipeline Augmentation &amp; Chuẩn hóa Đầu vào $224 \times 224$</h3>
+          <p style="font-size:0.86rem;color:var(--text-secondary);margin-top:0;">
+            Để tương thích trực tiếp với cấu trúc positional embedding ($14\times 14$ patches kích thước $16\times 16$) của <code>deit_tiny_patch16_224</code> và receptive field của <code>resnet18</code> pretrained trên ImageNet-1K:
+          </p>
+          <pre style="margin:0.5rem 0;"><code># Train Transform
+transforms.Compose([
+    transforms.RandomCrop(32, padding=4),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.Resize((224, 224), antialias=True),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=(0.485, 0.456, 0.406),
+                         std=(0.229, 0.224, 0.225)),
+])</code></pre>
+          <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">
+            <em>Lưu ý kỹ thuật:</em> Phép cắt ngẫu nhiên <code>RandomCrop(32, padding=4)</code> thực hiện ở độ phân giải gốc $32\times 32$ trước khi nội suy song tuyến có khử răng cưa (<code>antialias=True</code>) lên $224\times 224$.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         SECTION 2: INTERACTIVE FREEZE STRATEGY & INVARIANT INSPECTOR
+         ================================================================== -->
+    <section id="freeze-inspector" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">KIẾN TRÚC &amp; CHIẾN LƯỢC CAN THIỆP TRỌNG SỐ</div>
+          <h2 class="section-title">Trình khám phá Tương tác: 4 Chiến lược Huấn luyện &amp; Đóng băng (Freeze Strategies)</h2>
+          <p class="section-desc">
+            Chọn họ mô hình và chiến lược bên dưới để xem trực quan các khối tầng được mở khóa (<code>requires_grad=True</code>) hay đóng băng kèm chế độ <code>module.eval()</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.25rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.75rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-size:0.84rem;font-weight:600;">Họ kiến trúc:</span>
+            <div class="pill-group">
+              <button type="button" class="pill-btn active" data-inspector-family="resnet18">CNN: ResNet-18</button>
+              <button type="button" class="pill-btn" data-inspector-family="deit_tiny">Transformer: DeiT-Tiny</button>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-size:0.84rem;font-weight:600;">Chiến lược:</span>
+            <div class="pill-group">
+              <button type="button" class="pill-btn" data-inspector-strategy="scratch">1. From Scratch</button>
+              <button type="button" class="pill-btn" data-inspector-strategy="head_only">2. Freeze Backbone (Head-Only)</button>
+              <button type="button" class="pill-btn active" data-inspector-strategy="partial">3. Partial Freeze</button>
+              <button type="button" class="pill-btn" data-inspector-strategy="full">4. Full Fine-Tune</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="a1-freeze-diagram"></div>
+      </div>
+
+      <div class="callout callout-teal">
+        <div class="callout-title">🛡️ Kiểm chứng Bất biến Trọng số Đóng băng &amp; Thống kê BatchNorm (<code>verify_freeze_invariant</code>)</div>
+        <p style="font-size:0.86rem;color:var(--text-secondary);margin:0;">
+          Trong PyTorch, chỉ đặt <code>param.requires_grad = False</code> là <strong>chưa đủ</strong> đối với mạng chứa <code>BatchNorm2d</code> như ResNet-18: nếu để <code>model.train()</code> toàn cục, các buffer <code>running_mean</code> và <code>running_var</code> của các khối đóng băng vẫn bị cập nhật làm trôi phân bố đặc trưng pretrained. Do đó, hàm <code>enforce_frozen_eval(model)</code> tự động chuyển mọi module con không có tham số khả huấn luyện về chế độ <code>.eval()</code>, và hàm <code>verify_freeze_invariant()</code> chạy thử 1 bước cập nhật trước khi train để khẳng định <code>rtol=0, atol=0</code> trên toàn bộ tham số lẫn buffer đóng băng.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         SECTION 3: MILESTONE A1.2 — 8-RUN MATRIX RESULTS & CHARTS
+         ================================================================== -->
+    <section id="milestone-a1-2" class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">MỐC A1.2 (75% ĐIỂM A1) • HẠN NỘP: 09/11/2026 (W10)</div>
+          <h2 class="section-title">Bảng Tổng hợp Ma trận 8 Thí nghiệm &amp; Đồ thị So sánh</h2>
+          <p class="section-desc">
+            Đối chiếu độ chính xác (Val/Test Accuracy), Macro-F1, tỷ lệ tham số huấn luyện, độ trễ suy luận (Latency) và dung lượng bộ nhớ GPU đỉnh (Peak VRAM).
+          </p>
+        </div>
+      </div>
+
+      <!-- Filter controls -->
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <span style="font-size:0.82rem;font-weight:600;color:var(--text-secondary);">Họ kiến trúc:</span>
+          <div class="pill-group">
+            <button type="button" class="pill-btn active" data-a1-family="all">Tất cả (8)</button>
+            <button type="button" class="pill-btn" data-a1-family="resnet18">ResNet-18 (4)</button>
+            <button type="button" class="pill-btn" data-a1-family="deit_tiny">DeiT-Tiny (4)</button>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <span style="font-size:0.82rem;font-weight:600;color:var(--text-secondary);">Chế độ:</span>
+          <div class="pill-group">
+            <button type="button" class="pill-btn active" data-a1-strategy="all">Tất cả</button>
+            <button type="button" class="pill-btn" data-a1-strategy="scratch">Scratch</button>
+            <button type="button" class="pill-btn" data-a1-strategy="head_only">Head-Only</button>
+            <button type="button" class="pill-btn" data-a1-strategy="partial">Partial</button>
+            <button type="button" class="pill-btn" data-a1-strategy="full">Full Fine-Tune</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrapper" style="margin-bottom:1.5rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Experiment ID</th>
+              <th>Họ Mô hình</th>
+              <th>Chiến lược Huấn luyện</th>
+              <th class="num-col">Trainable / Total Params</th>
+              <th class="num-col">Val Accuracy</th>
+              <th class="num-col">Test Accuracy</th>
+              <th class="num-col">Macro-F1</th>
+              <th class="num-col">Latency / ảnh</th>
+              <th class="num-col">Peak VRAM</th>
+            </tr>
+          </thead>
+          <tbody id="a1-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <div class="chart-box">
+          <div class="chart-canvas-wrap">
+            <canvas id="a1-acc-chart"></canvas>
+          </div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-canvas-wrap">
+            <canvas id="a1-mem-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deep Discussion Box -->
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.5rem;">1. Tại sao ViT phụ thuộc mạnh vào Pretraining hơn CNN?</h3>
+          <p style="font-size:0.86rem;color:var(--text-secondary);margin:0;">
+            Khi huấn luyện từ đầu (<code>scratch</code>) trong ngân sách 20 epoch trên 45,000 ảnh CIFAR-100, <strong>ResNet-18</strong> hội tụ nhanh hơn đáng kể nhờ <em>inductive bias</em> tích chập (tính cục bộ 2D và bất biến dịch chuyển được cài cứng vào kiến trúc). Ngược lại, <strong>DeiT-Tiny</strong> phải tự học quan hệ không gian giữa 196 patch tokens từ con số 0. Tuy nhiên, khi nạp trọng số <code>pretrained</code> trên ImageNet-1K, các head chú ý của DeiT-Tiny đã sở hữu biểu diễn hình học đa tỷ lệ và phát huy khả năng kết nối ngữ cảnh toàn cục ở chế độ <code>partial</code> và <code>full</code> fine-tune.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.5rem;">2. Đánh đổi giữa Head-Only, Partial Freeze và Full Fine-Tune</h3>
+          <p style="font-size:0.86rem;color:var(--text-secondary);margin:0;">
+            <code>head_only</code> chỉ huấn luyện $\le 0.46\%$ tổng tham số, giảm hơn một nửa thời gian mỗi epoch và bộ nhớ GPU (do không cần lưu activation trung gian của backbone cho backward pass), nhưng bị giới hạn bởi khoảng cách miền (domain gap) từ ảnh $32\times 32$ phóng đại lên $224\times 224$. Chế độ <code>partial</code> (mở <code>layer4</code> ở ResNet hoặc <code>blocks.10..11</code> ở DeiT) thu hẹp phần lớn khoảng cách độ chính xác so với <code>full</code> với chi phí tài nguyên thấp hơn đáng kể.
+          </p>
+        </div>
+      </div>
+
+      <h3 style="font-size:1.05rem;margin-bottom:0.75rem;">Trực quan hóa Artifacts A1 (Learning Curves, Confusion Matrix 100 lớp &amp; Failure Cases)</h3>
+      <div id="a1-artifact-gallery" class="artifact-grid"></div>
+    </section>
+
+    <!-- ==================================================================
+         SECTION 4: VIDEO DEMO & REPRODUCIBILITY
+         ================================================================== -->
+    <section id="a1-demo" class="section" style="border-bottom:none;">
+      <div class="section-header">
+        <div>
+          <div class="section-kicker">VIDEO DEMO &amp; TÁI LẬP THỰC NGHIỆM</div>
+          <h2 class="section-title">Video Minh họa &amp; Hướng dẫn Chạy lại</h2>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.5rem;">🎥 Video Demo Bài tập lớn A1</h3>
+          <p style="font-size:0.86rem;color:var(--text-secondary);">
+            Trình bày quy trình kiểm tra <code>verify_freeze_invariant</code>, quá trình huấn luyện ma trận 8 cấu hình và phân tích các mẫu dự đoán sai có độ tự tin cao trên CIFAR-100.
+          </p>
+          <div style="padding:1.25rem;background:var(--bg-tertiary);border-radius:var(--radius-md);text-align:center;font-size:0.84rem;color:var(--text-muted);">
+            🔗 Cập nhật đường dẫn YouTube / Google Drive tại trường <code>media.a1_demo_video_url</code> trong file <code>docs/data/site_config.json</code>.
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:0.5rem;">⚙️ Lệnh Tái lập &amp; Đánh giá Checkpoint A1</h3>
+          <pre style="margin:0;"><code># Chạy đánh giá lại từ best.pt mà không cần huấn luyện lại:
+export CO5085_RUN_MODE="full"
+export CO5085_EVALUATE_ONLY="1"
+
+# Đồng bộ kết quả từ artifacts/A1/full/ lên trang web:
+python3 tools/sync_site_data.py --artifacts-dir ./artifacts</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Lightbox Dialog -->
+  <dialog id="artifact-lightbox" class="lightbox-dialog">
+    <div class="lightbox-header">
+      <strong id="lightbox-title">Chi tiết biểu đồ thực nghiệm A1</strong>
+      <button type="button" id="lightbox-close-btn" class="btn btn-outline btn-sm">✕ Đóng</button>
+    </div>
+    <div class="lightbox-body">
+      <img id="lightbox-img" src="" alt="Artifact preview" />
+    </div>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div style="font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">
+          CO5085 — Bài tập lớn A1: CNN vs Vision Transformer trên CIFAR-100
+        </div>
+        <div>Khoa Khoa học và Kỹ thuật Máy tính • Trường Đại học Bách Khoa – ĐHQG TP.HCM</div>
+      </div>
+      <div style="display:flex;gap:1.25rem;flex-wrap:wrap;">
+        <a href="index.html">Trang chủ</a>
+        <a href="exercises.html">Bài tập E1–E3</a>
+        <a href="a1.html">Bài tập lớn A1</a>
+        <a href="a2.html">Bài tập lớn A2</a>
+        <a href="reports/assignment1.pdf" target="_blank" rel="noopener">📄 assignment1.pdf</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/fallback_data.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script defer src="assets/js/site.js"></script>
+</body>
+</html>
+
