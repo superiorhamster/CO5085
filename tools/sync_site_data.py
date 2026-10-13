@@ -6,7 +6,7 @@ This script strictly adheres to plans/00_conventions.md:
 - Only ingests artifacts from `full` runs (`run_mode == "full"`). Smoke runs are excluded.
 - Copies generated plots (curves.png, confusion_matrix.png, failures.png, denoising_trace.png,
   preview_step_*.png) into docs/assets/artifacts/<assignment>/<experiment_id>/.
-- Ensures valid placeholder PDFs exist in reports/ and docs/reports/ so links never 404.
+- Mirrors reports into docs/reports/ and records whether they are placeholders.
 """
 
 from __future__ import annotations
@@ -501,14 +501,58 @@ def read_csv_rows(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def sync_experiment_artifacts(artifacts_root: Path) -> dict[str, Any]:
+PRIVATE_CONFIG_KEYS = {"data_root", "output_root", "celeba_root", "resume_from"}
+
+
+def valid_full_run(assignment: str, experiment_id: str, run_dir: Path) -> bool:
+    """Verify the minimum provenance required before publishing a run."""
+    metrics = read_json_safe(run_dir / "metrics.json")
+    config = read_json_safe(run_dir / "config.json")
+    return bool(
+        metrics
+        and config
+        and metrics.get("run_mode") == "full"
+        and config.get("run_mode") == "full"
+        and config.get("assignment") == assignment
+        and config.get("experiment_id") == experiment_id
+    )
+
+
+def public_config(config: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Remove local filesystem and resume paths from data published on GitHub Pages."""
+    if config is None:
+        return None
+    return {key: value for key, value in config.items() if key not in PRIVATE_CONFIG_KEYS}
+
+
+def count_full_runs(artifacts_root: Path) -> int:
+    """Count valid full-run metric files without modifying published site data."""
+    count = 0
+    for assignment, spec in EXPERIMENT_SPECS.items():
+        for experiment in spec["experiments"]:
+            run_dir = artifacts_root / assignment / "full" / experiment["id"]
+            if valid_full_run(assignment, experiment["id"], run_dir):
+                count += 1
+    return count
+
+
+def sync_experiment_artifacts(artifacts_root: Path, *, allow_empty: bool = False) -> dict[str, Any]:
     """Scan artifacts_root/<assignment>/full/<experiment_id>/ and copy plots + metrics."""
+    valid_run_count = count_full_runs(artifacts_root)
+    if valid_run_count == 0 and not allow_empty:
+        raise RuntimeError(
+            f"No valid full-run metrics found under {artifacts_root}. "
+            "Refusing to overwrite published data; pass --allow-empty only when bootstrapping the site."
+        )
+
+    if ARTIFACTS_OUT_DIR.exists():
+        shutil.rmtree(ARTIFACTS_OUT_DIR)
     ARTIFACTS_OUT_DIR.mkdir(parents=True, exist_ok=True)
     DATA_OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     manifest: dict[str, Any] = {
         "generated_at": dt.datetime.now(tz=dt.timezone.utc).isoformat(),
-        "artifacts_root": str(artifacts_root),
+        "artifact_source": "local full-run export",
         "conventions": {
             "seed": 42,
             "fashion_mnist_split": "54,000 train / 6,000 val / 10,000 test (StratifiedShuffleSplit, seed=42, SHA-256 verified)",
@@ -536,8 +580,8 @@ def sync_experiment_artifacts(artifacts_root: Path) -> dict[str, Any]:
             environment = read_json_safe(run_dir / "environment.json")
             history = read_csv_rows(run_dir / "history.csv")
 
-            # Enforce plans/00_conventions.md: only accept run_mode == "full"
-            is_valid_full = bool(metrics and metrics.get("run_mode") == "full")
+            # Enforce full mode and artifact provenance before publishing a run.
+            is_valid_full = valid_full_run(assignment, exp_id, run_dir)
 
             copied_images: dict[str, str] = {}
             if is_valid_full and run_dir.exists():
@@ -564,7 +608,7 @@ def sync_experiment_artifacts(artifacts_root: Path) -> dict[str, Any]:
                 **exp_spec,
                 "has_full_metrics": is_valid_full,
                 "metrics": metrics if is_valid_full else None,
-                "config": config if is_valid_full else None,
+                "config": public_config(config) if is_valid_full else None,
                 "environment": environment if is_valid_full else None,
                 "history": history if is_valid_full else [],
                 "images": copied_images,
@@ -606,9 +650,14 @@ def main() -> None:
         default=default_artifacts,
         help="Path to output_root containing <assignment>/full/<experiment_id>/",
     )
+    parser.add_argument(
+        "--allow-empty",
+        action="store_true",
+        help="Allow a zero-run manifest when bootstrapping the site (never use after publishing results).",
+    )
     args = parser.parse_args()
 
-    manifest = sync_experiment_artifacts(args.artifacts_dir)
+    manifest = sync_experiment_artifacts(args.artifacts_dir, allow_empty=args.allow_empty)
     print(
         f"Synced site data -> docs/data/experiments_manifest.json "
         f"(completed full runs: {manifest['total_completed_full_experiments']}/"

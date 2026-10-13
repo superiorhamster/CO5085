@@ -12,7 +12,7 @@
 
   --text-primary: #0f172a;
   --text-secondary: #334155;
-  --text-muted: #64748b;
+  --text-muted: #5b6b82;
   --text-on-brand: #ffffff;
 
   --brand-primary: #0b57d0;
@@ -36,7 +36,7 @@
   --radius-lg: 14px;
   --radius-xl: 20px;
 
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
 
@@ -176,20 +176,29 @@ a:hover {
   color: var(--text-primary);
 }
 
-.brand-crest {
-  width: 38px;
-  height: 38px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, #0b57d0, #1e3a8a);
-  color: #ffffff;
+.brand,
+.brand-crest,
+.app-mark {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 0.85rem;
-  letter-spacing: -0.03em;
-  box-shadow: 0 2px 8px rgba(11, 87, 208, 0.3);
-  flex-shrink: 0;
+}
+
+.app-mark {
+  border: 1px solid var(--brand-light);
+  border-radius: 10px;
+  background: var(--brand-subtle);
+  color: var(--brand-primary);
+}
+
+.app-mark .ui-icon {
+  width: 25px;
+  height: 25px;
+  stroke-width: 1.65;
 }
 
 .brand-text {
@@ -207,6 +216,49 @@ a:hover {
   font-size: 0.72rem;
   color: var(--text-muted);
   font-family: var(--font-mono);
+}
+
+/* Minimal outline icon system */
+.ui-icon {
+  width: 1em;
+  height: 1em;
+  display: block;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.icon-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+.btn .ui-icon,
+.mode-toggle-btn .ui-icon,
+.badge .ui-icon,
+.callout-title .ui-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.theme-btn .ui-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.preview-banner .ui-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--accent-purple);
+}
+
+.artifact-placeholder .ui-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  margin: 0 auto 0.45rem;
+  color: var(--text-muted);
 }
 
 .nav-links {
@@ -358,14 +410,13 @@ a:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.28rem 0.75rem;
+  padding: 0.3rem 0.85rem;
   border-radius: 999px;
   background: var(--brand-subtle);
   color: var(--brand-primary);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   margin-bottom: 1rem;
   border: 1px solid var(--brand-light);
 }
@@ -400,9 +451,8 @@ a:hover {
 }
 
 .meta-label {
-  font-size: 0.74rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
   color: var(--text-muted);
   font-weight: 600;
   margin-bottom: 0.25rem;
@@ -429,14 +479,19 @@ a:hover {
   flex-wrap: wrap;
 }
 
-.section-kicker {
-  font-size: 0.76rem;
+.section-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
   font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   color: var(--brand-primary);
-  font-weight: 700;
-  margin-bottom: 0.3rem;
+  background: var(--brand-subtle);
+  border: 1px solid var(--brand-light);
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  font-weight: 600;
+  margin-top: 0.5rem;
 }
 
 .section-title {
@@ -494,6 +549,13 @@ a:hover {
   margin: 0;
 }
 
+.card-submeta {
+  font-size: 0.76rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
 /* Status Badges */
 .badge {
   display: inline-flex;
@@ -531,34 +593,35 @@ a:hover {
   border: 1px solid rgba(124, 58, 237, 0.32);
 }
 
-/* Academic Callouts */
+/* Academic Callouts (uniform full border, no side-tab) */
 .callout {
-  border-left: 4px solid var(--brand-primary);
   background: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  padding: 1rem 1.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.3rem;
   margin: 1.15rem 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .callout-warn {
-  border-left-color: var(--accent-amber);
+  border-color: rgba(217, 119, 6, 0.35);
+  background: rgba(217, 119, 6, 0.04);
 }
 
 .callout-teal {
-  border-left-color: var(--accent-teal);
+  border-color: rgba(13, 148, 136, 0.35);
+  background: rgba(13, 148, 136, 0.04);
 }
 
 .callout-purple {
-  border-left-color: var(--accent-purple);
+  border-color: rgba(124, 58, 237, 0.35);
+  background: rgba(124, 58, 237, 0.04);
 }
 
 .callout-title {
   font-weight: 700;
-  font-size: 0.9rem;
-  margin-bottom: 0.3rem;
+  font-size: 0.92rem;
+  margin-bottom: 0.35rem;
   display: flex;
   align-items: center;
   gap: 0.45rem;
@@ -571,6 +634,7 @@ a:hover {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+  padding: 0.65rem 0.85rem;
 }
 
 table {
@@ -669,6 +733,12 @@ tr:hover td {
   gap: 0.15rem;
 }
 
+.arch-node > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .arch-node.frozen {
   background: rgba(148, 163, 184, 0.14);
   border-style: dashed;
@@ -691,6 +761,11 @@ tr:hover td {
   color: var(--text-muted);
   font-weight: bold;
   flex-shrink: 0;
+}
+
+.arch-arrow .ui-icon {
+  width: 1rem;
+  height: 1rem;
 }
 
 /* Chart Containers */
@@ -775,18 +850,7 @@ tr:hover td {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
-
-.timeline-item.completed {
-  border-top: 3px solid var(--accent-emerald);
-}
-
-.timeline-item.ready {
-  border-top: 3px solid var(--brand-primary);
-}
-
-.timeline-item.in_progress {
-  border-top: 3px solid var(--accent-amber);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Native Dialog Lightbox */

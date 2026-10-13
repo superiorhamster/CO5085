@@ -8,7 +8,7 @@
     "faculty": "Khoa Khoa học và Kỹ thuật Máy tính (CSE)",
     "instructors": [
       {
-        "title": "ThS./TS.",
+        "title": "TS.",
         "name": "Lê Thành Sách",
         "role": "Giảng viên phụ trách"
       },
@@ -25,25 +25,18 @@
     "group_id": "Group-CO5085-HK261",
     "members": [
       {
-        "name": "Phạm Đức Anh (Cập nhật tại docs/data/site_config.json)",
-        "student_id": "2XXXXXX",
+        "name": "Phạm Duy Anh",
+        "student_id": "",
         "role": "Pipeline Architecture, E1–E3 & A1/A2 Experiments",
-        "email": "student1@hcmut.edu.vn",
-        "github": "https://github.com/anhpd"
-      },
-      {
-        "name": "Thành viên 2 (Bỏ trống nếu nhóm 1 SV)",
-        "student_id": "2YYYYYY",
-        "role": "Data Engineering, Paper Analysis & Evaluation",
-        "email": "student2@hcmut.edu.vn",
-        "github": "https://github.com/"
+        "email": "",
+        "github": "https://github.com/superiorhamster"
       }
     ]
   },
   "repository": {
-    "repo_url": "https://github.com/anhpd/AllInOneAssignment",
+    "repo_url": "https://github.com/superiorhamster/CO5085",
     "branch": "main",
-    "colab_base_url": "https://colab.research.google.com/github/anhpd/AllInOneAssignment/blob/main",
+    "colab_base_url": "https://colab.research.google.com/github/superiorhamster/CO5085/blob/main",
     "paths": {
       "e1_dir": "E1",
       "e1_notebook": "E1/e1_fashion_mnist_baselines.ipynb",
@@ -87,7 +80,7 @@
       "date_display": "19/10/2026",
       "title": "GitHub Pages (Landing Page)",
       "deliverable": "Hoàn thành khung trang nhóm, kiến trúc pipeline và hệ thống báo cáo trên GitHub Pages",
-      "status": "completed",
+      "status": "in_progress",
       "target_page": "index.html"
     },
     {
@@ -96,7 +89,7 @@
       "date_display": "26/10/2026",
       "title": "Mốc A1.1 (25% điểm A1)",
       "deliverable": "Đăng ký & báo cáo Dataset CIFAR-100 + Protocol thực nghiệm 8 cấu hình cho Bài tập lớn A1",
-      "status": "ready",
+      "status": "pending",
       "target_page": "a1.html#milestone-a1-1"
     },
     {
@@ -105,7 +98,7 @@
       "date_display": "02/11/2026",
       "title": "Bài tập E1 & E2 + Mốc A2.1",
       "deliverable": "Nộp mã nguồn + Báo cáo PDF phần E1, E2; Chốt đề tài DDPM Schedule Ablation + Paper ICML 2021 + CelebA cho A2.1",
-      "status": "ready",
+      "status": "pending",
       "target_page": "exercises.html#e1-section"
     },
     {
@@ -114,7 +107,7 @@
       "date_display": "09/11/2026",
       "title": "Bài tập E3 + Mốc A1.2 (75% A1)",
       "deliverable": "Bổ sung E3 vào exercises.pdf; Hoàn tất ma trận 8 thí nghiệm A1, báo cáo assignment1.pdf & cập nhật trang A1",
-      "status": "in_progress",
+      "status": "pending",
       "target_page": "a1.html#milestone-a1-2"
     },
     {
@@ -123,7 +116,7 @@
       "date_display": "16/11/2026",
       "title": "Mốc A2.2 (75% điểm A2)",
       "deliverable": "Hoàn tất Pipeline DDPM Linear vs Cosine, phân tích Paper ICML 2021, báo cáo assignment2.pdf, video demo & hoàn thiện web",
-      "status": "in_progress",
+      "status": "pending",
       "target_page": "a2.html#paper-analysis"
     }
   ]

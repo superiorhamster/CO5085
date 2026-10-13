@@ -9,6 +9,9 @@
 (function () {
   "use strict";
 
+  const icon = (name, className = "ui-icon") =>
+    window.CO5085Icons ? window.CO5085Icons.render(name, className) : "";
+
   const STORAGE_THEME_KEY = "co5085_theme";
   const STORAGE_PREVIEW_KEY = "co5085_preview_mode";
 
@@ -87,12 +90,12 @@
   function setupHeaderControls() {
     const themeBtn = document.getElementById("theme-toggle-btn");
     if (themeBtn) {
-      themeBtn.textContent = state.theme === "dark" ? "☀️" : "🌙";
+      themeBtn.innerHTML = icon(state.theme === "dark" ? "sun" : "moon");
       themeBtn.addEventListener("click", () => {
         state.theme = state.theme === "dark" ? "light" : "dark";
         document.documentElement.setAttribute("data-theme", state.theme);
         localStorage.setItem(STORAGE_THEME_KEY, state.theme);
-        themeBtn.textContent = state.theme === "dark" ? "☀️" : "🌙";
+        themeBtn.innerHTML = icon(state.theme === "dark" ? "sun" : "moon");
         renderAllDynamicSections();
       });
     }
@@ -102,8 +105,8 @@
       previewBtns.forEach((btn) => {
         btn.setAttribute("data-preview", state.previewMode ? "true" : "false");
         btn.innerHTML = state.previewMode
-          ? `<span>⚡ Chế độ: Xem thử biểu đồ (Preview ON)</span>`
-          : `<span>🔒 Chế độ: Chính thức (Official Full-Run)</span>`;
+          ? `${icon("eye")}<span>Chế độ: Xem thử biểu đồ (Preview ON)</span>`
+          : `${icon("lock")}<span>Chế độ: Chính thức (Official Full-Run)</span>`;
       });
       const banner = document.getElementById("preview-mode-banner");
       if (banner) {
@@ -140,7 +143,7 @@
     // Bind specific repo subpaths
     document.querySelectorAll("[data-repo-path]").forEach((el) => {
       const subpath = el.getAttribute("data-repo-path");
-      el.setAttribute("href", `${cfg.repository.repo_url}/tree/${cfg.repository.branch}/${subpath}`);
+      el.setAttribute("href", `${cfg.repository.repo_url}/blob/${cfg.repository.branch}/${subpath}`);
     });
 
     // Bind Colab links
@@ -156,7 +159,7 @@
         .map(
           (m, idx) => `
         <div class="meta-card">
-          <div class="meta-label">Thành viên 0${idx + 1} • MSSV: <span class="mono">${m.student_id}</span></div>
+          <div class="meta-label">Thành viên 0${idx + 1}${m.student_id ? ` • MSSV: <span class="mono">${m.student_id}</span>` : ""}</div>
           <div class="meta-value" style="margin-bottom:0.25rem;">${m.name}</div>
           <div style="font-size:0.82rem;color:var(--text-secondary);">${m.role}</div>
         </div>
@@ -185,9 +188,10 @@
     const timelineEl = document.getElementById("timeline-container");
     if (timelineEl && cfg.timeline) {
       const statusBadgeMap = {
-        completed: `<span class="badge badge-completed">✓ Đã hoàn thành</span>`,
-        ready: `<span class="badge badge-ready">● Sẵn sàng nộp</span>`,
-        in_progress: `<span class="badge badge-pending">◐ Đang thực nghiệm</span>`,
+        completed: `<span class="badge badge-completed">${icon("check")}Đã hoàn thành</span>`,
+        ready: `<span class="badge badge-ready">${icon("circle")}Sẵn sàng nộp</span>`,
+        in_progress: `<span class="badge badge-pending">${icon("clock")}Đang thực nghiệm</span>`,
+        pending: `<span class="badge badge-pending">${icon("circle")}Chưa đến hạn</span>`,
       };
       timelineEl.innerHTML = cfg.timeline
         .map(
@@ -201,7 +205,7 @@
             <h3 style="font-size:1.02rem;margin-bottom:0.35rem;">${item.title}</h3>
             <p style="font-size:0.85rem;color:var(--text-secondary);margin:0 0 0.85rem;">${item.deliverable}</p>
           </div>
-          <a href="${item.target_page}" class="btn btn-outline btn-sm" style="align-self:flex-start;">Xem chi tiết →</a>
+          <a href="${item.target_page}" class="btn btn-outline btn-sm" style="align-self:flex-start;">Xem chi tiết ${icon("arrowRight")}</a>
         </div>
       `
         )
@@ -589,13 +593,13 @@
           .map(
             (b, i) => `
           <div class="arch-node ${b.active ? "trainable" : "frozen"}">
-            <span>${b.active ? "🔓 " : "🔒 "}${b.name}</span>
+            <span>${icon(b.active ? "unlock" : "lock")}${b.name}</span>
             <span class="arch-node-sub">${b.sub}</span>
             <span class="arch-node-sub" style="color:${b.active ? "var(--accent-emerald)" : "var(--text-muted)"};">
               ${b.active ? "requires_grad = True" : "Frozen + eval()"}
             </span>
           </div>
-          ${i < blocks.length - 1 ? `<span class="arch-arrow">→</span>` : ""}
+          ${i < blocks.length - 1 ? `<span class="arch-arrow">${icon("arrowRight")}</span>` : ""}
         `
           )
           .join("")}
@@ -834,7 +838,7 @@
             <div class="artifact-card">
               <div class="artifact-thumb" style="cursor:default;">
                 <div class="artifact-placeholder">
-                  <div style="font-size:1.35rem;margin-bottom:0.35rem;">📊</div>
+                  ${icon("chart")}
                   <div><strong>${exp.id}</strong> — ${pt.label}</div>
                   <div style="margin-top:0.3rem;font-size:0.72rem;opacity:0.8;">Sẽ tự động hiển thị khi đồng bộ từ:<br/><code>${expectedPath}</code></div>
                 </div>
@@ -861,10 +865,13 @@
 
   function openLightbox(src, title) {
     const dialog = document.getElementById("artifact-lightbox");
-    const img = document.getElementById("lightbox-img");
+    const imageContainer = document.getElementById("lightbox-image-container");
     const titleEl = document.getElementById("lightbox-title");
-    if (!dialog || !img) return;
+    if (!dialog || !imageContainer || !src) return;
+    const img = document.createElement("img");
     img.src = src;
+    img.alt = title || "Chi tiết biểu đồ thực nghiệm";
+    imageContainer.replaceChildren(img);
     if (titleEl) titleEl.textContent = title || "Chi tiết biểu đồ thực nghiệm";
     dialog.showModal();
   }

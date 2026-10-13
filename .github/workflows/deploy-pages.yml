@@ -28,9 +28,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Synchronize artifacts and reports into docs/
-        run: python3 tools/sync_site_data.py
-
       - name: Validate notebooks integrity
         run: python3 tools/validate_notebooks.py
 
@@ -41,7 +38,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Upload GitHub Pages artifact (docs/)
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: "./docs"
 

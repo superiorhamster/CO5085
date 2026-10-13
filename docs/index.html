@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="assets/images/bk.png" type="image/png" />
   <title>CO5085 — Học Sâu &amp; Ứng Dụng Trong Thị Giác Máy Tính | HCMUT HK261</title>
   <meta name="description" content="Trang tổng hợp báo cáo thực nghiệm môn Học Sâu và Ứng Dụng trong Thị Giác Máy Tính (CO5085) — ĐH Bách Khoa ĐHQG TP.HCM (HK261): E1–E3, A1, A2." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
@@ -16,7 +17,7 @@
   <header class="site-header">
     <div class="nav-inner">
       <a href="index.html" class="brand-link">
-        <span class="brand-crest">BK</span>
+        <img class="brand" src="assets/images/bk.png" alt="BK" width="36" height="36" />
         <span class="brand-text">
           <span class="brand-title">CO5085 • Deep Learning &amp; CV</span>
           <span class="brand-subtitle" data-bind="course-semester">Học kỳ 261 (2026–2027)</span>
@@ -30,10 +31,10 @@
       </nav>
       <div class="nav-actions">
         <button type="button" class="mode-toggle-btn js-preview-toggle" title="Chuyển đổi giữa chế độ Chính thức (chỉ hiện số liệu từ artifacts/*/full/) và Xem thử bố cục biểu đồ">
-          🔒 Chế độ: Chính thức
+          <span class="icon-slot" data-icon="lock" aria-hidden="true"></span> Chế độ: Chính thức
         </button>
-        <button type="button" id="theme-toggle-btn" class="theme-btn" aria-label="Đổi giao diện Sáng/Tối" title="Đổi giao diện Sáng / Tối">🌙</button>
-        <a href="https://github.com/anhpd/AllInOneAssignment" data-bind="repo-link" target="_blank" rel="noopener" class="btn btn-primary btn-sm">GitHub Repo ↗</a>
+        <button type="button" id="theme-toggle-btn" class="theme-btn" aria-label="Đổi giao diện Sáng/Tối" title="Đổi giao diện Sáng / Tối"><span class="icon-slot" data-icon="moon" aria-hidden="true"></span></button>
+        <a href="https://github.com/superiorhamster/CO5085" data-bind="repo-link" target="_blank" rel="noopener" class="btn btn-primary btn-sm"><span class="icon-slot" data-icon="github" aria-hidden="true"></span> GitHub Repo</a>
       </div>
     </div>
   </header>
@@ -50,8 +51,8 @@
   <div id="preview-mode-banner" class="preview-banner" role="status">
     <div class="preview-banner-inner">
       <span>
-        <strong>⚡ Đang bật Chế độ Xem thử Bố cục (Preview Demo Mode):</strong>
-        Các biểu đồ và ô đánh dấu <code>[Demo]</code> dùng số liệu minh họa để kiểm tra trực quan hóa. Theo <a href="https://github.com/anhpd/AllInOneAssignment/blob/main/plans/00_conventions.md" data-repo-path="plans/00_conventions.md" target="_blank" rel="noopener"><code>plans/00_conventions.md</code></a>, báo cáo chính thức chỉ nạp từ <code>artifacts/*/full/metrics.json</code>.
+        <strong><span class="icon-slot" data-icon="eye" aria-hidden="true"></span> Đang bật Chế độ Xem thử Bố cục (Preview Demo Mode):</strong>
+        Các biểu đồ và ô đánh dấu <code>[Demo]</code> dùng số liệu minh họa để kiểm tra trực quan hóa. Theo <a href="https://github.com/superiorhamster/CO5085/blob/main/plans/00_conventions.md" data-repo-path="plans/00_conventions.md" target="_blank" rel="noopener"><code>plans/00_conventions.md</code></a>, báo cáo chính thức chỉ nạp từ <code>artifacts/*/full/metrics.json</code>.
       </span>
       <button type="button" class="btn btn-outline btn-sm js-preview-toggle">Chuyển về Chế độ Chính thức</button>
     </div>
@@ -61,7 +62,7 @@
   <section class="hero">
     <div class="container">
       <div class="hero-eyebrow">
-        <span>ĐẠI HỌC BÁCH KHOA – ĐHQG TP.HCM • KHOA KH&amp;KT MÁY TÍNH</span>
+        <span>Đại học Bách Khoa – ĐHQG TP.HCM • Khoa Khoa học &amp; Kỹ thuật Máy tính</span>
       </div>
       <h1 class="serif-heading">Học Sâu và Ứng Dụng trong Thị Giác Máy Tính (CO5085)</h1>
       <p class="hero-lead">
@@ -69,12 +70,12 @@
       </p>
 
       <div style="display:flex;flex-wrap:wrap;gap:0.65rem;margin-bottom:1.5rem;">
-        <a href="exercises.html" class="btn btn-primary">Khám phá Bài tập E1–E3 →</a>
-        <a href="a1.html" class="btn btn-outline">Bài tập lớn A1 (CNN vs ViT) →</a>
-        <a href="a2.html" class="btn btn-outline">Bài tập lớn A2 (DDPM &amp; ICML'21 Paper) →</a>
-        <a href="reports/exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline">📄 exercises.pdf</a>
-        <a href="reports/assignment1.pdf" target="_blank" rel="noopener" class="btn btn-outline">📄 assignment1.pdf</a>
-        <a href="reports/assignment2.pdf" target="_blank" rel="noopener" class="btn btn-outline">📄 assignment2.pdf</a>
+        <a href="exercises.html" class="btn btn-primary">Khám phá Bài tập E1–E3 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
+        <a href="a1.html" class="btn btn-outline">Bài tập lớn A1 (CNN vs ViT) <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
+        <a href="a2.html" class="btn btn-outline">Bài tập lớn A2 (DDPM &amp; ICML'21 Paper) <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
+        <a href="reports/exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> exercises.pdf</a>
+        <a href="reports/assignment1.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> assignment1.pdf</a>
+        <a href="reports/assignment2.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> assignment2.pdf</a>
       </div>
 
       <!-- Group & Instructor Info Cards -->
@@ -102,12 +103,12 @@
     <section id="overview" class="section">
       <div class="section-header">
         <div>
-          <div class="section-kicker">I. KIẾN TRÚC BÀI TẬP &amp; CƠ CẤU ĐÁNH GIÁ</div>
-          <h2 class="section-title">Bản đồ 23 cấu hình thực nghiệm (E1–E3, A1, A2)</h2>
+          <h2 class="section-title">I. Bản đồ 23 cấu hình thực nghiệm (E1–E3, A1, A2)</h2>
           <p class="section-desc">
             Phần bài tập quá trình (Coursework) chiếm <strong>40% tổng điểm môn học</strong>: Chuỗi E1–E3 chiếm 40% Coursework, Bài tập lớn A1 chiếm 30% và Bài tập lớn A2 chiếm 30%.
           </p>
         </div>
+        <span class="badge badge-ready">Kiến trúc bài tập &amp; cơ cấu đánh giá</span>
       </div>
 
       <div class="grid-3">
@@ -115,8 +116,8 @@
         <article class="card card-interactive">
           <div class="card-header">
             <div>
-              <span class="section-kicker">40% Coursework • 13 Cấu hình</span>
               <h3 class="card-title">Chuỗi Bài tập Thực hành E1 – E3</h3>
+              <div class="card-submeta">40% Coursework • 13 Cấu hình</div>
             </div>
             <span class="badge badge-ready">Fashion-MNIST</span>
           </div>
@@ -129,8 +130,8 @@
             <li><strong>E3 (4 cấu hình + 2 baseline):</strong> Мо hình hóa ảnh thành chuỗi tuần tự với <code>LSTM</code> và <code>GRU</code> theo hàng (<code>row</code>) và lưới (<code>patch</code>), đối chiếu trực tiếp với baseline E1.</li>
           </ul>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;">
-            <a href="exercises.html" class="btn btn-primary btn-sm">Trang chi tiết E1–E3 →</a>
-            <a href="reports/exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm">📄 Báo cáo PDF</a>
+            <a href="exercises.html" class="btn btn-primary btn-sm">Trang chi tiết E1–E3 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
+            <a href="reports/exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> Báo cáo PDF</a>
           </div>
         </article>
 
@@ -138,8 +139,8 @@
         <article class="card card-interactive">
           <div class="card-header">
             <div>
-              <span class="section-kicker">30% Coursework • 8 Cấu hình</span>
               <h3 class="card-title">Bài tập lớn A1: CNN vs Transformer</h3>
+              <div class="card-submeta">30% Coursework • 8 Cấu hình</div>
             </div>
             <span class="badge badge-ready">CIFAR-100</span>
           </div>
@@ -152,8 +153,8 @@
             <li><strong>Đánh giá đa chiều:</strong> Accuracy, Macro-F1, Trainable Params, Latency (ms/ảnh), Peak GPU VRAM, Confusion Matrix 100 lớp &amp; Failure Cases.</li>
           </ul>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;">
-            <a href="a1.html" class="btn btn-primary btn-sm">Trang chi tiết A1 →</a>
-            <a href="reports/assignment1.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm">📄 Báo cáo PDF</a>
+            <a href="a1.html" class="btn btn-primary btn-sm">Trang chi tiết A1 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
+            <a href="reports/assignment1.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> Báo cáo PDF</a>
           </div>
         </article>
 
@@ -161,8 +162,8 @@
         <article class="card card-interactive">
           <div class="card-header">
             <div>
-              <span class="section-kicker">30% Coursework • 2 Cấu hình + Paper</span>
               <h3 class="card-title">Bài tập lớn A2: DDPM &amp; Paper Analysis</h3>
+              <div class="card-submeta">30% Coursework • 2 Cấu hình + Paper</div>
             </div>
             <span class="badge badge-preview">CelebA 32×32</span>
           </div>
@@ -175,8 +176,8 @@
             <li><strong>Đo lường định lượng:</strong> Fréchet Inception Distance (FID trên 5,000 mẫu), Inception Score (IS), thời gian lấy mẫu 250 bước và chuỗi khử nhiễu ngược.</li>
           </ul>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;">
-            <a href="a2.html" class="btn btn-primary btn-sm">Trang chi tiết A2 →</a>
-            <a href="reports/assignment2.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm">📄 Báo cáo PDF</a>
+            <a href="a2.html" class="btn btn-primary btn-sm">Trang chi tiết A2 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
+            <a href="reports/assignment2.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> Báo cáo PDF</a>
           </div>
         </article>
       </div>
@@ -186,12 +187,12 @@
     <section id="timeline" class="section">
       <div class="section-header">
         <div>
-          <div class="section-kicker">II. LỊCH TRÌNH &amp; TIẾN ĐỘ NỘP BÀI</div>
-          <h2 class="section-title">Các mốc thời gian quan trọng (Timeline W1 – W11)</h2>
+          <h2 class="section-title">II. Các mốc thời gian quan trọng (Timeline W1 – W11)</h2>
           <p class="section-desc">
             Toàn bộ sản phẩm được quản lý tập trung trên GitHub Repository và GitHub Pages theo đúng hạn chót 23:59 GMT+7 của từng tuần.
           </p>
         </div>
+        <span class="badge badge-ready">Lịch trình &amp; tiến độ nộp bài</span>
       </div>
 
       <div id="timeline-container" class="timeline-list"></div>
@@ -201,12 +202,12 @@
     <section id="notebooks" class="section">
       <div class="section-header">
         <div>
-          <div class="section-kicker">III. DANH MỤC MÃ NGUỒN &amp; NOTEBOOK TỰ CHỨA</div>
-          <h2 class="section-title">Truy cập trực tiếp Notebooks, Kế hoạch &amp; Báo cáo PDF</h2>
+          <h2 class="section-title">III. Truy cập trực tiếp Notebooks, Kế hoạch &amp; Báo cáo PDF</h2>
           <p class="section-desc">
             Mỗi notebook trong repository hoàn toàn độc lập (self-contained), hỗ trợ chạy tuần tự từ kernel sạch trên Google Colab / Kaggle với 2 chế độ <code>run_mode="smoke"</code> và <code>run_mode="full"</code>.
           </p>
         </div>
+        <span class="badge badge-ready">Danh mục mã nguồn tự chứa</span>
       </div>
 
       <div class="table-wrapper">
@@ -224,52 +225,52 @@
           <tbody>
             <tr>
               <td><strong>Bài tập E1</strong><div style="font-size:0.76rem;color:var(--text-muted);">Softmax, MLP, CNN</div></td>
-              <td><a href="https://github.com/anhpd/AllInOneAssignment/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-repo-path="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener"><code>E1/e1_fashion_mnist_baselines.ipynb</code></a></td>
+              <td><a href="https://github.com/superiorhamster/CO5085/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-repo-path="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener"><code>E1/e1_fashion_mnist_baselines.ipynb</code></a></td>
               <td>Fashion-MNIST (54k / 6k / 10k)</td>
               <td class="num-col">3</td>
               <td><a href="reports/exercises.pdf" target="_blank" rel="noopener"><code>reports/exercises.pdf</code></a></td>
               <td>
-                <a href="https://colab.research.google.com/github/anhpd/AllInOneAssignment/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-colab-notebook="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab ↗</a>
+                <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-colab-notebook="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
               </td>
             </tr>
             <tr>
               <td><strong>Bài tập E2</strong><div style="font-size:0.76rem;color:var(--text-muted);">Scratch/Torch MSA × Tokenization</div></td>
-              <td><a href="https://github.com/anhpd/AllInOneAssignment/blob/main/E2/e2_attention_tokenization.ipynb" data-repo-path="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener"><code>E2/e2_attention_tokenization.ipynb</code></a></td>
+              <td><a href="https://github.com/superiorhamster/CO5085/blob/main/E2/e2_attention_tokenization.ipynb" data-repo-path="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener"><code>E2/e2_attention_tokenization.ipynb</code></a></td>
               <td>Fashion-MNIST (54k / 6k / 10k)</td>
               <td class="num-col">6</td>
               <td><a href="reports/exercises.pdf" target="_blank" rel="noopener"><code>reports/exercises.pdf</code></a></td>
               <td>
-                <a href="https://colab.research.google.com/github/anhpd/AllInOneAssignment/blob/main/E2/e2_attention_tokenization.ipynb" data-colab-notebook="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab ↗</a>
+                <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/E2/e2_attention_tokenization.ipynb" data-colab-notebook="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
               </td>
             </tr>
             <tr>
               <td><strong>Bài tập E3</strong><div style="font-size:0.76rem;color:var(--text-muted);">LSTM / GRU trên chuỗi ảnh</div></td>
-              <td><a href="https://github.com/anhpd/AllInOneAssignment/blob/main/E3/e3_sequence_models.ipynb" data-repo-path="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener"><code>E3/e3_sequence_models.ipynb</code></a></td>
+              <td><a href="https://github.com/superiorhamster/CO5085/blob/main/E3/e3_sequence_models.ipynb" data-repo-path="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener"><code>E3/e3_sequence_models.ipynb</code></a></td>
               <td>Fashion-MNIST (54k / 6k / 10k)</td>
               <td class="num-col">4 (+2 Base)</td>
               <td><a href="reports/exercises.pdf" target="_blank" rel="noopener"><code>reports/exercises.pdf</code></a></td>
               <td>
-                <a href="https://colab.research.google.com/github/anhpd/AllInOneAssignment/blob/main/E3/e3_sequence_models.ipynb" data-colab-notebook="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab ↗</a>
+                <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/E3/e3_sequence_models.ipynb" data-colab-notebook="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
               </td>
             </tr>
             <tr>
               <td><strong>Bài tập lớn A1</strong><div style="font-size:0.76rem;color:var(--text-muted);">ResNet-18 vs DeiT-Tiny (4 chế độ)</div></td>
-              <td><a href="https://github.com/anhpd/AllInOneAssignment/blob/main/A1/a1_cnn_vs_transformer.ipynb" data-repo-path="A1/a1_cnn_vs_transformer.ipynb" target="_blank" rel="noopener"><code>A1/a1_cnn_vs_transformer.ipynb</code></a></td>
+              <td><a href="https://github.com/superiorhamster/CO5085/blob/main/A1/a1_cnn_vs_transformer.ipynb" data-repo-path="A1/a1_cnn_vs_transformer.ipynb" target="_blank" rel="noopener"><code>A1/a1_cnn_vs_transformer.ipynb</code></a></td>
               <td>CIFAR-100 (45k / 5k / 10k, 224×224)</td>
               <td class="num-col">8</td>
               <td><a href="reports/assignment1.pdf" target="_blank" rel="noopener"><code>reports/assignment1.pdf</code></a></td>
               <td>
-                <a href="https://colab.research.google.com/github/anhpd/AllInOneAssignment/blob/main/A1/a1_cnn_vs_transformer.ipynb" data-colab-notebook="A1/a1_cnn_vs_transformer.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab ↗</a>
+                <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/A1/a1_cnn_vs_transformer.ipynb" data-colab-notebook="A1/a1_cnn_vs_transformer.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
               </td>
             </tr>
             <tr>
               <td><strong>Bài tập lớn A2</strong><div style="font-size:0.76rem;color:var(--text-muted);">DDPM Linear vs Cosine Schedule</div></td>
-              <td><a href="https://github.com/anhpd/AllInOneAssignment/blob/main/A2/a2_diffusion_schedules.ipynb" data-repo-path="A2/a2_diffusion_schedules.ipynb" target="_blank" rel="noopener"><code>A2/a2_diffusion_schedules.ipynb</code></a></td>
+              <td><a href="https://github.com/superiorhamster/CO5085/blob/main/A2/a2_diffusion_schedules.ipynb" data-repo-path="A2/a2_diffusion_schedules.ipynb" target="_blank" rel="noopener"><code>A2/a2_diffusion_schedules.ipynb</code></a></td>
               <td>CelebA Align&amp;Cropped (20k / 2k / 5k, 32×32)</td>
               <td class="num-col">2</td>
               <td><a href="reports/assignment2.pdf" target="_blank" rel="noopener"><code>reports/assignment2.pdf</code></a></td>
               <td>
-                <a href="https://colab.research.google.com/github/anhpd/AllInOneAssignment/blob/main/A2/a2_diffusion_schedules.ipynb" data-colab-notebook="A2/a2_diffusion_schedules.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab ↗</a>
+                <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/A2/a2_diffusion_schedules.ipynb" data-colab-notebook="A2/a2_diffusion_schedules.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
               </td>
             </tr>
           </tbody>
@@ -281,24 +282,24 @@
     <section id="reproducibility" class="section" style="border-bottom:none;">
       <div class="section-header">
         <div>
-          <div class="section-kicker">IV. QUY ƯỚC TÁI LẬP KHOA HỌC &amp; ARTIFACT CONTRACT</div>
-          <h2 class="section-title">Đảm bảo tính toàn vẹn thực nghiệm (Reproducibility Protocol)</h2>
+          <h2 class="section-title">IV. Đảm bảo tính toàn vẹn thực nghiệm (Reproducibility Protocol)</h2>
           <p class="section-desc">
-            Tuân thủ nghiêm ngặt quy ước trong <a href="https://github.com/anhpd/AllInOneAssignment/blob/main/plans/00_conventions.md" data-repo-path="plans/00_conventions.md" target="_blank" rel="noopener"><code>plans/00_conventions.md</code></a> nhằm đảm bảo mọi kết quả trên trang web và báo cáo PDF hoàn toàn truy vết được.
+            Tuân thủ nghiêm ngặt quy ước trong <a href="https://github.com/superiorhamster/CO5085/blob/main/plans/00_conventions.md" data-repo-path="plans/00_conventions.md" target="_blank" rel="noopener"><code>plans/00_conventions.md</code></a> nhằm đảm bảo mọi kết quả trên trang web và báo cáo PDF hoàn toàn truy vết được.
           </p>
         </div>
+        <span class="badge badge-ready">Quy ước tái lập &amp; Artifact Contract</span>
       </div>
 
       <div class="grid-2">
         <div class="callout callout-teal" style="margin:0;">
-          <div class="callout-title">🛡️ 1. Kiểm soát Ngẫu nhiên &amp; Toàn vẹn Dữ liệu (SHA-256 Split Verification)</div>
+          <div class="callout-title"><span class="icon-slot" data-icon="shieldCheck" aria-hidden="true"></span> 1. Kiểm soát Ngẫu nhiên &amp; Toàn vẹn Dữ liệu (SHA-256 Split Verification)</div>
           <p style="font-size:0.88rem;color:var(--text-secondary);margin:0;">
             Tất cả thí nghiệm cố định <code>seed = 42</code> cho Python, NumPy, PyTorch CPU/CUDA và bật <code>cudnn.deterministic = True</code>. Tập dữ liệu được chia phân tầng bằng <code>StratifiedShuffleSplit(random_state=42)</code> và lưu kèm mã băm SHA-256 của mảng chỉ số (<code>fashion_mnist_split_seed42.npz</code>, <code>cifar100_split_seed42.npz</code>, <code>celeba_manifest_seed42.csv</code>). Notebook lập tức dừng nếu phát hiện sai lệch hash.
           </p>
         </div>
 
         <div class="callout" style="margin:0;">
-          <div class="callout-title">💾 2. Atomic Checkpointing &amp; Khôi phục Trạng thái RNG</div>
+          <div class="callout-title"><span class="icon-slot" data-icon="save" aria-hidden="true"></span> 2. Atomic Checkpointing &amp; Khôi phục Trạng thái RNG</div>
           <p style="font-size:0.88rem;color:var(--text-secondary);margin:0;">
             Mỗi run lưu tại <code>&lt;output_root&gt;/&lt;assignment&gt;/&lt;run_mode&gt;/&lt;experiment_id&gt;/</code> gồm <code>config.json</code>, <code>environment.json</code>, <code>history.csv</code>, <code>metrics.json</code>, <code>predictions.npz</code> cùng <code>last.pt</code> và <code>best.pt</code>. Checkpoint được ghi qua file tạm <code>.tmp</code> rồi thay thế nguyên tử (atomic replace) kèm toàn bộ trạng thái bộ sinh số ngẫu nhiên (<code>rng_state</code>) và <code>StatefulRandomSampler</code> (ở A2).
           </p>
@@ -341,6 +342,7 @@ python3 tools/validate_site.py</code></pre>
 
   <!-- Scripts -->
   <script src="assets/js/fallback_data.js"></script>
+  <script defer src="assets/js/icons.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <script defer src="assets/js/site.js"></script>

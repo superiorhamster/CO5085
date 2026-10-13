@@ -57,6 +57,16 @@ python tools/sync_site_data.py --artifacts-dir ./artifacts
 python tools/validate_site.py
 ```
 
-Workflow `.github/workflows/deploy-pages.yml` tự động chạy các bước đồng bộ, kiểm tra toàn vẹn và triển khai lên GitHub Pages mỗi khi có commit mới trên nhánh `main`/`master`.
+Lệnh sync từ chối ghi đè manifest khi không tìm thấy full run hợp lệ. Tùy chọn `--allow-empty` chỉ dùng một lần khi khởi tạo website chưa có kết quả.
+
+Commit cả `docs/data/experiments_manifest.json`, `docs/assets/js/fallback_data.js` và các hình trong `docs/assets/artifacts/` sau khi kiểm tra thay đổi. Workflow `.github/workflows/deploy-pages.yml` chỉ kiểm tra và triển khai nội dung `docs/` đã commit; nó không tự chạy sync trên runner rỗng để tránh ghi đè kết quả đã xuất ở local.
+
+Trước lần deploy đầu tiên, mở **Settings → Pages → Build and deployment → Source** của repository và chọn **GitHub Actions**. URL dự kiến của website là <https://superiorhamster.github.io/CO5085/>.
+
+Trước mốc nộp chính thức, chạy kiểm tra nghiêm ngặt để phát hiện MSSV còn thiếu, báo cáo placeholder và ma trận thí nghiệm chưa đủ:
+
+```bash
+python tools/validate_site.py --strict-release
+```
 
 

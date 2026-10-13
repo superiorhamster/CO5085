@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local environments and secrets
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Notebook data and training outputs
+data/
+artifacts/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+

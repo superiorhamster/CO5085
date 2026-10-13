@@ -48,14 +48,14 @@ INSTALL_BASE = r'''
 import importlib.util, subprocess, sys
 
 required = {
-    "torch": "torch",
-    "torchvision": "torchvision",
-    "numpy": "numpy",
-    "pandas": "pandas",
-    "matplotlib": "matplotlib",
-    "seaborn": "seaborn",
-    "sklearn": "scikit-learn",
-    "tqdm": "tqdm",
+    "torch": "torch>=2.2,<3",
+    "torchvision": "torchvision>=0.17,<1",
+    "numpy": "numpy>=1.26,<3",
+    "pandas": "pandas>=2.1,<4",
+    "matplotlib": "matplotlib>=3.8,<4",
+    "seaborn": "seaborn>=0.13,<1",
+    "sklearn": "scikit-learn>=1.4,<2",
+    "tqdm": "tqdm>=4.66,<5",
 }
 missing = [package for module, package in required.items() if importlib.util.find_spec(module) is None]
 if missing:
@@ -305,7 +305,7 @@ def fit_classifier(model, loaders, optimizer, scheduler, run_dir, run_config,
         evaluation_path = run_dir / "best.pt"
         if not evaluation_path.exists():
             raise FileNotFoundError(f"evaluate_only requires {evaluation_path}")
-        checkpoint = torch.load(evaluation_path, map_location=DEVICE)
+        checkpoint = torch.load(evaluation_path, map_location=DEVICE, weights_only=False)
         model.load_state_dict(checkpoint["model"])
         start_epoch = run_config["epochs"]
         best_accuracy, best_loss = checkpoint["best_accuracy"], checkpoint["best_loss"]
@@ -314,7 +314,7 @@ def fit_classifier(model, loaders, optimizer, scheduler, run_dir, run_config,
             history = pd.read_csv(history_path).to_dict("records")
     else:
         resume_path = resolve_resume(run_dir, run_config.get("resume_from"))
-        checkpoint = torch.load(resume_path, map_location=DEVICE) if resume_path is not None else None
+        checkpoint = torch.load(resume_path, map_location=DEVICE, weights_only=False) if resume_path is not None else None
     if not run_config.get("evaluate_only") and checkpoint is not None:
         model.load_state_dict(checkpoint["model"])
         optimizer.load_state_dict(checkpoint["optimizer"])
@@ -368,7 +368,7 @@ def fit_classifier(model, loaders, optimizer, scheduler, run_dir, run_config,
             atomic_torch_save(state, run_dir / "best.pt")
         print(f"epoch={epoch + 1}/{run_config['epochs']} train={train_stats['accuracy']:.4f} val={val_stats['accuracy']:.4f}")
 
-    best = torch.load(run_dir / "best.pt", map_location=DEVICE)
+    best = torch.load(run_dir / "best.pt", map_location=DEVICE, weights_only=False)
     model.load_state_dict(best["model"])
     val_stats = classification_epoch(model, loaders["val"], criterion,
                                      max_batches=run_config.get("max_eval_batches"))
@@ -1002,7 +1002,7 @@ display(summary_frame)
 def build_a1() -> None:
     install = INSTALL_BASE + r'''
 if importlib.util.find_spec("timm") is None:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", "timm>=1.0"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", "timm>=1.0,<2"])
 '''
     imports = COMMON_IMPORTS + "\nimport timm\n"
     config = COMMON_CONFIG + r'''
@@ -1224,8 +1224,8 @@ So sánh ResNet-18 với DeiT-Tiny trong bốn chế độ: scratch, head-only, 
 
 def build_a2() -> None:
     install = INSTALL_BASE + r'''
-extra = {"diffusers": "diffusers>=0.30", "accelerate": "accelerate>=0.33",
-         "torchmetrics": "torchmetrics[image]>=1.4", "torch_fidelity": "torch-fidelity>=0.3"}
+extra = {"diffusers": "diffusers>=0.30,<1", "accelerate": "accelerate>=0.33,<2",
+         "torchmetrics": "torchmetrics[image]>=1.4,<2", "torch_fidelity": "torch-fidelity>=0.3,<1"}
 missing_extra = [package for module, package in extra.items() if importlib.util.find_spec(module) is None]
 if missing_extra:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", *missing_extra])
@@ -1462,7 +1462,7 @@ def train_diffusion(experiment_id):
     else:
         resume_path = resolve_resume(run_dir, CONFIG["resume_from"])
     if resume_path is not None:
-        checkpoint = torch.load(resume_path, map_location=DEVICE)
+        checkpoint = torch.load(resume_path, map_location=DEVICE, weights_only=False)
         model.load_state_dict(checkpoint["model"]); optimizer.load_state_dict(checkpoint["optimizer"])
         lr_scheduler.load_state_dict(checkpoint["scheduler"]); scaler.load_state_dict(checkpoint["scaler"])
         ema.load_state_dict(checkpoint["ema"]); sampler.load_state_dict(checkpoint["sampler"])
@@ -1515,7 +1515,7 @@ def real_fid_state(loader, sample_count, cache_path):
     metric = FrechetInceptionDistance(feature=2048, normalize=True).to(DEVICE)
     metric.persistent(True)
     if cache_path.exists():
-        metric.load_state_dict(torch.load(cache_path, map_location=DEVICE))
+        metric.load_state_dict(torch.load(cache_path, map_location=DEVICE, weights_only=True))
         return metric.state_dict()
     seen = 0
     for real in tqdm(loader, desc="cache real FID"):
