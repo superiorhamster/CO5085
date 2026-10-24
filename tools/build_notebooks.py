@@ -521,14 +521,16 @@ class CNNClassifier(nn.Module):
             nn.Conv2d(1, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
             nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
         )
-        self.head = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 128),
-                                  nn.ReLU(), nn.Linear(128, 10))
+        self.gap = nn.AdaptiveAvgPool2d(1)
+        self.head = nn.Linear(64, 10)
 
     def forward(self, images):
-        return self.head(self.features(images))
+        features = self.gap(self.features(images)).flatten(1)
+        return self.head(features)
 
 
 MODEL_FACTORIES = {"softmax": SoftmaxClassifier, "mlp": MLPClassifier, "cnn": CNNClassifier}
+assert sum(parameter.numel() for parameter in CNNClassifier().parameters()) == 19466
 EXPERIMENT_IDS = list(MODEL_FACTORIES)
 selected = CONFIG["experiment_ids"] or EXPERIMENT_IDS
 unknown = set(selected) - set(EXPERIMENT_IDS)
@@ -664,7 +666,7 @@ plt.tight_layout(); plt.show()'''),
         md("## 4. Mô hình"),
         describe_cell(
             "4.1. Định nghĩa ba baseline",
-            "Cài đặt Softmax tuyến tính, MLP hai tầng ẩn và CNN hai block tích chập với cùng đầu ra 10 logits.",
+            "Cài đặt Softmax tuyến tính, MLP hai tầng ẩn và CNN hai block tích chập + Global Average Pooling + Linear với cùng đầu ra 10 logits.",
             "Tạo `MODEL_FACTORIES`, ba experiment ID và danh sách `selected` lấy từ cấu hình.",
         ), code(models),
         md("## 5. Kiểm tra nhanh: overfit một batch và gradient hữu hạn"),
@@ -981,10 +983,12 @@ class CNNClassifier(nn.Module):
         super().__init__()
         self.features = nn.Sequential(nn.Conv2d(1, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
                                       nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2))
-        self.head = nn.Sequential(nn.Flatten(), nn.Linear(64 * 7 * 7, 128), nn.ReLU(), nn.Linear(128, 10))
-    def forward(self, images): return self.head(self.features(images))
+        self.gap = nn.AdaptiveAvgPool2d(1)
+        self.head = nn.Linear(64, 10)
+    def forward(self, images): return self.head(self.gap(self.features(images)).flatten(1))
 
 
+assert sum(parameter.numel() for parameter in CNNClassifier().parameters()) == 19466
 EXPERIMENT_IDS = [f"{recurrent}_{representation}" for recurrent in ("lstm", "gru")
                   for representation in ("row", "patch")]
 selected = CONFIG["experiment_ids"] or EXPERIMENT_IDS
@@ -1116,7 +1120,7 @@ display(summary_frame)
         md("## 4. Biểu diễn chuỗi và mô hình"),
         describe_cell(
             "4.1. Xây dựng LSTM/GRU và baseline",
-            "Biểu diễn ảnh theo 28 hàng hoặc 49 patch, cài đặt LSTM/GRU một chiều và định nghĩa lại MLP/CNN của E1.",
+            "Biểu diễn ảnh theo 28 hàng hoặc 49 patch, cài đặt LSTM/GRU một chiều và định nghĩa lại MLP/CNN của E1, trong đó CNN dùng Global Average Pooling.",
             "Tạo bốn experiment recurrent, kiểm tra shape chuỗi và xác nhận GRU có thể overfit một batch nhỏ.",
         ), code(models),
         md("## 5. Nhập baseline E1 có kiểm tra provenance"),

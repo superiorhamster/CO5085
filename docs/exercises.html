@@ -149,10 +149,10 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">3. CNN Classifier</h3>
-            <span class="badge badge-completed">421,642 params</span>
+            <span class="badge badge-completed">19,466 params</span>
           </div>
           <p style="font-size:0.86rem;color:var(--text-secondary);">
-            Hai khối tích chập $\text{Conv2d}(3\times 3, \text{pad}=1) \to \text{ReLU} \to \text{MaxPool2d}(2\times 2)$ (kênh $1 \to 32 \to 64$, giảm kích thước $28 \to 14 \to 7$), tiếp nối bởi head $3136 \to 128 \to 10$.
+            Hai khối tích chập $\text{Conv2d}(3\times 3, \text{pad}=1) \to \text{ReLU} \to \text{MaxPool2d}(2\times 2)$ (kênh $1 \to 32 \to 64$, giảm kích thước $28 \to 14 \to 7$), tiếp nối bởi Global Average Pooling $7\times7 \to 1\times1$ và Linear $64 \to 10$.
           </p>
           <div style="font-size:0.8rem;color:var(--text-muted);">
             <strong>Đặc trưng:</strong> Khai thác tính cục bộ không gian, chia sẻ trọng số và bất biến dịch chuyển cục bộ.

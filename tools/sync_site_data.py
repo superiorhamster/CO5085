@@ -84,23 +84,11 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
             {
                 "id": "cnn",
                 "name": "CNN Classifier",
-                "architecture": "Conv(1→32, 3×3)+ReLU+MaxPool(2) → Conv(32→64, 3×3)+ReLU+MaxPool(2) → Linear(3136→128)+ReLU → Linear(128→10)",
+                "architecture": "Conv(1→32, 3×3)+ReLU+MaxPool(2) → Conv(32→64, 3×3)+ReLU+MaxPool(2) → GlobalAvgPool(7×7→1×1) → Linear(64→10)",
                 "inductive_bias": "Trường tiếp nhận cục bộ (local receptive field), chia sẻ trọng số (weight sharing) và bất biến dịch chuyển qua MaxPool",
-                "expected_params": 421642,
-                "expected_weight_mb": 1.608,
-                "preview": {
-                    "val_accuracy": 0.9235,
-                    "test_accuracy": 0.9182,
-                    "val_loss": 0.2280,
-                    "test_loss": 0.2415,
-                    "best_epoch": 12,
-                    "latency_ms_per_image": 0.084,
-                    "peak_gpu_memory_mb": 42.1,
-                    "train_curve_acc": [0.852, 0.904, 0.921, 0.934, 0.945, 0.955, 0.964, 0.972, 0.978, 0.983],
-                    "val_curve_acc": [0.889, 0.908, 0.915, 0.919, 0.922, 0.924, 0.923, 0.922, 0.923, 0.921],
-                    "train_curve_loss": [0.410, 0.268, 0.218, 0.181, 0.149, 0.122, 0.098, 0.078, 0.062, 0.049],
-                    "val_curve_loss": [0.310, 0.258, 0.240, 0.231, 0.228, 0.229, 0.236, 0.245, 0.254, 0.268]
-                }
+                "expected_params": 19466,
+                "expected_weight_mb": 0.074,
+                "preview": {}
             }
         ]
     },
