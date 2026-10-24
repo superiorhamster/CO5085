@@ -1,0 +1,21 @@
+{
+  "data_root": "/content/data",
+  "output_root": "/content/artifacts",
+  "run_mode": "full",
+  "experiment_ids": [],
+  "seed": 42,
+  "batch_size": 128,
+  "epochs": 20,
+  "resume_from": null,
+  "evaluate_only": false,
+  "num_workers": 2,
+  "assignment": "E3",
+  "experiment_id": "lstm_row",
+  "recurrent": "lstm",
+  "representation": "row",
+  "split_hash": "bbadd2fc92455ce7f7ca22890516a1f02c47a663679ec246709d7cf0cfdcb075",
+  "sequence_length": 28,
+  "input_size": 28,
+  "max_train_batches": null,
+  "max_eval_batches": null
+}
