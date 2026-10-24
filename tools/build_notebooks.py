@@ -1015,6 +1015,20 @@ del probe, probe_optimizer
 if torch.cuda.is_available(): torch.cuda.empty_cache()
 '''
     baseline = r'''
+import shutil
+
+# Tự động đồng bộ E1 baseline artifacts từ repo khi chạy trên Google Colab
+if Path("/content").exists() and not (Path(CONFIG["output_root"]) / "E1" / "full").exists():
+    repo_dir = Path("/content/CO5085")
+    if not repo_dir.exists():
+        print("Đang clone repo CO5085 để lấy artifacts E1...")
+        subprocess.run(["git", "clone", "--depth", "1", "https://github.com/superiorhamster/CO5085.git", str(repo_dir)], check=False)
+    src_artifacts = repo_dir / "artifacts" / "E1" / "full"
+    if src_artifacts.exists():
+        shutil.copytree(src_artifacts, Path(CONFIG["output_root"]) / "E1" / "full", dirs_exist_ok=True)
+        print("Đã nạp sẵn artifacts E1/full từ repo về:", Path(CONFIG["output_root"]) / "E1" / "full")
+
+
 def load_e1_baseline(experiment_id):
     run_dir = Path(CONFIG["output_root"]) / "E1" / "full" / experiment_id
     config_path, metrics_path = run_dir / "config.json", run_dir / "metrics.json"
@@ -1126,7 +1140,7 @@ display(summary_frame)
         md("## 5. Nhập baseline E1 có kiểm tra provenance"),
         describe_cell(
             "5.1. Đọc kết quả MLP/CNN từ E1",
-            "Tìm artifact `E1/full`, kiểm tra split hash, seed, experiment ID và `run_mode` trước khi tái sử dụng metric.",
+            "Tìm artifact `E1/full` (tự động clone và đồng bộ từ GitHub repo trên Colab nếu chưa có), kiểm tra split hash, seed, experiment ID và `run_mode` trước khi tái sử dụng metric.",
             "Tạo `baseline_results` và `missing_baselines`; baseline thiếu sẽ được chạy lại ở cell kế tiếp.",
         ), code(baseline),
         md("## 6. Huấn luyện và đánh giá"),

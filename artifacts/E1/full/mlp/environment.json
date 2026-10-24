@@ -1,0 +1,9 @@
+{
+  "python": "3.13.16",
+  "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+  "torch": "2.11.0+cu130",
+  "torchvision": "0.26.0+cu130",
+  "sklearn": "1.6.1",
+  "cuda": "13.0",
+  "device": "Tesla T4"
+}

@@ -1,0 +1,16 @@
+{
+  "run_mode": "full",
+  "best_epoch": 14,
+  "val_loss": 0.2546951313018799,
+  "val_accuracy": 0.912,
+  "test_loss": 0.295165377664566,
+  "test_accuracy": 0.8975,
+  "peak_gpu_memory_mb": 54.185546875,
+  "parameters": 89674,
+  "trainable_parameters": 89674,
+  "weight_size_mb": 0.34207916259765625,
+  "latency_ms_per_image": 0.038100751041743784,
+  "benchmark_batch_size": 32,
+  "benchmark_peak_memory_mb": 21.98046875,
+  "token_count": 49
+}

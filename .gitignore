@@ -17,7 +17,12 @@ venv/
 
 # Notebook data and training outputs
 data/
-artifacts/
+# Bỏ qua checkpoint nặng
+artifacts/**/*.pt
+artifacts/**/*.npz
+artifacts/**/*.tmp
+artifacts/**/*.csv
+
 checkpoints/
 *.pt
 *.pth
