@@ -9,7 +9,7 @@
   "parameters": 7850,
   "trainable_parameters": 7850,
   "weight_size_mb": 0.02994537353515625,
-  "latency_ms_per_image": 0.0012886166665282417,
+  "latency_ms_per_image": 0.005474698958292852,
   "benchmark_batch_size": 32,
   "benchmark_peak_memory_mb": 17.439453125
 }
