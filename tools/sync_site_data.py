@@ -84,10 +84,10 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
             {
                 "id": "cnn",
                 "name": "CNN Classifier",
-                "architecture": "Conv(1→32, 3×3)+ReLU+MaxPool(2) → Conv(32→64, 3×3)+ReLU+MaxPool(2) → GlobalAvgPool(7×7→1×1) → Linear(64→10)",
+                "architecture": "Conv(1→32, 3×3)+ReLU+MaxPool(2) → Conv(32→64, 3×3)+ReLU+MaxPool(2) → Flatten(3136) → Linear(3136→10)",
                 "inductive_bias": "Trường tiếp nhận cục bộ (local receptive field), chia sẻ trọng số (weight sharing) và bất biến dịch chuyển qua MaxPool",
-                "expected_params": 19466,
-                "expected_weight_mb": 0.074,
+                "expected_params": 50186,
+                "expected_weight_mb": 0.191,
                 "preview": {}
             }
         ]
@@ -496,6 +496,11 @@ def valid_full_run(assignment: str, experiment_id: str, run_dir: Path) -> bool:
     """Verify the minimum provenance required before publishing a run."""
     metrics = read_json_safe(run_dir / "metrics.json")
     config = read_json_safe(run_dir / "config.json")
+    # The previous E1 CNN used GAP; its results must not describe the new head.
+    metrics_match_model = (
+        assignment != "E1" or experiment_id != "cnn"
+        or bool(metrics) and metrics.get("parameters") == 50186
+    )
     return bool(
         metrics
         and config
@@ -503,6 +508,7 @@ def valid_full_run(assignment: str, experiment_id: str, run_dir: Path) -> bool:
         and config.get("run_mode") == "full"
         and config.get("assignment") == assignment
         and config.get("experiment_id") == experiment_id
+        and metrics_match_model
     )
 
 

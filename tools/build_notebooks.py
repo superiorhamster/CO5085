@@ -445,12 +445,20 @@ def plot_confusion(y_true, y_pred, class_names, path, normalize=True):
     figure.tight_layout(); figure.savefig(path, dpi=160); plt.close(figure)
 
 
-def completed_metrics(run_dir, run_mode):
+def completed_metrics(run_dir, run_mode, expected_parameters=None):
     path = Path(run_dir) / "metrics.json"
     if not path.exists():
         return None
     with path.open(encoding="utf-8") as handle:
         metrics = json.load(handle)
+    if expected_parameters is not None and metrics.get("parameters") != expected_parameters:
+        if CONFIG["evaluate_only"] or CONFIG["resume_from"] is not None:
+            raise ValueError(
+                "CNN architecture changed: start a fresh run with resume_from=None and "
+                "evaluate_only=False, or select the output_root of a matching run."
+            )
+        print("Ignoring metrics from a different CNN architecture:", path)
+        return None
     return metrics if metrics.get("run_mode") == run_mode else None
 
 
@@ -521,16 +529,16 @@ class CNNClassifier(nn.Module):
             nn.Conv2d(1, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
             nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
         )
-        self.gap = nn.AdaptiveAvgPool2d(1)
-        self.head = nn.Linear(64, 10)
+        self.head = nn.Linear(64 * 7 * 7, 10)
 
     def forward(self, images):
-        features = self.gap(self.features(images)).flatten(1)
-        return self.head(features)
+        return self.head(self.features(images).flatten(1))
 
 
 MODEL_FACTORIES = {"softmax": SoftmaxClassifier, "mlp": MLPClassifier, "cnn": CNNClassifier}
-assert sum(parameter.numel() for parameter in CNNClassifier().parameters()) == 19466
+assert sum(parameter.numel() for parameter in CNNClassifier().parameters()) == 50186
+assert sum(parameter.numel() for parameter in CNNClassifier().parameters()) < sum(
+    parameter.numel() for parameter in MLPClassifier().parameters())
 EXPERIMENT_IDS = list(MODEL_FACTORIES)
 selected = CONFIG["experiment_ids"] or EXPERIMENT_IDS
 unknown = set(selected) - set(EXPERIMENT_IDS)
@@ -558,14 +566,17 @@ def overfit_one_batch(factory, steps=30):
     return initial, loss.item()
 
 
-print("one-batch sanity:", overfit_one_batch(MODEL_FACTORIES[selected[0]], 10 if CONFIG["run_mode"] == "smoke" else 30))
+for experiment_id in selected:
+    print(experiment_id, "one-batch sanity:", overfit_one_batch(
+        MODEL_FACTORIES[experiment_id], 10 if CONFIG["run_mode"] == "smoke" else 30))
 '''
     run = r'''
 summary = []
 OUTPUT_BASE = Path(CONFIG["output_root"]) / "E1" / CONFIG["run_mode"]
 for experiment_id in selected:
     run_dir = OUTPUT_BASE / experiment_id
-    existing = completed_metrics(run_dir, CONFIG["run_mode"])
+    existing = completed_metrics(
+        run_dir, CONFIG["run_mode"], expected_parameters=50186 if experiment_id == "cnn" else None)
     if existing is not None and not CONFIG["evaluate_only"]:
         print("skip completed:", experiment_id)
         summary.append({"experiment_id": experiment_id, **existing})
@@ -666,13 +677,14 @@ plt.tight_layout(); plt.show()'''),
         md("## 4. Mô hình"),
         describe_cell(
             "4.1. Định nghĩa ba baseline",
-            "Cài đặt Softmax tuyến tính, MLP hai tầng ẩn và CNN hai block tích chập + Global Average Pooling + Linear với cùng đầu ra 10 logits.",
+            "Cài đặt Softmax tuyến tính, MLP hai tầng ẩn và CNN hai block tích chập + Flatten 3136 + Linear với cùng đầu ra 10 logits.",
             "Tạo `MODEL_FACTORIES`, ba experiment ID và danh sách `selected` lấy từ cấu hình.",
+            "CNN có 50.186 tham số so với 235.146 của MLP (ít hơn 78,7%). Head tuyến tính giữ thông tin vị trí trên feature map 7×7; accuracy cần đo bằng full run mới. Checkpoint CNN GAP cũ không tương thích.",
         ), code(models),
         md("## 5. Kiểm tra nhanh: overfit một batch và gradient hữu hạn"),
         describe_cell(
             "5.1. Chạy sanity check",
-            "Huấn luyện mô hình đầu tiên trên một mini-batch nhỏ để xác nhận loss giảm và mọi gradient đều hữu hạn.",
+            "Huấn luyện từng mô hình được chọn trên một mini-batch nhỏ để xác nhận loss giảm và mọi gradient đều hữu hạn.",
             "In loss đầu/cuối; assertion sẽ dừng notebook nếu pipeline forward/backward có lỗi.",
         ), code(sanity),
         md("## 6. Huấn luyện và chọn checkpoint"),
@@ -983,12 +995,13 @@ class CNNClassifier(nn.Module):
         super().__init__()
         self.features = nn.Sequential(nn.Conv2d(1, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
                                       nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2))
-        self.gap = nn.AdaptiveAvgPool2d(1)
-        self.head = nn.Linear(64, 10)
-    def forward(self, images): return self.head(self.gap(self.features(images)).flatten(1))
+        self.head = nn.Linear(64 * 7 * 7, 10)
+    def forward(self, images): return self.head(self.features(images).flatten(1))
 
 
-assert sum(parameter.numel() for parameter in CNNClassifier().parameters()) == 19466
+assert sum(parameter.numel() for parameter in CNNClassifier().parameters()) == 50186
+assert sum(parameter.numel() for parameter in CNNClassifier().parameters()) < sum(
+    parameter.numel() for parameter in MLPClassifier().parameters())
 EXPERIMENT_IDS = [f"{recurrent}_{representation}" for recurrent in ("lstm", "gru")
                   for representation in ("row", "patch")]
 selected = CONFIG["experiment_ids"] or EXPERIMENT_IDS
@@ -1038,6 +1051,10 @@ def load_e1_baseline(experiment_id):
     metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
     if config.get("split_hash") != SPLIT_HASH or config.get("seed") != CONFIG["seed"]:
         raise RuntimeError(f"E1 artifact mismatch: {run_dir}")
+    expected_parameters = 50186 if experiment_id == "cnn" else 235146
+    if metrics.get("parameters") != expected_parameters:
+        print(f"Stale E1 baseline ignored (parameters={metrics.get('parameters')}, expected={expected_parameters}): {run_dir}")
+        return None
     if config.get("experiment_id") != experiment_id or metrics.get("run_mode") != "full":
         raise RuntimeError(f"Invalid E1 artifact: {run_dir}")
     return {"experiment_id": f"e1_{experiment_id}", "source": "E1/full", **metrics}
@@ -1134,8 +1151,9 @@ display(summary_frame)
         md("## 4. Biểu diễn chuỗi và mô hình"),
         describe_cell(
             "4.1. Xây dựng LSTM/GRU và baseline",
-            "Biểu diễn ảnh theo 28 hàng hoặc 49 patch, cài đặt LSTM/GRU một chiều và định nghĩa lại MLP/CNN của E1, trong đó CNN dùng Global Average Pooling.",
+            "Biểu diễn ảnh theo 28 hàng hoặc 49 patch, cài đặt LSTM/GRU một chiều và định nghĩa lại MLP/CNN của E1, trong đó CNN dùng Flatten 3136 và Linear 3136→10.",
             "Tạo bốn experiment recurrent, kiểm tra shape chuỗi và xác nhận GRU có thể overfit một batch nhỏ.",
+            "CNN baseline có 50.186 tham số, ít hơn MLP 78,7%. Artifact CNN GAP với 19.466 tham số sẽ bị bỏ qua và baseline được chạy lại.",
         ), code(models),
         md("## 5. Nhập baseline E1 có kiểm tra provenance"),
         describe_cell(

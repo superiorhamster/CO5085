@@ -9,7 +9,7 @@
     "smoke_policy": "Smoke runs are strictly excluded from report tables per plans/00_conventions.md."
   },
   "total_expected_experiments": 23,
-  "total_completed_full_experiments": 13,
+  "total_completed_full_experiments": 12,
   "assignments": {
     "E1": {
       "title": "E1 — Phân loại ảnh cơ bản (Softmax, MLP, CNN)",
@@ -19,8 +19,8 @@
       "optimizer": "Adam (lr=1e-3), Batch size=128, Epochs=20, No Augmentation",
       "checkpoint_rule": "Chọn best.pt theo Validation Accuracy cao nhất (hòa chọn Validation Loss thấp hơn)",
       "expected_count": 3,
-      "completed_full_count": 3,
-      "all_full_completed": true,
+      "completed_full_count": 2,
+      "all_full_completed": false,
       "experiments": [
         {
           "id": "softmax",
@@ -615,241 +615,17 @@
         {
           "id": "cnn",
           "name": "CNN Classifier",
-          "architecture": "Conv(1→32, 3×3)+ReLU+MaxPool(2) → Conv(32→64, 3×3)+ReLU+MaxPool(2) → GlobalAvgPool(7×7→1×1) → Linear(64→10)",
+          "architecture": "Conv(1→32, 3×3)+ReLU+MaxPool(2) → Conv(32→64, 3×3)+ReLU+MaxPool(2) → Flatten(3136) → Linear(3136→10)",
           "inductive_bias": "Trường tiếp nhận cục bộ (local receptive field), chia sẻ trọng số (weight sharing) và bất biến dịch chuyển qua MaxPool",
-          "expected_params": 19466,
-          "expected_weight_mb": 0.074,
+          "expected_params": 50186,
+          "expected_weight_mb": 0.191,
           "preview": {},
-          "has_full_metrics": true,
-          "metrics": {
-            "run_mode": "full",
-            "best_epoch": 19,
-            "val_loss": 0.40454616490999856,
-            "val_accuracy": 0.8611666666666666,
-            "test_loss": 0.444252156829834,
-            "test_accuracy": 0.847,
-            "peak_gpu_memory_mb": 42.44873046875,
-            "parameters": 19466,
-            "trainable_parameters": 19466,
-            "weight_size_mb": 0.07425689697265625,
-            "latency_ms_per_image": 0.019531664583401682,
-            "benchmark_batch_size": 32,
-            "benchmark_peak_memory_mb": 41.86962890625
-          },
-          "config": {
-            "run_mode": "full",
-            "experiment_ids": [],
-            "seed": 42,
-            "batch_size": 128,
-            "epochs": 20,
-            "evaluate_only": false,
-            "num_workers": 2,
-            "assignment": "E1",
-            "experiment_id": "cnn",
-            "split_hash": "bbadd2fc92455ce7f7ca22890516a1f02c47a663679ec246709d7cf0cfdcb075",
-            "normalization": {
-              "mean": 0.2860405743122101,
-              "std": 0.3530242443084717
-            },
-            "max_train_batches": null,
-            "max_eval_batches": null
-          },
-          "environment": {
-            "python": "3.13.16",
-            "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
-            "torch": "2.11.0+cu130",
-            "torchvision": "0.26.0+cu130",
-            "sklearn": "1.6.1",
-            "cuda": "13.0",
-            "device": "Tesla T4"
-          },
-          "history": [
-            {
-              "epoch": 0,
-              "train_loss": 1.2937206666734484,
-              "train_accuracy": 0.5616666666666666,
-              "val_loss": 0.8989965337117513,
-              "val_accuracy": 0.6965,
-              "epoch_seconds": 12.508491581000044,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 1,
-              "train_loss": 0.8188054915357519,
-              "train_accuracy": 0.715037037037037,
-              "val_loss": 0.7525953572591145,
-              "val_accuracy": 0.747,
-              "epoch_seconds": 10.221193672000027,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 2,
-              "train_loss": 0.7133588443508855,
-              "train_accuracy": 0.7475,
-              "val_loss": 0.664602195262909,
-              "val_accuracy": 0.7673333333333333,
-              "epoch_seconds": 10.155448344999968,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 3,
-              "train_loss": 0.6575231566252532,
-              "train_accuracy": 0.7714074074074074,
-              "val_loss": 0.6154077172279357,
-              "val_accuracy": 0.7911666666666667,
-              "epoch_seconds": 10.285834543999954,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 4,
-              "train_loss": 0.610316663618441,
-              "train_accuracy": 0.7890925925925926,
-              "val_loss": 0.5801533807118734,
-              "val_accuracy": 0.8001666666666667,
-              "epoch_seconds": 10.191410670999858,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 5,
-              "train_loss": 0.5755565690287837,
-              "train_accuracy": 0.8006666666666666,
-              "val_loss": 0.5416606089274089,
-              "val_accuracy": 0.8146666666666667,
-              "epoch_seconds": 10.217140621999988,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 6,
-              "train_loss": 0.5528218429176895,
-              "train_accuracy": 0.8095740740740741,
-              "val_loss": 0.5085228544076283,
-              "val_accuracy": 0.8256666666666667,
-              "epoch_seconds": 10.155358691999936,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 7,
-              "train_loss": 0.5283273214764065,
-              "train_accuracy": 0.8174074074074074,
-              "val_loss": 0.49473773638407387,
-              "val_accuracy": 0.8311666666666667,
-              "epoch_seconds": 10.138108517000092,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 8,
-              "train_loss": 0.5123499420130694,
-              "train_accuracy": 0.8225370370370371,
-              "val_loss": 0.4916780848503113,
-              "val_accuracy": 0.8285,
-              "epoch_seconds": 10.221201372999985,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 9,
-              "train_loss": 0.496929579478723,
-              "train_accuracy": 0.8267222222222222,
-              "val_loss": 0.4700277024904887,
-              "val_accuracy": 0.8383333333333334,
-              "epoch_seconds": 10.01710500199988,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 10,
-              "train_loss": 0.4825564946333567,
-              "train_accuracy": 0.8319444444444445,
-              "val_loss": 0.4706442437171936,
-              "val_accuracy": 0.8391666666666666,
-              "epoch_seconds": 10.29602633699983,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 11,
-              "train_loss": 0.4726938114519472,
-              "train_accuracy": 0.8354074074074074,
-              "val_loss": 0.4560912837187449,
-              "val_accuracy": 0.8418333333333333,
-              "epoch_seconds": 10.291936064999845,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 12,
-              "train_loss": 0.46093954684999255,
-              "train_accuracy": 0.8395925925925926,
-              "val_loss": 0.4455045674641927,
-              "val_accuracy": 0.8443333333333334,
-              "epoch_seconds": 10.093555630000083,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 13,
-              "train_loss": 0.45120541226422345,
-              "train_accuracy": 0.8416851851851852,
-              "val_loss": 0.4363537395000458,
-              "val_accuracy": 0.8496666666666667,
-              "epoch_seconds": 10.344961336999859,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 14,
-              "train_loss": 0.4381323749665861,
-              "train_accuracy": 0.8469074074074074,
-              "val_loss": 0.4198897131284078,
-              "val_accuracy": 0.8593333333333333,
-              "epoch_seconds": 10.096129014000098,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 15,
-              "train_loss": 0.4320810886665627,
-              "train_accuracy": 0.8489814814814814,
-              "val_loss": 0.4221900117397308,
-              "val_accuracy": 0.8543333333333333,
-              "epoch_seconds": 10.152779252999835,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 16,
-              "train_loss": 0.42293967851886044,
-              "train_accuracy": 0.8522592592592593,
-              "val_loss": 0.4216190716425578,
-              "val_accuracy": 0.8496666666666667,
-              "epoch_seconds": 10.323419158999968,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 17,
-              "train_loss": 0.42280518092932523,
-              "train_accuracy": 0.8517962962962963,
-              "val_loss": 0.4290705536206563,
-              "val_accuracy": 0.8485,
-              "epoch_seconds": 10.269201919999887,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 18,
-              "train_loss": 0.410872038770605,
-              "train_accuracy": 0.856,
-              "val_loss": 0.425023453950882,
-              "val_accuracy": 0.8495,
-              "epoch_seconds": 10.236941609000041,
-              "learning_rate": 0.001
-            },
-            {
-              "epoch": 19,
-              "train_loss": 0.40349606762992013,
-              "train_accuracy": 0.8581666666666666,
-              "val_loss": 0.40454616490999856,
-              "val_accuracy": 0.8611666666666666,
-              "epoch_seconds": 10.27763212900004,
-              "learning_rate": 0.001
-            }
-          ],
-          "images": {
-            "curves": "assets/artifacts/E1/cnn/curves.png",
-            "confusion_matrix": "assets/artifacts/E1/cnn/confusion_matrix.png",
-            "failures": "assets/artifacts/E1/cnn/failures.png"
-          }
+          "has_full_metrics": false,
+          "metrics": null,
+          "config": null,
+          "environment": null,
+          "history": [],
+          "images": {}
         }
       ]
     },
