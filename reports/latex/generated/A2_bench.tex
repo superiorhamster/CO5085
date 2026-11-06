@@ -1,0 +1,15 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Benchmark generator EMA FP32, 30 lần đo trên Tesla T4.}\label{tab:A2bench}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrrr}
+\toprule
+Biến thể & Batch & ms/ảnh & ảnh/s & MiB \\
+\midrule
+Baseline & 1 & 0.989 & 1010.7 & 15.03 \\
+Baseline & 64 & 0.277 & 3614.5 & 100.35 \\
++ DiffAugment & 1 & 0.947 & 1055.7 & 15.03 \\
++ DiffAugment & 64 & 0.286 & 3495.9 & 100.35 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

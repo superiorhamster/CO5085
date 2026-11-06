@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering\small
+\caption{E2: kết quả đo; best epoch đổi từ chỉ số 0 sang thứ tự 1--20.}\label{tab:resultsE2}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrrrr}
+\toprule
+ID & Val (\%) & Test (\%) & Test loss & Best$^*$ & Tham số \\
+\midrule
+scratch\_patch & 89.13 & 88.09 & 0.347 & 17 & 71,946 \\
+scratch\_row & 90.52 & 89.23 & 0.327 & 17 & 71,370 \\
+scratch\_cnn & 91.50 & 90.20 & 0.307 & 18 & 89,674 \\
+torch\_patch & 89.50 & 88.04 & 0.330 & 18 & 71,946 \\
+torch\_row & 90.33 & 88.34 & 0.341 & 14 & 71,370 \\
+torch\_cnn & 91.20 & 89.75 & 0.295 & 15 & 89,674 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

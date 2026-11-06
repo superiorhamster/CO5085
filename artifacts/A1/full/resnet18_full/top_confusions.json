@@ -1,0 +1,102 @@
+[
+  {
+    "true": "girl",
+    "predicted": "woman",
+    "count": 16
+  },
+  {
+    "true": "willow_tree",
+    "predicted": "maple_tree",
+    "count": 15
+  },
+  {
+    "true": "seal",
+    "predicted": "otter",
+    "count": 15
+  },
+  {
+    "true": "oak_tree",
+    "predicted": "maple_tree",
+    "count": 15
+  },
+  {
+    "true": "woman",
+    "predicted": "girl",
+    "count": 14
+  },
+  {
+    "true": "boy",
+    "predicted": "girl",
+    "count": 14
+  },
+  {
+    "true": "plate",
+    "predicted": "bowl",
+    "count": 13
+  },
+  {
+    "true": "girl",
+    "predicted": "baby",
+    "count": 13
+  },
+  {
+    "true": "otter",
+    "predicted": "seal",
+    "count": 12
+  },
+  {
+    "true": "maple_tree",
+    "predicted": "oak_tree",
+    "count": 12
+  },
+  {
+    "true": "bowl",
+    "predicted": "plate",
+    "count": 12
+  },
+  {
+    "true": "tulip",
+    "predicted": "poppy",
+    "count": 11
+  },
+  {
+    "true": "pine_tree",
+    "predicted": "oak_tree",
+    "count": 11
+  },
+  {
+    "true": "woman",
+    "predicted": "man",
+    "count": 10
+  },
+  {
+    "true": "boy",
+    "predicted": "baby",
+    "count": 10
+  },
+  {
+    "true": "mouse",
+    "predicted": "shrew",
+    "count": 10
+  },
+  {
+    "true": "man",
+    "predicted": "woman",
+    "count": 10
+  },
+  {
+    "true": "man",
+    "predicted": "boy",
+    "count": 10
+  },
+  {
+    "true": "boy",
+    "predicted": "man",
+    "count": 10
+  },
+  {
+    "true": "baby",
+    "predicted": "boy",
+    "count": 10
+  }
+]

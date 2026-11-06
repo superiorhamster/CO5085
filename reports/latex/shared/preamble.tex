@@ -1,0 +1,46 @@
+% Derivative of HCMUT_RP_template/SoftEng_252/main.tex; original is untouched.
+\usepackage[utf8]{vntex}
+\usepackage[a4paper,left=25mm,right=23mm,top=28mm,bottom=25mm,headheight=38pt,headsep=12pt]{geometry}
+\usepackage{amsmath,amssymb,graphicx,array,booktabs,longtable,tabularx}
+\usepackage{fancyhdr,lastpage,xcolor,listings,caption,enumitem}
+\usepackage[unicode,colorlinks=true,linkcolor=black,citecolor=blue!50!black,urlcolor=blue!60!black,breaklinks=true]{hyperref}
+\usepackage{xurl}
+\input{../shared/metadata}
+\graphicspath{{../generated/}{../shared/}}
+\definecolor{hcmut}{RGB}{0,78,137}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\begin{tabular}{@{}cl@{}}\includegraphics[width=8mm]{hcmut.png}&\begin{tabular}{@{}l@{}}\scriptsize\bfseries Trường Đại học Bách Khoa TP.HCM\\\scriptsize Khoa Khoa học và Kỹ thuật Máy tính\end{tabular}\end{tabular}}
+\fancyhead[R]{\scriptsize\CourseCode\ -- HK261}
+\fancyfoot[L]{\scriptsize CO5085 -- Năm học 2026--2027}
+\fancyfoot[R]{\scriptsize Trang \thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{.3pt}\renewcommand{\footrulewidth}{.3pt}
+\newsavebox{\reporttable}
+\setlength{\parindent}{1.2em}\setlength{\parskip}{.35em}
+\renewcommand{\arraystretch}{1.18}
+\setcounter{tocdepth}{2}
+\setlist{nosep,topsep=4pt}
+\captionsetup{font=small,labelfont=bf,skip=7pt}
+\lstset{language=Python,basicstyle=\footnotesize\ttfamily,keywordstyle=\color{hcmut}\bfseries,commentstyle=\color{black!55},stringstyle=\color{green!35!black},frame=tb,rulecolor=\color{hcmut!40},breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,numbers=left,numberstyle=\tiny\color{black!50},numbersep=7pt,xleftmargin=12pt,tabsize=4}
+\emergencystretch=2em
+\newcommand{\source}[1]{\par{\footnotesize\textit{Nguồn:} \path{#1}.}\par}
+\newcommand{\fig}[4][.92]{\begin{figure}[htbp]\centering\includegraphics[width=#1\linewidth,height=.68\textheight,keepaspectratio]{#2}\caption{#3}\label{fig:#4}\end{figure}}
+\newcommand{\reportcover}[2]{%
+\hypersetup{pdftitle={#1},pdfauthor={\AuthorName},pdfsubject={CO5085 HK261}}
+\begin{titlepage}\begin{center}
+ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH\\
+\textbf{TRƯỜNG ĐẠI HỌC BÁCH KHOA}\\
+KHOA KHOA HỌC VÀ KỸ THUẬT MÁY TÍNH
+\vspace{16mm}\par\includegraphics[width=3cm]{hcmut.png}\par\vspace{14mm}
+{\large\bfseries \CourseCode\ -- \CourseName}\par\vspace{5mm}
+\rule{\linewidth}{.6pt}\par\vspace{7mm}
+{\LARGE\bfseries\color{hcmut} #1}\par\vspace{5mm}
+{\large #2}\par\vspace{7mm}\rule{\linewidth}{.6pt}\par
+\vspace{6mm}\Semester\par
+\vfill
+\begin{tabular}{rl}Giảng viên: & \AdvisorOne\\ &\AdvisorTwo\\Sinh viên 1: &\AuthorNameOne\\Sinh viên 2: &\AuthorNameTwo\end{tabular}
+\vfill TP. Hồ Chí Minh, \ReportDate
+\end{center}\end{titlepage}
+\tableofcontents\clearpage}
+\newcommand{\disclosure}{\subsection*{Khai báo sử dụng AI}
+AI được sử dụng để hỗ trợ thiết kế giao diện website và trực quan hóa kết quả; nghiên cứu tài liệu, đối chiếu nguồn tham khảo; xây dựng, rà soát và debug mã nguồn; thiết kế cơ chế điều phối huấn luyện song song bằng hai tiến trình trên hai GPU; tổ chức artifact, kiểm tra tính nhất quán và soạn thảo báo cáo LaTeX. Các số đo trong báo cáo được lấy từ artifact và notebook đã chạy, không thay bằng kết quả do AI tự tạo. Hỗ trợ về mã điều phối không đồng nghĩa AI đã thực hiện thêm các lượt huấn luyện mới trong quá trình biên soạn báo cáo.
+Hai thành viên chịu trách nhiệm về nội dung và kết quả được trình bày; cần tự rà soát nguồn, kiểm tra mã, hiểu phương pháp và có khả năng giải thích, bảo vệ toàn bộ nội dung trước khi nộp. Việc dùng AI không thay thế các yêu cầu tự thực hiện và hiểu bài trong đề. URL video chưa được cung cấp và không được tự bổ sung.}

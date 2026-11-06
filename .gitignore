@@ -35,3 +35,45 @@ Thumbs.db
 .idea/
 .vscode/
 
+
+# Original multi-GB exports remain local; publish the curated artifacts/ bundle.
+/A1/A1_full/
+/A2/A2_full/
+!/artifacts/A1/**/*.csv
+!/artifacts/A2/**/*.csv
+
+# LaTeX build intermediates; source, generated tables/figures and final PDFs stay tracked.
+/reports/latex/.build/
+/reports/latex/*/main.aux
+/reports/latex/*/main.bbl
+/reports/latex/*/main.blg
+/reports/latex/*/main.fdb_latexmk
+/reports/latex/*/main.fls
+/reports/latex/*/main.log
+/reports/latex/*/main.out
+/reports/latex/*/main.toc
+/reports/latex/*/main.pdf
+/reports/overleaf/
+
+# Independent LaTeX projects/upload ZIPs are retained; compiler outputs are ignored.
+/reports/projects/*.zip
+!/reports/projects/exercises.zip
+!/reports/projects/assignment1.zip
+!/reports/projects/assignment2.zip
+/reports/projects/*/*.aux
+/reports/projects/*/*.bbl
+/reports/projects/*/*.blg
+/reports/projects/*/*.fdb_latexmk
+/reports/projects/*/*.fls
+/reports/projects/*/*.log
+/reports/projects/*/*.out
+/reports/projects/*/*.toc
+/reports/projects/*/main.pdf
+
+# Lightweight coursework histories are source evidence, like A1/A2 CSVs.
+!/artifacts/E1/**/*.csv
+!/artifacts/E2/**/*.csv
+!/artifacts/E3/**/*.csv
+
+# Raw arrays are never deployment assets.
+*.npy

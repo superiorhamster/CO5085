@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering\small
+\caption{EDA từ manifest: dedup theo SHA-256 (shape + pixel RGB) trước khi split, không phải kiểm tra near-duplicate.}\label{tab:A2eda}
+\begin{lrbox}{\reporttable}\begin{tabular}{lr}
+\toprule
+Thuộc tính & Giá trị \\
+\midrule
+Tệp đã kiểm tra & 63,565 \\
+Trùng hash pixel đã loại & 22,043 \\
+Tệp lỗi & 0 \\
+Ảnh duy nhất & 41,522 \\
+Train / val / test & 34,522 / 2,000 / 5,000 \\
+Chiều rộng min--max & 25--220 \\
+Chiều cao min--max & 25--220 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

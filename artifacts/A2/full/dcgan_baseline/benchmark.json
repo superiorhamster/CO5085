@@ -1,0 +1,20 @@
+{
+  "1": {
+    "fingerprint": "b5930a0ef5c5a6276a0bc51e7a8601b4f9b8d0dd80e8b1e6b8f2d641b69a2422",
+    "checkpoint_sha256": "b26e9fb0c41ff36f8bf61092485c8655bc2d1580ec2b94800c7f6b37790940d3",
+    "latency_ms_per_image": 0.9893962666865264,
+    "images_per_second": 1010.7173775265853,
+    "peak_gpu_memory_mb": 15.02978515625,
+    "precision": "FP32",
+    "device": "Tesla T4"
+  },
+  "64": {
+    "fingerprint": "b5930a0ef5c5a6276a0bc51e7a8601b4f9b8d0dd80e8b1e6b8f2d641b69a2422",
+    "checkpoint_sha256": "b26e9fb0c41ff36f8bf61092485c8655bc2d1580ec2b94800c7f6b37790940d3",
+    "latency_ms_per_image": 0.27666607291697193,
+    "images_per_second": 3614.4655882692996,
+    "peak_gpu_memory_mb": 100.34619140625,
+    "precision": "FP32",
+    "device": "Tesla T4"
+  }
+}

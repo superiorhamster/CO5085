@@ -1,0 +1,102 @@
+[
+  {
+    "true": "sea",
+    "predicted": "cloud",
+    "count": 20
+  },
+  {
+    "true": "boy",
+    "predicted": "man",
+    "count": 19
+  },
+  {
+    "true": "girl",
+    "predicted": "boy",
+    "count": 17
+  },
+  {
+    "true": "palm_tree",
+    "predicted": "pine_tree",
+    "count": 17
+  },
+  {
+    "true": "willow_tree",
+    "predicted": "maple_tree",
+    "count": 16
+  },
+  {
+    "true": "bus",
+    "predicted": "pickup_truck",
+    "count": 16
+  },
+  {
+    "true": "girl",
+    "predicted": "man",
+    "count": 15
+  },
+  {
+    "true": "whale",
+    "predicted": "shark",
+    "count": 15
+  },
+  {
+    "true": "tulip",
+    "predicted": "orchid",
+    "count": 15
+  },
+  {
+    "true": "oak_tree",
+    "predicted": "maple_tree",
+    "count": 15
+  },
+  {
+    "true": "maple_tree",
+    "predicted": "oak_tree",
+    "count": 14
+  },
+  {
+    "true": "dolphin",
+    "predicted": "shark",
+    "count": 13
+  },
+  {
+    "true": "oak_tree",
+    "predicted": "pine_tree",
+    "count": 13
+  },
+  {
+    "true": "plate",
+    "predicted": "clock",
+    "count": 13
+  },
+  {
+    "true": "castle",
+    "predicted": "house",
+    "count": 12
+  },
+  {
+    "true": "rose",
+    "predicted": "tulip",
+    "count": 12
+  },
+  {
+    "true": "shrew",
+    "predicted": "raccoon",
+    "count": 12
+  },
+  {
+    "true": "woman",
+    "predicted": "girl",
+    "count": 12
+  },
+  {
+    "true": "willow_tree",
+    "predicted": "forest",
+    "count": 11
+  },
+  {
+    "true": "boy",
+    "predicted": "girl",
+    "count": 11
+  }
+]

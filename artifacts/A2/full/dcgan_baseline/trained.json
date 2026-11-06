@@ -1,0 +1,12 @@
+{
+  "fingerprint": "b5930a0ef5c5a6276a0bc51e7a8601b4f9b8d0dd80e8b1e6b8f2d641b69a2422",
+  "completed_training": true,
+  "steps": 20000,
+  "real_images_seen": 1280000,
+  "training_seconds": 921.8447412979999,
+  "projected_20000_updates_seconds": 921.8447412979999,
+  "updates_per_second": 21.69562736978797,
+  "real_images_per_second": 1388.5201516664301,
+  "peak_host_memory_mb": 1659.8515625,
+  "peak_training_gpu_memory_mb": 210.6435546875
+}

@@ -12,7 +12,7 @@ Năm notebook phải tự chứa, chạy tuần tự từ kernel sạch trên Co
 - `data_root`, `output_root`: đọc từ biến môi trường, có fallback tương thích Colab/Kaggle/local.
 - `resume_from`: `None`, `"last"`, hoặc đường dẫn checkpoint cụ thể.
 - `evaluate_only`: đọc từ `CO5085_EVALUATE_ONLY=1`; tải checkpoint và chạy lại phần đánh giá mà không cập nhật trọng số.
-- Full run chọn checkpoint bằng validation set; test chỉ chạy sau khi checkpoint đã được chọn.
+- E1–A1 chọn checkpoint bằng validation set; test chỉ chạy sau khi checkpoint đã được chọn. A2 dùng final EMA tại đúng budget, validation chỉ chẩn đoán.
 
 ## Split dùng chung E1–E3
 
@@ -23,11 +23,16 @@ Fashion-MNIST official train được chia phân tầng thành 54.000 train và 
 Mỗi run lưu tại `<output_root>/<assignment>/<run_mode>/<experiment_id>/`:
 
 - `config.json`, `environment.json`, `history.csv`, `metrics.json`;
-- `last.pt` và `best.pt` cho E1–A1; A2 dùng `step_*.pt` và `last.pt`;
+- `last.pt` và `best.pt` cho E1–A1; A2 dùng `last.pt` và `previous.pt`, final EMA trong checkpoint;
 - `curves.png`, `confusion_matrix.png`, `failures.png` khi phù hợp;
 - dự đoán hoặc manifest cần thiết để tái tạo bảng báo cáo.
 
 Checkpoint E1–A1 chứa model, optimizer, scheduler, AMP scaler, epoch, best metric và RNG state. A2 lưu thêm EMA, global step và trạng thái sampler. Checkpoint được ghi qua file tạm rồi thay thế để giảm nguy cơ hỏng file khi runtime ngắt.
+
+A2 dùng CONFIG lồng nhau thay vì các biến môi trường chung; thư mục là
+`<output_root>/<run_mode>/<experiment_id>` với output_root mặc định kết thúc bằng
+`artifacts/A2/dcgan_diffaugment_v1`. Xem [protocol A2](A2.md) về hai optimizer,
+RNG augmentation/latent riêng, epoch/offset, fingerprint và evaluate_only.
 
 ## Đo hiệu năng
 
@@ -41,3 +46,10 @@ Checkpoint E1–A1 chứa model, optimizer, scheduler, AMP scaler, epoch, best m
 4. Chạy cell tổng hợp sau khi đủ experiment; chỉ số smoke bị loại khỏi bảng báo cáo.
 5. Lưu notebook đã chạy cùng artifact. Không ghi kết luận trước khi có số liệu full.
 
+
+## A1 Food-101 ngoại lệ namespace và CONFIG
+
+A1 mới dùng CONFIG lồng nhau, resume theo experiment và namespace
+`artifacts/A1/food101_resnet18_swin_v1/{smoke,pilot,full}/<id>`.
+Hai worker riêng GPU chạy ResNet-18/Swin-Tiny, mỗi nhánh4 chế độ. Benchmark FP32 tuần tự GPU0.
+Xem [protocol A1](A1.md); notebook CIFAR-100 giữ nguyên, artifact cũ không tương thích.

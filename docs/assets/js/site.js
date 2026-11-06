@@ -489,329 +489,19 @@
   }
 
   /* ========================================================================
-     ASSIGNMENT 1 PAGE (A1 — CNN vs Transformer on CIFAR-100)
+     ASSIGNMENT 1 PAGE (A1 — ResNet-18 vs DeiT-Tiny on CIFAR-100)
      ======================================================================== */
   function renderA1Page() {
-    if (!state.manifest || !state.manifest.assignments?.A1) return;
-    const a1 = state.manifest.assignments.A1;
-
-    renderA1FreezeInspector();
-
-    const tbody = document.getElementById("a1-table-body");
-    if (tbody) {
-      const filtered = a1.experiments.filter((exp) => {
-        const matchF = state.a1FilterFamily === "all" || exp.family === state.a1FilterFamily;
-        const matchS = state.a1FilterStrategy === "all" || exp.strategy === state.a1FilterStrategy;
-        return matchF && matchS;
-      });
-
-      tbody.innerHTML = filtered
-        .map((exp) => {
-          const totalP = exp.metrics?.parameters || exp.expected_params;
-          const trainP = exp.metrics?.trainable_parameters || exp.expected_trainable;
-          const ratio = ((trainP / totalP) * 100).toFixed(2);
-          return `
-            <tr>
-              <td><code style="font-weight:700;">${exp.id}</code></td>
-              <td><span class="badge ${exp.family === "resnet18" ? "badge-ready" : "badge-preview"}">${exp.family === "resnet18" ? "CNN (ResNet-18)" : "ViT (DeiT-Tiny)"}</span></td>
-              <td>${exp.strategy_label}</td>
-              <td class="num-col">${formatInt(trainP)} / ${formatInt(totalP)} <span style="font-size:0.74rem;color:var(--text-muted);">(${ratio}%)</span></td>
-              <td class="num-col">${renderMetricCell(exp, "val_accuracy", formatPct)}</td>
-              <td class="num-col">${renderMetricCell(exp, "test_accuracy", formatPct)}</td>
-              <td class="num-col">${renderMetricCell(exp, "macro_f1", (v) => formatNum(v, 4))}</td>
-              <td class="num-col">${renderMetricCell(exp, "latency_ms_per_image", (v) => formatNum(v, 2) + " ms")}</td>
-              <td class="num-col">${renderMetricCell(exp, "peak_gpu_memory_mb", (v) => formatNum(v, 0) + " MB")}</td>
-            </tr>
-          `;
-        })
-        .join("");
-    }
-
-    renderA1Charts(a1.experiments);
-    renderArtifactGallery("a1-artifact-gallery", "A1", a1.experiments, [
-      { key: "curves", label: "Loss & Accuracy Curves" },
-      { key: "confusion_matrix", label: "Confusion Matrix (100 lớp)" },
-      { key: "failures", label: "Top-16 High-Confidence Failure Cases" },
-    ]);
-  }
-
-  function renderA1FreezeInspector() {
-    const container = document.getElementById("a1-freeze-diagram");
-    if (!container) return;
-
-    const fam = state.a1InspectorFamily;
-    const strat = state.a1InspectorStrategy;
-
-    const blocks =
-      fam === "resnet18"
-        ? [
-            { name: "conv1 + bn1", sub: "7×7, 64, s=2 (BatchNorm)", active: strat === "scratch" || strat === "full" },
-            { name: "layer1", sub: "2× BasicBlock (64 ch)", active: strat === "scratch" || strat === "full" },
-            { name: "layer2", sub: "2× BasicBlock (128 ch)", active: strat === "scratch" || strat === "full" },
-            { name: "layer3", sub: "2× BasicBlock (256 ch)", active: strat === "scratch" || strat === "full" },
-            {
-              name: "layer4",
-              sub: "2× BasicBlock (512 ch)",
-              active: strat === "scratch" || strat === "full" || strat === "partial",
-            },
-            { name: "fc (Head)", sub: "Linear(512 → 100)", active: true },
-          ]
-        : [
-            {
-              name: "patch_embed",
-              sub: "16×16 Patch + [CLS] + Pos",
-              active: strat === "scratch" || strat === "full",
-            },
-            {
-              name: "blocks.0 .. 9",
-              sub: "10× Transformer Block (d=192, h=3)",
-              active: strat === "scratch" || strat === "full",
-            },
-            {
-              name: "blocks.10 .. 11",
-              sub: "2× Final Transformer Block",
-              active: strat === "scratch" || strat === "full" || strat === "partial",
-            },
-            {
-              name: "norm",
-              sub: "Final LayerNorm(192)",
-              active: strat === "scratch" || strat === "full" || strat === "partial",
-            },
-            { name: "head", sub: "Linear(192 → 100)", active: true },
-          ];
-
-    const lrInfo =
-      strat === "scratch"
-        ? "AdamW (lr = 3e-4, weight_decay = 0.05) cho toàn bộ mạng"
-        : strat === "head_only"
-        ? "AdamW (head lr = 1e-3, weight_decay = 0.01); toàn bộ backbone đóng băng & giữ module.eval()"
-        : "AdamW (backbone lr = 1e-4, head lr = 1e-3, weight_decay = 0.01); module đóng băng giữ module.eval()";
-
-    container.innerHTML = `
-      <div class="arch-pipeline">
-        ${blocks
-          .map(
-            (b, i) => `
-          <div class="arch-node ${b.active ? "trainable" : "frozen"}">
-            <span>${icon(b.active ? "unlock" : "lock")}${b.name}</span>
-            <span class="arch-node-sub">${b.sub}</span>
-            <span class="arch-node-sub" style="color:${b.active ? "var(--accent-emerald)" : "var(--text-muted)"};">
-              ${b.active ? "requires_grad = True" : "Frozen + eval()"}
-            </span>
-          </div>
-          ${i < blocks.length - 1 ? `<span class="arch-arrow">${icon("arrowRight")}</span>` : ""}
-        `
-          )
-          .join("")}
-      </div>
-      <div style="font-size:0.83rem;color:var(--text-secondary);display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
-        <span><strong>Cấu hình Optimizer:</strong> <code>${lrInfo}</code></span>
-        <span><strong>Kiểm chứng bất biến:</strong> <code>verify_freeze_invariant()</code> đảm bảo <code>rtol=0, atol=0</code> trên trọng số &amp; BatchNorm buffer đóng băng.</span>
-      </div>
-    `;
-  }
-
-  function renderA1Charts(experiments) {
-    const accCanvas = document.getElementById("a1-acc-chart");
-    const memCanvas = document.getElementById("a1-mem-chart");
-    if (!accCanvas || typeof Chart === "undefined") return;
-    destroyChart("a1_acc");
-    destroyChart("a1_mem");
-
-    const strategies = ["scratch", "head_only", "partial", "full"];
-    const stratLabels = ["Scratch", "Head-Only (Freeze)", "Partial Freeze", "Full Fine-Tune"];
-
-    const getSeries = (family, metricKey, scale = 1) =>
-      strategies.map((s) => {
-        const exp = experiments.find((x) => x.family === family && x.strategy === s);
-        const m = exp ? getMetric(exp, metricKey) : { value: null };
-        return m.value !== null ? Number((m.value * scale).toFixed(2)) : 0;
-      });
-
-    state.charts["a1_acc"] = new Chart(accCanvas, {
-      type: "bar",
-      data: {
-        labels: stratLabels,
-        datasets: [
-          {
-            label: "ResNet-18 (CNN)",
-            data: getSeries("resnet18", "test_accuracy", 100),
-            backgroundColor: "rgba(11, 87, 208, 0.85)",
-            borderRadius: 6,
-          },
-          {
-            label: "DeiT-Tiny (Vision Transformer)",
-            data: getSeries("deit_tiny", "test_accuracy", 100),
-            backgroundColor: "rgba(124, 58, 237, 0.85)",
-            borderRadius: 6,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: "top" },
-          title: { display: true, text: "Test Accuracy (%) theo Chiến lược Huấn luyện trên CIFAR-100" },
-        },
-        scales: { y: { beginAtZero: true, suggestedMax: 90, title: { display: true, text: "Test Accuracy (%)" } } },
-      },
-    });
-
-    if (memCanvas) {
-      state.charts["a1_mem"] = new Chart(memCanvas, {
-        type: "bar",
-        data: {
-          labels: stratLabels,
-          datasets: [
-            {
-              label: "ResNet-18 Peak VRAM (MB)",
-              data: getSeries("resnet18", "peak_gpu_memory_mb", 1),
-              backgroundColor: "rgba(13, 148, 136, 0.82)",
-              borderRadius: 6,
-            },
-            {
-              label: "DeiT-Tiny Peak VRAM (MB)",
-              data: getSeries("deit_tiny", "peak_gpu_memory_mb", 1),
-              backgroundColor: "rgba(217, 119, 6, 0.82)",
-              borderRadius: 6,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: "top" },
-            title: { display: true, text: "Peak GPU Memory (MB) theo Chiến lược Đóng băng" },
-          },
-          scales: { y: { beginAtZero: true, title: { display: true, text: "Peak GPU Memory (MB)" } } },
-        },
-      });
-    }
+    if (window.renderCifarA1) window.renderCifarA1(state);
   }
 
   /* ========================================================================
-     ASSIGNMENT 2 PAGE (A2 — DDPM Noise Schedule Ablation & ICML 2021 Paper)
+     ASSIGNMENT 2 PAGE (A2 — DCGAN and DiffAugment)
      ======================================================================== */
   function renderA2Page() {
-    if (!state.manifest || !state.manifest.assignments?.A2) return;
-    const a2 = state.manifest.assignments.A2;
-
-    // 1. Live Mathematical Plot of Linear vs Cosine Schedule (Exact equations!)
-    renderA2ScheduleMathChart();
-
-    // 2. Quantitative Comparison Table (Linear vs Cosine)
-    const tbody = document.getElementById("a2-table-body");
-    if (tbody) {
-      tbody.innerHTML = a2.experiments
-        .map((exp) => {
-          const params = exp.metrics?.parameters || exp.expected_params;
-          return `
-            <tr>
-              <td><code style="font-weight:700;">${exp.id}</code><div style="font-size:0.78rem;color:var(--text-muted);">${exp.name}</div></td>
-              <td><code>${exp.schedule_type}</code></td>
-              <td class="num-col">${formatInt(params)}</td>
-              <td class="num-col">${renderMetricCell(exp, "fid", (v) => formatNum(v, 2) + " ↓")}</td>
-              <td class="num-col">${renderMetricCell(exp, "inception_score_mean", (v) => formatNum(v, 2) + " ↑")}</td>
-              <td class="num-col">${renderMetricCell(exp, "seconds_per_image", (v) => formatNum(v, 4) + " s")}</td>
-              <td class="num-col">${renderMetricCell(exp, "peak_gpu_memory_mb", (v) => formatNum(v, 1) + " MB")}</td>
-            </tr>
-          `;
-        })
-        .join("");
-    }
-
-    renderArtifactGallery("a2-artifact-gallery", "A2", a2.experiments, [
-      { key: "denoising_trace", label: "Reverse Denoising Trace (t = 1000 → 0)" },
-      { key: "latest_preview", label: "EMA Generated Sample Grid (4×4)" },
-    ]);
+    if(window.renderAnimeA2)window.renderAnimeA2(state);
   }
 
-  function renderA2ScheduleMathChart() {
-    const canvas = document.getElementById("a2-schedule-chart");
-    if (!canvas || typeof Chart === "undefined") return;
-    destroyChart("a2_schedule");
-
-    // Compute exact alpha_bar_t for T=1000 per Ho et al. (2020) and Nichol & Dhariwal (2021)
-    const T = 1000;
-    const steps = [];
-    const linearAlphaBar = [];
-    const cosineAlphaBar = [];
-
-    let prodLinear = 1.0;
-    const s = 0.008;
-    const f0 = Math.pow(Math.cos(((0 / T + s) / (1 + s)) * (Math.PI / 2)), 2);
-
-    for (let t = 0; t <= T; t++) {
-      if (t > 0) {
-        const betaLin = 1e-4 + ((t - 1) / (T - 1)) * (0.02 - 1e-4);
-        prodLinear *= 1.0 - betaLin;
-      }
-      const ft = Math.pow(Math.cos(((t / T + s) / (1 + s)) * (Math.PI / 2)), 2);
-      const alphaBarCos = Math.min(1.0, Math.max(1e-6, ft / f0));
-
-      if (t % 25 === 0) {
-        steps.push(`t=${t}`);
-        linearAlphaBar.push(Number(prodLinear.toFixed(4)));
-        cosineAlphaBar.push(Number(alphaBarCos.toFixed(4)));
-      }
-    }
-
-    state.charts["a2_schedule"] = new Chart(canvas, {
-      type: "line",
-      data: {
-        labels: steps,
-        datasets: [
-          {
-            label: "Linear Schedule ᾱ_t (beta: 1e-4 → 0.02)",
-            data: linearAlphaBar,
-            borderColor: "#e11d48",
-            backgroundColor: "rgba(225, 29, 72, 0.1)",
-            fill: true,
-            tension: 0.25,
-            borderWidth: 2.5,
-            pointRadius: 2,
-          },
-          {
-            label: "Cosine Schedule ᾱ_t (squaredcos_cap_v2, s=0.008)",
-            data: cosineAlphaBar,
-            borderColor: "#0b57d0",
-            backgroundColor: "rgba(11, 87, 208, 0.1)",
-            fill: true,
-            tension: 0.25,
-            borderWidth: 2.5,
-            pointRadius: 2,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: "top" },
-          title: {
-            display: true,
-            text: "Đồ thị toán học Hệ số Tín hiệu tích lũy ᾱ_t theo bước thời gian t ∈ [0, 1000]",
-          },
-        },
-        scales: {
-          y: {
-            min: 0,
-            max: 1.02,
-            title: { display: true, text: "Cumulative Signal Weight ᾱ_t" },
-          },
-          x: {
-            title: { display: true, text: "Diffusion Timestep (t)" },
-          },
-        },
-      },
-    });
-  }
-
-  /* ========================================================================
-     SHARED ARTIFACT GALLERY & LIGHTBOX
-     ======================================================================== */
   function renderArtifactGallery(containerId, assignment, experiments, plotTypes) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -820,7 +510,7 @@
     experiments.forEach((exp) => {
       plotTypes.forEach((pt) => {
         const imgUrl = exp.images ? exp.images[pt.key] : null;
-        const expectedPath = `artifacts/${assignment}/full/${exp.id}/${pt.key === "latest_preview" ? "preview_step_020000.png" : pt.key + ".png"}`;
+        const expectedPath = `artifacts/${assignment}/${assignment==='A2'?'dcgan_diffaugment_v1/':''}full/${exp.id}/${pt.key === "latest_preview" ? "preview_step_020000.png" : pt.key + ".png"}`;
         if (imgUrl) {
           cards.push(`
             <div class="artifact-card">
@@ -897,46 +587,6 @@
       });
     });
 
-    // A1 family filter
-    document.querySelectorAll("[data-a1-family]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("[data-a1-family]").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        state.a1FilterFamily = btn.getAttribute("data-a1-family");
-        renderA1Page();
-      });
-    });
-
-    // A1 strategy filter
-    document.querySelectorAll("[data-a1-strategy]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("[data-a1-strategy]").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        state.a1FilterStrategy = btn.getAttribute("data-a1-strategy");
-        renderA1Page();
-      });
-    });
-
-    // A1 Freeze Architecture Inspector selectors
-    document.querySelectorAll("[data-inspector-family]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("[data-inspector-family]").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        state.a1InspectorFamily = btn.getAttribute("data-inspector-family");
-        renderA1FreezeInspector();
-      });
-    });
-
-    document.querySelectorAll("[data-inspector-strategy]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("[data-inspector-strategy]").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        state.a1InspectorStrategy = btn.getAttribute("data-inspector-strategy");
-        renderA1FreezeInspector();
-      });
-    });
-
-    // Lightbox close button
     const closeBtn = document.getElementById("lightbox-close-btn");
     const dialog = document.getElementById("artifact-lightbox");
     if (closeBtn && dialog) {
@@ -952,6 +602,18 @@
     renderExercisesPage();
     renderA1Page();
     renderA2Page();
+    document.querySelectorAll('[data-report-pdf]').forEach(link => {
+      const report = state.manifest?.reports?.[link.dataset.reportPdf];
+      const available = report?.available && !report.is_placeholder;
+      link.setAttribute('aria-disabled', String(!available));
+      if (available) {
+        link.setAttribute('href', report.path);
+        link.textContent = `Báo cáo PDF · ${report.pages} trang`;
+      } else {
+        link.removeAttribute('href');
+        link.textContent = 'PDF: chưa có bản build được xác minh';
+      }
+    });
   }
 
   async function init() {

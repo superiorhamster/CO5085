@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="assets/images/bk.png" type="image/png" />
-  <title>Bài tập lớn A2: Ablation Lịch Nhiễu DDPM &amp; Phân tích Paper ICML 2021 | CO5085</title>
-  <meta name="description" content="Báo cáo Bài tập lớn A2 môn CO5085: So sánh lịch nhiễu Linear vs Cosine cho mô hình tạo sinh DDPM trên CelebA 32x32 và phân tích bài báo Improved DDPM (Nichol & Dhariwal, ICML 2021)." />
+  <title>A2: DCGAN và DiffAugment | CO5085</title>
+  <meta name="description" content="A2: So sánh DCGAN baseline và DCGAN + DiffAugment trên anime faces RGB 64×64, cùng dữ liệu và ngân sách huấn luyện." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/a2.css" />
 </head>
 <body>
   <!-- Sticky Header -->
@@ -30,9 +30,8 @@
         <a href="a2.html" class="nav-link active">Bài tập lớn A2</a>
       </nav>
       <div class="nav-actions">
-        <button type="button" class="mode-toggle-btn js-preview-toggle"><span class="icon-slot" data-icon="lock" aria-hidden="true"></span> Chế độ: Chính thức</button>
         <button type="button" id="theme-toggle-btn" class="theme-btn" aria-label="Đổi giao diện Sáng/Tối"><span class="icon-slot" data-icon="moon" aria-hidden="true"></span></button>
-        <a href="reports/assignment2.pdf" target="_blank" rel="noopener" class="btn btn-primary btn-sm"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> assignment2.pdf <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
+        <a class="btn btn-outline" href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo PDF</a>
       </div>
     </div>
   </header>
@@ -44,259 +43,55 @@
     <a href="a2.html" class="nav-link active">Bài tập lớn A2</a>
   </nav>
 
-  <!-- Preview Mode Banner -->
-  <div id="preview-mode-banner" class="preview-banner" role="status">
-    <div class="preview-banner-inner">
-      <span>
-        <strong><span class="icon-slot" data-icon="eye" aria-hidden="true"></span> Đang bật Chế độ Xem thử Bố cục (Preview Demo Mode):</strong>
-        Các chỉ số FID / IS gắn nhãn <code>[Demo]</code> dùng để kiểm tra bảng so sánh. Số liệu chính thức tự động nạp từ <code>artifacts/A2/full/*/metrics.json</code>.
-      </span>
-      <button type="button" class="btn btn-outline btn-sm js-preview-toggle">Chuyển về Chế độ Chính thức</button>
-    </div>
-  </div>
-
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-eyebrow">Bài tập lớn A2 • 30% điểm Coursework • Generative Diffusion Models</div>
-      <h1 class="serif-heading">Ablation Lịch Nhiễu (Linear vs Cosine Schedule) cho DDPM trên CelebA 32×32 &amp; Phân tích Bài báo ICML 2021</h1>
-      <p class="hero-lead">
-        Kết nối phân tích lý thuyết từ công trình <em>Improved Denoising Diffusion Probabilistic Models</em> (Nichol &amp; Dhariwal, ICML 2021) với pipeline thực nghiệm cô lập biến số (controlled ablation) giữa lịch nhiễu tuyến tính và hàm cosin trên bài toán sinh ảnh khuôn mặt không điều kiện.
-      </p>
-
-      <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
-        <a href="#paper-analysis" class="btn btn-primary">1. Phân tích Paper ICML 2021</a>
-        <a href="#schedule-math" class="btn btn-outline">2. Đồ thị Toán học $\bar{\alpha}_t$</a>
-        <a href="#pipeline-results" class="btn btn-outline">3. Pipeline &amp; Kết quả FID/IS</a>
-        <a href="#a2-videos" class="btn btn-outline">4. Video Demo &amp; Thuyết trình</a>
-        <a href="https://github.com/superiorhamster/CO5085/blob/main/A2/a2_diffusion_schedules.ipynb" data-repo-path="A2/a2_diffusion_schedules.ipynb" target="_blank" rel="noopener" class="btn btn-outline">Mã nguồn A2/ <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
-        <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/A2/a2_diffusion_schedules.ipynb" data-colab-notebook="A2/a2_diffusion_schedules.ipynb" target="_blank" rel="noopener" class="btn btn-outline">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
-        <a href="reports/assignment2.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> Báo cáo assignment2.pdf</a>
-      </div>
-
-      <!-- Paper Citation Callout -->
-      <div class="callout callout-purple" style="margin-top:1.5rem;margin-bottom:0;">
-        <div class="callout-title"><span class="icon-slot" data-icon="bookOpen" aria-hidden="true"></span> Bài báo Khoa học Phân tích Chính (Target Paper — ICML 2021)</div>
-        <div style="font-size:0.9rem;color:var(--text-primary);font-weight:600;">
-          Alexander Quinn Nichol, Prafulla Dhariwal (OpenAI). “Improved Denoising Diffusion Probabilistic Models.”
-        </div>
-        <div style="font-size:0.84rem;color:var(--text-secondary);margin-top:0.2rem;">
-          <em>Proceedings of the 38th International Conference on Machine Learning (ICML)</em>, PMLR 139:8162–8171, 2021.
-          <a href="https://arxiv.org/abs/2102.09672" target="_blank" rel="noopener" style="margin-left:0.5rem;">[arXiv:2102.09672 <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span>]</a>
-          <a href="https://proceedings.mlr.press/v139/nichol21a/nichol21a.pdf" target="_blank" rel="noopener" style="margin-left:0.5rem;">[PMLR PDF <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span>]</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <main class="container">
-    <!-- ==================================================================
-         SECTION 1: 4-PART SCIENTIFIC PAPER ANALYSIS (MANDATORY)
-         ================================================================== -->
-    <section id="paper-analysis" class="section">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Phân tích Chuyên sâu 4 Khía cạnh của Improved DDPM</h2>
-          <p class="section-desc">
-            Tự diễn giải có hệ thống từ nền tảng toán học, phát hiện thực nghiệm của tác giả, hạn chế cố hữu đến cách nhóm thiết kế thực nghiệm đối chiếu trên CelebA $32\times 32$.
-          </p>
-        </div>
-        <span class="badge badge-ready">Phần I • Phân tích Bài báo Khoa học (ICML 2021)</span>
-      </div>
-
-      <div class="grid-2" style="margin-bottom:1.25rem;">
-        <!-- Part 1: Proposed Method -->
-        <article class="card">
-          <h3 class="card-title">Quá trình Khuếch tán, Hàm mất mát &amp; Thiết kế Lịch Nhiễu Cosine</h3>
-          <div class="card-submeta">1. Phương pháp đề xuất &amp; Công thức toán học</div>
-          <p style="font-size:0.86rem;color:var(--text-secondary);">
-            Trong DDPM chuẩn (Ho et al., NeurIPS 2020), quá trình thuận cộng nhiễu Gaussian dần vào ảnh gốc $x_0$ qua $T$ bước theo lịch phương sai $\beta_1, \dots, \beta_T$. Nhờ tính chất khép kín của phân bố chuẩn, mẫu nhiễu ở bước $t$ bất kỳ được lấy mẫu trực tiếp:
-            $$q(x_t \mid x_0) = \mathcal{N}\!\left(x_t;\, \sqrt{\bar{\alpha}_t}\,x_0,\, (1 - \bar{\alpha}_t)\mathbf{I}\right), \quad \alpha_t = 1 - \beta_t, \quad \bar{\alpha}_t = \prod_{s=1}^{t} \alpha_s$$
-          </p>
-          <p style="font-size:0.86rem;color:var(--text-secondary);">
-            Mạng U-Net $\epsilon_\theta(x_t, t)$ được huấn luyện để dự đoán thành phần nhiễu $\epsilon \sim \mathcal{N}(0, \mathbf{I})$ bằng hàm mất mát bình phương tối giản:
-            $$\mathcal{L}_{\text{simple}}(\theta) = \mathbb{E}_{t \sim \mathcal{U}[1,T],\, x_0,\, \epsilon}\!\left[\left\|\epsilon - \epsilon_\theta\!\left(\sqrt{\bar{\alpha}_t}x_0 + \sqrt{1 - \bar{\alpha}_t}\epsilon,\, t\right)\right\|_2^2\right]$$
-          </p>
-          <p style="font-size:0.86rem;color:var(--text-secondary);margin-bottom:0;">
-            <strong>Động lực của Cosine Schedule (<code>beta_schedule="squaredcos_cap_v2"</code>):</strong> Nichol &amp; Dhariwal phát hiện lịch $\beta_t$ tuyến tính ($\beta_1=10^{-4} \to \beta_T=0.02$) làm $\bar{\alpha}_t$ rơi xuống gần $0$ quá sớm trên ảnh $32\times 32$. Họ đề xuất định nghĩa trực tiếp $\bar{\alpha}_t$ theo hàm $\cos^2$:
-            $$\bar{\alpha}_t = \frac{f(t)}{f(0)}, \quad f(t) = \cos^2\!\left(\frac{t/T + s}{1 + s}\cdot \frac{\pi}{2}\right), \quad s = 0.008$$
-            với $\beta_t = \min(1 - \bar{\alpha}_t / \bar{\alpha}_{t-1},\, 0.999)$ để tránh suy biến tại $t \to T$.
-          </p>
-        </article>
-
-        <!-- Part 2: Paper Experiments -->
-        <article class="card">
-          <h3 class="card-title">Tập dữ liệu, Baseline, Metrics &amp; Kết quả Cốt lõi</h3>
-          <div class="card-submeta">2. Thực nghiệm &amp; Phát hiện quan trọng của bài báo</div>
-          <ul style="font-size:0.86rem;color:var(--text-secondary);padding-left:1.15rem;margin:0;display:flex;flex-direction:column;gap:0.55rem;">
-            <li><strong>Bộ dữ liệu thử nghiệm của tác giả:</strong> CIFAR-10 ($32\times 32$), ImageNet $64\times 64$ (độ phân giải nhỏ/trung bình nơi lịch tuyến tính bộc lộ nhược điểm rõ nhất) và LSUN.</li>
-            <li><strong>Hệ thống chỉ số đánh giá (Metrics):</strong> Negative Log-Likelihood (NLL đo bằng bits/dim) để đánh giá mức độ bao phủ phân bố xác suất, và Fréchet Inception Distance (FID) cùng Precision/Recall để đo chất lượng thị giác &amp; độ đa dạng.</li>
-            <li><strong>Phát hiện về Lịch Nhiễu Cosine:</strong> Khi thay lịch tuyến tính bằng lịch Cosine trên ảnh $32\times 32$ và $64\times 64$, thông tin cấu trúc ảnh được phá hủy từ từ và đều đặn hơn qua suốt chuỗi $t \in [1, T]$, cải thiện đồng thời cả FID lẫn log-likelihood.</li>
-            <li><strong>Phát hiện về Lấy mẫu Nhanh (Respaced Sampling):</strong> Khi giảm số bước suy luận từ $T=1000$ xuống $S \in \{100, 250\}$ bước, mô hình dùng lịch Cosine giữ chất lượng ảnh ổn định hơn nhiều so với lịch tuyến tính.</li>
-          </ul>
-        </article>
-
-        <!-- Part 3: Limitations -->
-        <article class="card">
-          <h3 class="card-title">Chi phí Tính toán, Độ nhạy Siêu tham số &amp; Bẫy Đánh giá</h3>
-          <div class="card-submeta">3. Phân tích hạn chế (Limitations &amp; Critical View)</div>
-          <ul style="font-size:0.86rem;color:var(--text-secondary);padding-left:1.15rem;margin:0;display:flex;flex-direction:column;gap:0.55rem;">
-            <li><strong>Độ trễ suy luận tuần tự (Sequential Sampling Bottleneck):</strong> Dù giảm từ 1,000 xuống 250 bước, quá trình khử nhiễu vẫn đòi hỏi 250 lần lan truyền tiến qua mạng U-Net cho mỗi batch ảnh, chậm hơn hàng trăm lần so với 1 bước forward của GAN/VAE.</li>
-            <li><strong>Nghịch lý giữa MSE Loss và Chất lượng Sinh ảnh:</strong> Lịch Cosine giữ tỷ lệ tín hiệu trên nhiễu (SNR) ở mức trung bình lâu hơn (vùng khó dự đoán $\epsilon$ nhất), nên giá trị <code>val_noise_loss</code> của Cosine thường <em>cao hơn</em> Linear (nơi nhiều bước $t$ lớn chỉ toàn nhiễu trắng dễ đoán), dù chất lượng ảnh sinh (FID) của Cosine tốt hơn.</li>
-            <li><strong>Giới hạn của FID/IS ở $32\times 32$:</strong> Mạng Inception-v3 trích xuất đặc trưng được huấn luyện trên ImageNet $299\times 299$ (đối tượng tự nhiên), nên khi nội suy ảnh mặt người CelebA $32\times 32$ lên $299\times 299$, Inception Score (IS) có biên độ dao động hẹp và cần kết hợp trực quan hóa <code>denoising_trace.png</code>.</li>
-          </ul>
-        </article>
-
-        <!-- Part 4: Connection to Group Pipeline -->
-        <article class="card">
-          <h3 class="card-title">Thiết kế Ablation Cô lập Biến số &amp; Bài học Kỹ thuật</h3>
-          <div class="card-submeta">4. Đối chiếu thực nghiệm với Pipeline của nhóm</div>
-          <ul style="font-size:0.86rem;color:var(--text-secondary);padding-left:1.15rem;margin:0;display:flex;flex-direction:column;gap:0.55rem;">
-            <li><strong>Phạm vi tái hiện minh bạch:</strong> Thực nghiệm của nhóm tập trung <strong>cô lập hoàn toàn yếu tố Noise Schedule (<code>linear</code> vs <code>cosine</code>)</strong> trên mô hình dự đoán $\epsilon$ với phương sai ngược cố định (<code>variance_type="fixed_small"</code>), không gộp chung phần học phương sai $\mathcal{L}_{\text{hybrid}}$ để tránh nhiễu biến số.</li>
-            <li><strong>Kiểm soát đồng nhất tuyệt đối:</strong> Cả 2 cấu hình dùng đúng cùng một khởi tạo trọng số U-Net (xác nhận bằng <code>torch.testing.assert_close(..., rtol=0, atol=0)</code>), cùng tập con 20,000 ảnh train CelebA, cùng thứ tự duyệt mẫu qua <code>StatefulRandomSampler</code>, cùng hệ số EMA $0.999$ và cùng tensor nhiễu khởi đầu $x_T$ khi sinh 5,000 ảnh đánh giá.</li>
-            <li><strong>Bài học kỹ thuật cốt lõi:</strong> Sử dụng Exponential Moving Average (EMA $\gamma=0.999$) cho trọng số U-Net là yếu tố sống còn để khử hiện tượng lệch màu và nhiễu hạt tần số cao khi lấy mẫu 250 bước.</li>
-          </ul>
-        </article>
-      </div>
+  <main class="container a2-dashboard" id="a2-dashboard">
+    <header class="a2-intro">
+      <div><h1 class="serif-heading">Sinh ảnh anime với DCGAN và DiffAugment</h1>
+      <p class="a2-lead">Augmentation khả vi thay đổi chất lượng và độ phủ ảnh sinh như thế nào, khi giữ nguyên kiến trúc, dữ liệu và ngân sách huấn luyện?</p>
+      <div class="a2-links"><a class="btn btn-primary" href="https://www.kaggle.com/code/anhphmduy/dcgan-vs-augmenteddcgan-dl-assignment-2" target="_blank" rel="noopener noreferrer">Mở trên Kaggle <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a><a class="btn btn-outline" data-repo-path="A2/dcgan-vs-augmenteddcgan-dl-assignment-2.ipynb" href="https://github.com/superiorhamster/CO5085/blob/main/A2/dcgan-vs-augmenteddcgan-dl-assignment-2.ipynb">Notebook đã chạy</a><a class="btn btn-outline" data-repo-path="A2/a2_dcgan_diffaugment.ipynb" href="https://github.com/superiorhamster/CO5085/blob/main/A2/a2_dcgan_diffaugment.ipynb">Notebook nguồn</a><a class="btn btn-outline" href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo PDF</a></div></div>
+      <aside class="a2-study"><h2>Thực nghiệm đối chứng</h2><p id="a2-completion" role="status">Đang đọc artifact…</p><p>Anime faces · RGB 64×64<br>Seed 42 · batch 64 · final EMA</p><p>Paper: <a href="https://arxiv.org/abs/2006.10738">Zhao, Liu, Lin, Zhu &amp; Han. <em>Differentiable Augmentation for Data-Efficient GAN Training.</em> NeurIPS 2020.</a></p><p class="a2-muted">Hai biến thể cùng một họ GAN đáp ứng yêu cầu so sánh của A2.</p></aside>
+    </header>
+    <nav class="a2-tabs" role="tablist" aria-label="Nội dung báo cáo A2">
+      <button id="a2-tab-overview" role="tab" aria-selected="true" aria-controls="a2-panel-overview" tabindex="0" data-a2-tab="overview">Tổng quan</button>
+      <button id="a2-tab-data" role="tab" aria-selected="false" aria-controls="a2-panel-data" tabindex="-1" data-a2-tab="data">Dữ liệu</button>
+      <button id="a2-tab-paper" role="tab" aria-selected="false" aria-controls="a2-panel-paper" tabindex="-1" data-a2-tab="paper">Paper</button>
+      <button id="a2-tab-training" role="tab" aria-selected="false" aria-controls="a2-panel-training" tabindex="-1" data-a2-tab="training">Huấn luyện</button>
+      <button id="a2-tab-results" role="tab" aria-selected="false" aria-controls="a2-panel-results" tabindex="-1" data-a2-tab="results">Kết quả &amp; thảo luận</button>
+    </nav>
+    <section id="a2-panel-overview" role="tabpanel" aria-labelledby="a2-tab-overview" tabindex="0">
+      <h2>Cùng latent, khác augmentation</h2><p class="a2-measure">Mô hình sinh ảnh không điều kiện: nhận vector nhiễu Gaussian, không nhận nhãn hay ảnh đầu vào. Mỗi grid có 64 ảnh từ cùng seed latent; ảnh hiển thị là output final EMA, không chọn riêng mẫu đẹp.</p>
+      <div id="a2-overview-pair" class="a2-pair"></div>
+      <p id="a2-conclusion" class="a2-finding" role="status">Chờ hai export full tương thích.</p>
+      <h2>Sản phẩm nộp và khả năng tái lập</h2><div id="a2-deliverables"></div>
+      <p class="a2-muted">Huấn luyện hoàn tất không đồng nghĩa đã đủ PDF, demo và sản phẩm nộp. Trạng thái này không tự đánh dấu milestone đã hoàn thành.</p>
     </section>
-
-    <!-- ==================================================================
-         SECTION 2: INTERACTIVE MATHEMATICAL SCHEDULE CHART
-         ================================================================== -->
-    <section id="schedule-math" class="section">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Đồ thị Đối chiếu Hệ số Tín hiệu Tích lũy $\bar{\alpha}_t$ (Linear vs Cosine)</h2>
-          <p class="section-desc">
-            Đồ thị được tính toán trực tiếp từ phương trình toán học của <code>DDPMScheduler</code> với $T = 1000$ bước thời gian: quan sát tốc độ suy giảm của $\bar{\alpha}_t$ (tỷ lệ năng lượng ảnh gốc còn lại trong $x_t$).
-          </p>
-        </div>
-        <span class="badge badge-ready">Phần II • Trực quan hóa Toán học Lịch Nhiễu</span>
-      </div>
-
-      <div class="chart-box" style="margin-bottom:1.25rem;">
-        <div class="chart-canvas-wrap" style="height:340px;">
-          <canvas id="a2-schedule-chart"></canvas>
-        </div>
-      </div>
-
-      <div class="callout callout-teal">
-        <div class="callout-title"><span class="icon-slot" data-icon="lightbulb" aria-hidden="true"></span> Giải thích Trực quan từ Đồ thị $\bar{\alpha}_t$</div>
-        <p style="font-size:0.86rem;color:var(--text-secondary);margin:0;">
-          Với <strong>Linear Schedule</strong> (đường màu đỏ), tại $t = 500$ (nửa chặng khuếch tán), hệ số $\bar{\alpha}_{500}$ đã tụt xuống chỉ còn $\approx 0.078$, và từ $t \ge 750$ trở đi $\bar{\alpha}_t \approx 0.0001$ (ảnh $x_t$ gần như biến thành nhiễu Gaussian trắng hoàn toàn, khiến 25% cuối của chuỗi thời gian bị dư thừa). Ngược lại, <strong>Cosine Schedule</strong> (đường màu xanh) giữ $\bar{\alpha}_{500} \approx 0.50$ tại chính giữa chuỗi và giảm đều đặn từ $1 \to 0$, giúp mạng U-Net phân bổ dung lượng học đồng đều trên toàn dải tần số không gian của khuôn mặt $32\times 32$.
-        </p>
-      </div>
+    <section id="a2-panel-data" role="tabpanel" aria-labelledby="a2-tab-data" tabindex="0" hidden>
+      <h2>Dữ liệu thực sự được sử dụng</h2><p class="a2-measure"><a href="https://www.kaggle.com/datasets/splcher/animefacedataset">Anime Face Dataset — splcher</a>, ảnh khuôn mặt anime công khai. Số lượng dưới đây được tính từ manifest đã xuất, không lấy từ dataset card. <a href="https://github.com/bchao1/Anime-Face-Dataset">Nguồn gốc và lưu ý phân phối của tác giả</a>; website không phân phối dataset gốc/cache.</p>
+      <div id="a2-data-summary"></div><div class="a2-pair"><figure><figcaption>Phân bố kích thước ảnh unique, trước resize</figcaption><div id="a2-dimensions"></div></figure><figure><figcaption>Tỷ lệ rộng / cao của ảnh unique</figcaption><div id="a2-ratios"></div></figure></div>
+      <h3>Dataset, DataLoader và tiền xử lý</h3><ol class="a2-steps"><li>Giải mã RGB, ghi nhận ảnh hỏng và hash pixel cùng kích thước; loại trùng trước khi chia tập.</li><li>Chia cố định bằng seed 42: validation 2.000, test 5.000; toàn bộ ảnh unique còn lại dùng train. Các split không giao nhau theo hash.</li><li>Resize/center crop bằng nội suy bilinear về 64×64; cache uint8 memory-map chỉ đọc. Dataset trả tensor (3,64,64) trong [−1,1].</li><li>Train shuffle theo epoch, drop_last và horizontal flip xác định theo seed/epoch/ảnh; validation/test không flip. Hai worker đọc cùng manifest, thứ tự ảnh và flip.</li></ol>
+      <div class="table-wrapper"><table><caption>Phân biệt hai tầng augmentation</caption><thead><tr><th>Phép biến đổi</th><th>Baseline</th><th>DiffAugment</th><th>Vai trò</th></tr></thead><tbody><tr><td>Horizontal flip</td><td>Có, train</td><td>Có, train</td><td>Tiền xử lý dùng chung</td></tr><tr><td>Color, translation, cutout</td><td>Không</td><td>Có, real/fake ở D; fake ở G</td><td>Biến thực nghiệm, RNG riêng</td></tr><tr><td>Augmentation khi đánh giá</td><td>Không</td><td>Không</td><td>Giữ cùng phân phối tham chiếu</td></tr></tbody></table></div>
+      <p class="a2-muted">Dữ liệu không có nhãn lớp phục vụ bài toán này; không trình bày class balance như bài phân loại. Exact dedup không bảo đảm đã loại near-duplicate hoặc ảnh cùng nhân vật.</p>
     </section>
-
-    <!-- ==================================================================
-         SECTION 3: PIPELINE ARCHITECTURE & QUANTITATIVE COMPARISON
-         ================================================================== -->
-    <section id="pipeline-results" class="section">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Cấu hình Hệ thống U-Net &amp; Bảng Đo lường FID / Inception Score</h2>
-          <p class="section-desc">
-            Đánh giá trên <strong>5,000 mẫu ảnh sinh</strong> bằng bộ lấy mẫu DDPM 250 bước (trọng số EMA 0.999) đối chiếu với 5,000 ảnh thực thuộc tập Test chính thức của CelebA.
-          </p>
-        </div>
-        <span class="badge badge-ready">Phần III • Kiến trúc Pipeline &amp; Kết quả Định lượng (Mốc A2.1 &amp; A2.2)</span>
-      </div>
-
-      <div class="grid-3" style="margin-bottom:1.5rem;">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Dữ liệu &amp; Manifest</h3>
-            <span class="badge badge-ready">27,000 ảnh</span>
-          </div>
-          <p style="font-size:0.85rem;color:var(--text-secondary);margin:0;">
-            Từ <code>list_eval_partition.txt</code> của CelebA Align&amp;Cropped, chọn tất định (<code>seed=42</code>) <strong>20,000 Train / 2,000 Val / 5,000 Test</strong>, lưu danh sách tên file kèm mã băm SHA-256 tại <code>celeba_manifest_seed42.csv</code>. Tiền xử lý: <code>CenterCrop(148) → Resize(32×32) → Normalize([-1, 1])</code>.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Kiến trúc UNet2DModel</h3>
-            <span class="badge badge-ready">6.19M params</span>
-          </div>
-          <p style="font-size:0.85rem;color:var(--text-secondary);margin:0;">
-            3 tầng độ phân giải ($32\times 32 \to 16\times 16 \to 8\times 8$) với số kênh <code>(64, 128, 128)</code>, 2 khối Residual mỗi tầng, tích hợp cơ chế tự chú ý không gian <code>AttnDownBlock2D</code> / <code>AttnUpBlock2D</code> tại độ phân giải $16\times 16$, chuẩn hóa <code>GroupNorm(32)</code>.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Huấn luyện &amp; Đánh giá</h3>
-            <span class="badge badge-completed">20,000 steps</span>
-          </div>
-          <p style="font-size:0.85rem;color:var(--text-secondary);margin:0;">
-            <code>AdamW(lr=1e-4)</code>, Effective Batch 64 ($32 \times 2$), Warmup 500 bước + Cosine decay, <code>grad_clip=1.0</code>, <code>EMA(decay=0.999)</code>. Lưu checkpoint kèm trạng thái <code>StatefulRandomSampler</code> mỗi 1,000 bước.
-          </p>
-        </div>
-      </div>
-
-      <div class="table-wrapper" style="margin-bottom:1.5rem;">
-        <table>
-          <thead>
-            <tr>
-              <th>Biến thể Lịch Nhiễu</th>
-              <th>Cấu hình Scheduler</th>
-              <th class="num-col">Số tham số</th>
-              <th class="num-col">FID (5k mẫu) ↓</th>
-              <th class="num-col">Inception Score ↑</th>
-              <th class="num-col">Thời gian / ảnh (250 bước)</th>
-              <th class="num-col">Peak GPU Memory</th>
-            </tr>
-          </thead>
-          <tbody id="a2-table-body"></tbody>
-        </table>
-      </div>
-
-      <h3 style="font-size:1.05rem;margin-bottom:0.75rem;">Trực quan hóa Artifacts A2 (Quá trình Khử nhiễu Ngược &amp; Lưới Ảnh Sinh EMA)</h3>
-      <div id="a2-artifact-gallery" class="artifact-grid"></div>
+    <section id="a2-panel-paper" role="tabpanel" aria-labelledby="a2-tab-paper" tabindex="0" hidden>
+      <div id="paper-analysis"><h2>Phân tích paper và liên hệ thực nghiệm</h2><p class="a2-measure">Mục tiêu của <a href="https://arxiv.org/pdf/2006.10738">DiffAugment, NeurIPS 2020</a> là giảm overfit của discriminator khi dữ liệu hạn chế. Phần dưới diễn giải phương pháp; bảng kết quả anime ở tab Kết quả là thí nghiệm riêng của nhóm.</p>
+      <article class="a2-prose"><h3>Phương pháp: regularization qua biến đổi khả vi</h3><p>Chỉ augment ảnh thật làm thay đổi phân phối mà G cần bắt chước. Augment real/fake ở D nhưng bỏ transform khỏi đường cập nhật G lại tạo hai mục tiêu không nhất quán. DiffAugment đặt transform T trên cả real/fake và cho gradient của G đi xuyên T. Các phép lấy mẫu ngẫu nhiên không cần khả vi theo tham số ngẫu nhiên; đường từ pixel đầu ra tới loss phải giữ gradient.</p><div class="a2-flow" aria-label="Đường cập nhật discriminator và generator"><p><strong>Pha D:</strong> x và stop-gradient(G(z)) → T → D → loss D</p><p><strong>Pha G:</strong> z → G → T → D đóng băng → loss G → gradient ngược qua T tới G</p></div><p>Nhóm dùng non-saturating BCE với logits: L_D = E softplus(−D(T(x))) + E softplus(D(T(G(z)))); L_G = E softplus(−D(T(G(z)))). Baseline dùng T là phép đồng nhất. Đóng băng D trong pha G vẫn cho gradient đi qua đầu vào D.</p></article>
+      <article class="a2-prose"><h3>Thí nghiệm gốc: điều gì được khảo sát?</h3><p>Paper khảo sát BigGAN, StyleGAN2 và các loss/miền dữ liệu khác nhau. Các thí nghiệm gồm CIFAR-10/100 với nhiều tỷ lệ dữ liệu, ImageNet 128×128, FFHQ và LSUN với dữ liệu hạn chế, cùng bối cảnh few-shot. FID/IS được đọc trong từng protocol tương ứng; kết quả cho thấy augmentation khả vi giúp duy trì chất lượng khi giảm dữ liệu.</p><p>Figure 2 của paper so sánh100% / 20% / 10% dữ liệu CIFAR-10 và dùng 10.000 mẫu cho FID/IS. Điều đó khác dataset, độ phân giải và 5.000 mẫu của nhóm: không xếp hạng trực tiếp FID anime với FID của paper.</p></article>
+      <article class="a2-prose"><h3>Hạn chế và giả thiết cần kiểm tra</h3><p>Transform phải phù hợp cấu trúc dữ liệu, không làm mất thông tin thiết yếu. GAN vẫn có thể mất cân bằng D/G hoặc mode collapse; loss hữu hạn không đồng nghĩa ảnh tốt. Code tham chiếu của tác giả và kết quả nhiều kiến trúc không bảo đảm mọi cấu hình DCGAN đều hội tụ.</p><p>Trong bài toán anime, đặc trưng Inception học từ ImageNet có domain bias. Đánh giá 5.000 mẫu và một seed chưa mô tả đầy đủ biến thiên giữa lần train; nearest neighbours chỉ là chẩn đoán ghi nhớ.</p></article>
+      <h3>Đối chiếu: nhóm tái hiện được gì?</h3><div class="table-wrapper"><table><thead><tr><th>Khía cạnh</th><th>Paper</th><th>Pipeline nhóm</th></tr></thead><tbody><tr><td>Ý tưởng chính</td><td>Augmentation khả vi trong đường D và G</td><td>Mã tác giả, color/translation/cutout, kèm license/hash</td></tr><tr><td>Kiến trúc và dữ liệu</td><td>Nhiều GAN, dataset và tỷ lệ dữ liệu</td><td>Một DCGAN, anime64×64, toàn bộ train unique</td></tr><tr><td>Ngân sách</td><td>Theo recipe từng thí nghiệm</td><td>Cùng 20.000 updates, batch 64, final EMA cho hai nhánh</td></tr><tr><td>Kết luận có thể rút ra</td><td>Data efficiency qua nhiều bối cảnh</td><td>Ablation tại seed 42; chưa chứng minh data efficiency</td></tr></tbody></table></div>
+      <p class="a2-measure">Bài học cho pipeline: giữ đường gradient xuyên augmentation và so sánh có kiểm soát; đồng thời xem độ phủ bên cạnh FID. Hướng mở rộng là lặp nhiều seed, nhiều tỷ lệ train và kiểm tra ảnh hưởng từng phép biến đổi.</p><p>Nguồn: <a href="https://arxiv.org/pdf/2006.10738">paper, §3–4 và Figure 2</a>; <a href="https://github.com/mit-han-lab/data-efficient-gans/blob/master/DiffAugment_pytorch.py">implementation tác giả</a>.</p></div>
     </section>
-
-    <!-- ==================================================================
-         SECTION 4: VIDEO DEMO & PRESENTATION (MANDATORY FOR A2)
-         ================================================================== -->
-    <section id="a2-videos" class="section" style="border-bottom:none;">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Liên kết Video Demo Hệ thống &amp; Video Thuyết trình Bài báo</h2>
-          <p class="section-desc">
-            Phục vụ đánh giá trực tiếp trên GitHub Pages theo yêu cầu mục VI.2 của đề bài.
-          </p>
-        </div>
-        <span class="badge badge-ready">Phần IV • Video Demo &amp; Video Thuyết trình Báo cáo</span>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title"><span class="icon-slot" data-icon="video" aria-hidden="true"></span> 1. Video Demo Pipeline &amp; Quá trình Sinh ảnh DDPM</h3>
-            <span class="badge badge-ready">Pipeline Demo</span>
-          </div>
-          <p style="font-size:0.86rem;color:var(--text-secondary);">
-            Minh họa quá trình khử nhiễu từng bước từ nhiễu Gaussian trắng $x_{1000} \sim \mathcal{N}(0, \mathbf{I})$ về ảnh khuôn mặt $x_0$ qua 250 bước lấy mẫu, đối chiếu trực tiếp chất lượng mẫu sinh giữa <code>linear</code> và <code>cosine</code>.
-          </p>
-          <div style="padding:1.15rem;background:var(--bg-tertiary);border-radius:var(--radius-md);font-size:0.84rem;color:var(--text-muted);text-align:center;">
-            <span class="icon-slot" data-icon="link" aria-hidden="true"></span> Gắn link video tại trường <code>media.a2_demo_video_url</code> trong <code>docs/data/site_config.json</code>.
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title"><span class="icon-slot" data-icon="microphone" aria-hidden="true"></span> 2. Video Thuyết trình Phân tích Paper (ICML 2021) &amp; Kết quả</h3>
-            <span class="badge badge-completed">Presentation</span>
-          </div>
-          <p style="font-size:0.86rem;color:var(--text-secondary);">
-            Video trình bày đầy đủ 4 phần phân tích bài báo <em>Improved Denoising Diffusion Probabilistic Models</em>, kiến trúc thực nghiệm của nhóm và thảo luận kết quả đo lường FID / IS.
-          </p>
-          <div style="padding:1.15rem;background:var(--bg-tertiary);border-radius:var(--radius-md);font-size:0.84rem;color:var(--text-muted);text-align:center;">
-            <span class="icon-slot" data-icon="link" aria-hidden="true"></span> Gắn link video thuyết trình tại trường <code>media.a2_presentation_video_url</code> trong <code>docs/data/site_config.json</code>.
-          </div>
-        </div>
-      </div>
+    <section id="a2-panel-training" role="tabpanel" aria-labelledby="a2-tab-training" tabindex="0" hidden>
+      <h2>Hai nhánh, một protocol</h2><p><code>dcgan_baseline</code> và <code>dcgan_diffaugment</code> khác nhau ở augmentation khả vi.</p><div id="a2-training-config"></div>
+      <h3>Kiến trúc trong notebook đã chạy</h3><div class="a2-pair"><article><h4>Generator</h4><p>z:(B,128,1,1) → ConvTranspose 512×4×4 →256×8×8 →128×16×16 →64×32×32 →3×64×64.</p><p>BatchNorm + ReLU sau bốn tầng đầu; Tanh cuối. Kernel 4; stride 1 ở tầng đầu, stride 2 ở các tầng còn lại.</p><p id="a2-generator-parameters"></p></article><article><h4>Discriminator</h4><p>x:(B,3,64,64) → Conv 64×32×32 →128×16×16 →256×8×8 →512×4×4 →1 logit/ảnh.</p><p>LeakyReLU 0,2; BatchNorm ở các block 128/256/512. Không sigmoid trước BCEWithLogits. Đây không phải classifier có accuracy nghiệm thu.</p></article></div>
+      <h3>Huấn luyện, AMP và tái lập</h3><p class="a2-measure">Mỗi vòng hoàn tất một cập nhật D và một cập nhật G. D nhận cả real và fake tách gradient; pha G đóng băng tham số và running statistics của D. EMA cập nhật sau vòng thành công. Hai nhánh giữ cùng khởi tạo, seed, thứ tự ảnh, flip và chuỗi latent; RNG augmentation độc lập.</p><p class="a2-measure">Hai subprocess có CUDA_VISIBLE_DEVICES riêng. Preview chạy trong worker; evaluation và benchmark chạy sau train. AMP overflow giảm loss scale và thử lại cùng pha, khôi phục BatchNorm; không đếm lần overflow là update. Checkpoint mỗi 1.000 updates và khi dừng an toàn, gồm G/D/EMA, optimizer/scaler, RNG, epoch/offset; last/previous ghi nguyên tử.</p>
+      <div class="a2-pair"><figure><figcaption>Generator loss theo update</figcaption><div id="a2-g-history"></div></figure><figure><figcaption>Discriminator loss theo update</figcaption><div id="a2-d-history"></div></figure></div><p class="a2-muted">Đường hiển thị là trung bình từng 50 updates; history nguồn giữ đủ 20.000 dòng. Không suy luận chất lượng ảnh chỉ từ loss. Baseline màu xám; DiffAugment màu xanh.</p>
     </section>
+    <section id="a2-panel-results" role="tabpanel" aria-labelledby="a2-tab-results" tabindex="0" hidden>
+      <div id="pipeline-results"><h2>Đánh giá final EMA</h2><p id="a2-metric-protocol" class="a2-measure"></p><div id="a2-quality-table"></div><h3>Chi phí train</h3><div id="a2-cost-table"></div><p class="a2-muted">Wall time gồm I/O, checkpoint và preview khi hai job chạy đồng thời. Không dùng chênh lệch nhỏ giữa hai nhánh để khẳng định hiệu năng GPU riêng biệt.</p><h3>Benchmark inference</h3><div id="a2-inference-table"></div><p class="a2-muted">FP32, cùng T4, batch 1/64, warmup và đồng bộ CUDA; thời gian không gồm DataLoader. Peak VRAM là allocated memory, không phải toàn bộ bộ nhớ hiển thị bởi nvidia-smi.</p>
+      <h3>Ảnh sinh, nội suy và chẩn đoán ghi nhớ</h3><div id="a2-result-gallery"></div>
+      <h3>Thảo luận và giới hạn</h3><p id="a2-result-discussion" class="a2-measure"></p><p class="a2-measure">Baseline lặp lại một kiểu khuôn mặt trong grid 64 mẫu, gợi ý mode collapse. DiffAugment cho nhiều màu tóc, góc nhìn và kiểu khuôn mặt hơn trong cùng grid, nhưng vẫn có vùng mắt/tóc hoặc đường nét thiếu nhất quán khi phóng to. Nội suy liên tục không chứng minh đã bao phủ phân phối thật.</p><p class="a2-measure">Recall thấp cho thấy độ phủ hạn chế trong không gian Inception. Precision/recall ở đây là manifold metrics, không phải precision/recall phân loại. KID giữ scale gốc; IS split std là biến thiên giữa 10 split, không phải uncertainty giữa seed. Một seed chưa chứng minh significance; không gọi biến thể thắng toàn diện hoặc suy rộng thành data efficiency.</p>
+      <details><summary>Provenance và cách tái lập</summary><div id="a2-provenance"></div><p>Import notebook đã chạy để xem output, hoặc notebook nguồn để tái lập. Attach dataset, chọn hai T4 và chạy smoke/pilot trước full. Save/load cần checkpoint từ phiên Kaggle: website chỉ công bố kết quả, không host checkpoint hay dữ liệu ảnh gốc.</p><p id="a2-source-links"></p></details></div>
+    </section>
+    <noscript><p>Dashboard tương tác cần JavaScript. Bạn vẫn có thể mở notebook đã chạy ở đầu trang để đọc đầy đủ output.</p></noscript>
   </main>
 
   <!-- Lightbox Dialog -->
@@ -312,7 +107,7 @@
     <div class="container footer-grid">
       <div>
         <div style="font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">
-          CO5085 — Bài tập lớn A2: Ablation Noise Schedule cho DDPM &amp; Paper Analysis
+          CO5085 — Bài tập lớn A2: DCGAN và DiffAugment
         </div>
         <div>Khoa Khoa học và Kỹ thuật Máy tính • Trường Đại học Bách Khoa – ĐHQG TP.HCM</div>
       </div>
@@ -321,16 +116,14 @@
         <a href="exercises.html">Bài tập E1–E3</a>
         <a href="a1.html">Bài tập lớn A1</a>
         <a href="a2.html">Bài tập lớn A2</a>
-        <a href="reports/assignment2.pdf" target="_blank" rel="noopener"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> assignment2.pdf</a>
+        <a href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo PDF</a>
       </div>
     </div>
   </footer>
 
   <script src="assets/js/fallback_data.js"></script>
   <script defer src="assets/js/icons.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-  <script defer src="assets/js/site.js"></script>
+  <script defer src="assets/js/a2.js"></script>
+  <script defer src="assets/js/site.js?v=a2-dashboard-1"></script>
 </body>
 </html>

@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Chi phí training khi hai queue chạy đồng thời; thời gian loại validation/checkpoint I/O.}\label{tab:A1cost}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrrr}
+\toprule
+ID & Tổng (M) & Train (M) & Phút train & VRAM (MiB) \\
+\midrule
+R18\_scratch & 11.228 & 11.228 & 65.83 & 663.3 \\
+R18\_head\_only & 11.228 & 0.051 & 60.86 & 248.1 \\
+R18\_partial & 11.228 & 8.445 & 62.11 & 343.1 \\
+R18\_full & 11.228 & 11.228 & 62.93 & 663.3 \\
+DeiT\_scratch & 5.544 & 5.544 & 89.77 & 714.7 \\
+DeiT\_head\_only & 5.544 & 0.019 & 64.62 & 141.7 \\
+DeiT\_partial & 5.544 & 0.909 & 65.15 & 226.3 \\
+DeiT\_full & 5.544 & 5.544 & 86.01 & 714.7 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

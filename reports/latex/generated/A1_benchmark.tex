@@ -1,0 +1,27 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Benchmark FP32 tuần tự trên GPU0 Tesla T4, warmup 10, đo 50 lần.}\label{tab:A1bench}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrrr}
+\toprule
+ID & Batch & ms/ảnh & ảnh/s & MiB \\
+\midrule
+R18\_scratch & 1 & 4.726 & 211.6 & 82.6 \\
+R18\_scratch & 32 & 0.941 & 1062.9 & 303.1 \\
+R18\_head\_only & 1 & 4.999 & 200.0 & 82.6 \\
+R18\_head\_only & 32 & 0.974 & 1026.4 & 303.1 \\
+R18\_partial & 1 & 5.099 & 196.1 & 82.6 \\
+R18\_partial & 32 & 1.021 & 979.2 & 303.1 \\
+R18\_full & 1 & 4.797 & 208.4 & 82.6 \\
+R18\_full & 32 & 1.028 & 973.1 & 303.1 \\
+DeiT\_scratch & 1 & 14.651 & 68.3 & 56.5 \\
+DeiT\_scratch & 32 & 1.286 & 777.4 & 128.0 \\
+DeiT\_head\_only & 1 & 14.702 & 68.0 & 56.5 \\
+DeiT\_head\_only & 32 & 1.310 & 763.4 & 128.0 \\
+DeiT\_partial & 1 & 14.550 & 68.7 & 56.5 \\
+DeiT\_partial & 32 & 1.303 & 767.7 & 128.0 \\
+DeiT\_full & 1 & 15.131 & 66.1 & 56.5 \\
+DeiT\_full & 32 & 1.294 & 772.8 & 128.0 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

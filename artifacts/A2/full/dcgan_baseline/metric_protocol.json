@@ -1,0 +1,25 @@
+{
+  "extractor": "inception-v3-compat",
+  "weights_sha256": "2037b63fbc78aaa2ec9b4d735247282ba0ee344d1ba7166922951fe344f51806",
+  "torch_fidelity": "0.3.0",
+  "input": "RGB_uint8_round_clamp_minus1_1_to_0_255",
+  "samples": 5000,
+  "evaluation": {
+    "samples": 5000,
+    "batch_size": 64,
+    "kid_subsets": 100,
+    "kid_subset_size": 1000,
+    "is_splits": 10,
+    "knn_k": 3,
+    "chunk": 256,
+    "benchmark_batches": [
+      1,
+      64
+    ],
+    "benchmark_repeats": 30
+  },
+  "seed": 2068,
+  "precision": "FP32",
+  "manifest": "3cb3d13301f9d37539352fd2f9a0ba3bc31d61706612d14870908adb4ebb202d",
+  "source_sha256": "7e449e38eeb39bb09bfee691a70a4df015dda59889683ce58fdf5aaeb3d709de"
+}

@@ -72,10 +72,10 @@
       <div style="display:flex;flex-wrap:wrap;gap:0.65rem;margin-bottom:1.5rem;">
         <a href="exercises.html" class="btn btn-primary">Khám phá Bài tập E1–E3 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
         <a href="a1.html" class="btn btn-outline">Bài tập lớn A1 (CNN vs ViT) <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
-        <a href="a2.html" class="btn btn-outline">Bài tập lớn A2 (DDPM &amp; ICML'21 Paper) <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
-        <a href="reports/exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> exercises.pdf</a>
-        <a href="reports/assignment1.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> assignment1.pdf</a>
-        <a href="reports/assignment2.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> assignment2.pdf</a>
+        <a href="a2.html" class="btn btn-outline">Bài tập lớn A2 (DCGAN &amp; DiffAugment) <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
+        <a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> exercises.pdf</a>
+        <a class="btn btn-outline" href="reports/assignment1.pdf" data-report-pdf="assignment1.pdf">Báo cáo A1 PDF</a>
+        <a class="btn btn-outline" href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo A2 PDF</a>
       </div>
 
       <!-- Group & Instructor Info Cards -->
@@ -131,7 +131,7 @@
           </ul>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;">
             <a href="exercises.html" class="btn btn-primary btn-sm">Trang chi tiết E1–E3 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
-            <a href="reports/exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> Báo cáo PDF</a>
+            <a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> Báo cáo PDF</a>
           </div>
         </article>
 
@@ -140,21 +140,21 @@
           <div class="card-header">
             <div>
               <h3 class="card-title">Bài tập lớn A1: CNN vs Transformer</h3>
-              <div class="card-submeta">30% Coursework • 8 Cấu hình</div>
+              <div class="card-submeta">30% Coursework • 8 cấu hình chính + 2 đối chứng</div>
             </div>
             <span class="badge badge-ready">CIFAR-100</span>
           </div>
           <p style="font-size:0.9rem;color:var(--text-secondary);">
-            So sánh toàn diện giữa <strong>ResNet-18</strong> (<code>resnet18.a1_in1k</code>) và <strong>DeiT-Tiny</strong> (<code>deit_tiny_patch16_224.fb_in1k</code>) trên tập ảnh CIFAR-100 (<strong>45k Train / 5k Val / 10k Test</strong>, $224\times 224$):
+            So sánh toàn diện giữa <strong>ResNet-18</strong> (<code>resnet18.a1_in1k</code>) và <strong>DeiT-Tiny</strong> (<code>deit_tiny_patch16_224.fb_in1k</code>) trên tập ảnh CIFAR-100 (<strong>45.000 Train / 5.000 Val / 10.000 Test</strong>, $224\times 224$):
           </p>
           <ul style="font-size:0.86rem;color:var(--text-secondary);padding-left:1.2rem;margin-bottom:1.15rem;">
             <li><strong>Ma trận $2 \times 4$:</strong> Huấn luyện từ đầu (<code>scratch</code>) đối chiếu với 3 mức độ can thiệp trọng số pretrained: <code>head_only</code>, <code>partial</code> và <code>full</code> fine-tune.</li>
-            <li><strong>Kiểm chứng bất biến:</strong> Hàm <code>verify_freeze_invariant()</code> xác nhận tham số đóng băng và thống kê BatchNorm (<code>running_mean/var</code>) không đổi sau bước cập nhật.</li>
+            <li><strong>Kiểm chứng bất biến:</strong> Freeze probe xác nhận tham số đóng băng và thống kê BatchNorm (<code>running_mean/var</code>) không đổi sau bước cập nhật.</li>
             <li><strong>Đánh giá đa chiều:</strong> Accuracy, Macro-F1, Trainable Params, Latency (ms/ảnh), Peak GPU VRAM, Confusion Matrix 100 lớp &amp; Failure Cases.</li>
           </ul>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;">
             <a href="a1.html" class="btn btn-primary btn-sm">Trang chi tiết A1 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
-            <a href="reports/assignment1.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> Báo cáo PDF</a>
+            <a class="btn btn-outline" href="reports/assignment1.pdf" data-report-pdf="assignment1.pdf">Báo cáo A1 PDF</a>
           </div>
         </article>
 
@@ -162,22 +162,22 @@
         <article class="card card-interactive">
           <div class="card-header">
             <div>
-              <h3 class="card-title">Bài tập lớn A2: DDPM &amp; Paper Analysis</h3>
+              <h3 class="card-title">Bài tập lớn A2: DCGAN &amp; DiffAugment</h3>
               <div class="card-submeta">30% Coursework • 2 Cấu hình + Paper</div>
             </div>
-            <span class="badge badge-preview">CelebA 32×32</span>
+            <span class="badge badge-preview">Anime faces 64×64</span>
           </div>
           <p style="font-size:0.9rem;color:var(--text-secondary);">
-            Nghiên cứu mô hình tạo sinh khuếch tán xác suất khử nhiễu (<strong>DDPM</strong>) trên tập khuôn mặt <strong>CelebA Align&amp;Cropped</strong> (<strong>20k Train / 2k Val / 5k Test</strong>) gắn liền với bài báo <strong>ICML 2021</strong>:
+            So sánh DCGAN baseline và DCGAN + DiffAugment trên anime faces RGB 64×64 theo bài báo NeurIPS 2020.</p><p id="a2-home-summary" style="font-size:0.9rem;">Đang đọc kết quả A2…
           </p>
           <ul style="font-size:0.86rem;color:var(--text-secondary);padding-left:1.2rem;margin-bottom:1.15rem;">
-            <li><strong>Ablation thực nghiệm:</strong> Đối chiếu lịch nhiễu <code>linear</code> ($\beta \in [10^{-4}, 0.02]$) và <code>cosine</code> (<code>squaredcos_cap_v2</code>) trên cùng kiến trúc U-Net + Attention $16\times 16$, EMA $0.999$, 20,000 bước tối ưu.</li>
-            <li><strong>Paper Analysis:</strong> Phân tích chuyên sâu bài báo <em>Improved Denoising Diffusion Probabilistic Models</em> (Nichol &amp; Dhariwal, ICML 2021).</li>
-            <li><strong>Đo lường định lượng:</strong> Fréchet Inception Distance (FID trên 5,000 mẫu), Inception Score (IS), thời gian lấy mẫu 250 bước và chuỗi khử nhiễu ngược.</li>
+            <li>Cùng seed42, train split, latent, batch64, Adam 2e-4 và 20.000 cập nhật; final EMA 0.999.</li>
+            <li>Hai T4 chạy hai nhánh độc lập; augmentation khả vi có RNG riêng.</li>
+            <li>FID, KID, IS, precision/recall, chi phí train và benchmark FP32 trên cùng GPU. Chờ full run hợp lệ.</li>
           </ul>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;">
             <a href="a2.html" class="btn btn-primary btn-sm">Trang chi tiết A2 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
-            <a href="reports/assignment2.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> Báo cáo PDF</a>
+            <a class="btn btn-outline" href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo A2 PDF</a>
           </div>
         </article>
       </div>
@@ -228,7 +228,7 @@
               <td><a href="https://github.com/superiorhamster/CO5085/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-repo-path="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener"><code>E1/e1_fashion_mnist_baselines.ipynb</code></a></td>
               <td>Fashion-MNIST (54k / 6k / 10k)</td>
               <td class="num-col">3</td>
-              <td><a href="reports/exercises.pdf" target="_blank" rel="noopener"><code>reports/exercises.pdf</code></a></td>
+              <td><a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener"><code>reports/exercises.pdf</code></a></td>
               <td>
                 <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-colab-notebook="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
               </td>
@@ -238,7 +238,7 @@
               <td><a href="https://github.com/superiorhamster/CO5085/blob/main/E2/e2_attention_tokenization.ipynb" data-repo-path="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener"><code>E2/e2_attention_tokenization.ipynb</code></a></td>
               <td>Fashion-MNIST (54k / 6k / 10k)</td>
               <td class="num-col">6</td>
-              <td><a href="reports/exercises.pdf" target="_blank" rel="noopener"><code>reports/exercises.pdf</code></a></td>
+              <td><a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener"><code>reports/exercises.pdf</code></a></td>
               <td>
                 <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/E2/e2_attention_tokenization.ipynb" data-colab-notebook="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
               </td>
@@ -248,29 +248,29 @@
               <td><a href="https://github.com/superiorhamster/CO5085/blob/main/E3/e3_sequence_models.ipynb" data-repo-path="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener"><code>E3/e3_sequence_models.ipynb</code></a></td>
               <td>Fashion-MNIST (54k / 6k / 10k)</td>
               <td class="num-col">4 (+2 Base)</td>
-              <td><a href="reports/exercises.pdf" target="_blank" rel="noopener"><code>reports/exercises.pdf</code></a></td>
+              <td><a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener"><code>reports/exercises.pdf</code></a></td>
               <td>
                 <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/E3/e3_sequence_models.ipynb" data-colab-notebook="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
               </td>
             </tr>
             <tr>
               <td><strong>Bài tập lớn A1</strong><div style="font-size:0.76rem;color:var(--text-muted);">ResNet-18 vs DeiT-Tiny (4 chế độ)</div></td>
-              <td><a href="https://github.com/superiorhamster/CO5085/blob/main/A1/a1_cnn_vs_transformer.ipynb" data-repo-path="A1/a1_cnn_vs_transformer.ipynb" target="_blank" rel="noopener"><code>A1/a1_cnn_vs_transformer.ipynb</code></a></td>
-              <td>CIFAR-100 (45k / 5k / 10k, 224×224)</td>
+              <td><a href="https://github.com/superiorhamster/CO5085/blob/main/A1/a1_cifar100_resnet18_vs_deit.ipynb" data-repo-path="A1/a1_cifar100_resnet18_vs_deit.ipynb" target="_blank" rel="noopener"><code>A1/a1_cifar100_resnet18_vs_deit.ipynb</code></a></td>
+              <td>CIFAR-100 (45.000 / 5.000 / 10.000, 224×224)</td>
               <td class="num-col">8</td>
-              <td><a href="reports/assignment1.pdf" target="_blank" rel="noopener"><code>reports/assignment1.pdf</code></a></td>
+              <td><a class="btn btn-outline" href="reports/assignment1.pdf" data-report-pdf="assignment1.pdf">Báo cáo A1 PDF</a></td>
               <td>
-                <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/A1/a1_cnn_vs_transformer.ipynb" data-colab-notebook="A1/a1_cnn_vs_transformer.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
+                <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/A1/a1_cifar100_resnet18_vs_deit.ipynb" data-colab-notebook="A1/a1_cifar100_resnet18_vs_deit.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
               </td>
             </tr>
             <tr>
-              <td><strong>Bài tập lớn A2</strong><div style="font-size:0.76rem;color:var(--text-muted);">DDPM Linear vs Cosine Schedule</div></td>
-              <td><a href="https://github.com/superiorhamster/CO5085/blob/main/A2/a2_diffusion_schedules.ipynb" data-repo-path="A2/a2_diffusion_schedules.ipynb" target="_blank" rel="noopener"><code>A2/a2_diffusion_schedules.ipynb</code></a></td>
-              <td>CelebA Align&amp;Cropped (20k / 2k / 5k, 32×32)</td>
+              <td><strong>Bài tập lớn A2</strong><div style="font-size:0.76rem;color:var(--text-muted);">DCGAN baseline vs DiffAugment</div></td>
+              <td><a href="https://github.com/superiorhamster/CO5085/blob/main/A2/a2_dcgan_diffaugment.ipynb" data-repo-path="A2/a2_dcgan_diffaugment.ipynb" target="_blank" rel="noopener"><code>A2/a2_dcgan_diffaugment.ipynb</code></a></td>
+              <td>Anime faces (train hợp lệ / 2k / 5k, 64×64)</td>
               <td class="num-col">2</td>
-              <td><a href="reports/assignment2.pdf" target="_blank" rel="noopener"><code>reports/assignment2.pdf</code></a></td>
+              <td><a class="btn btn-outline" href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo A2 PDF</a></td>
               <td>
-                <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/A2/a2_diffusion_schedules.ipynb" data-colab-notebook="A2/a2_diffusion_schedules.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
+                <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/A2/a2_dcgan_diffaugment.ipynb" data-colab-notebook="A2/a2_dcgan_diffaugment.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Open in Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
               </td>
             </tr>
           </tbody>
@@ -301,7 +301,7 @@
         <div class="callout" style="margin:0;">
           <div class="callout-title"><span class="icon-slot" data-icon="save" aria-hidden="true"></span> 2. Atomic Checkpointing &amp; Khôi phục Trạng thái RNG</div>
           <p style="font-size:0.88rem;color:var(--text-secondary);margin:0;">
-            Mỗi run lưu tại <code>&lt;output_root&gt;/&lt;assignment&gt;/&lt;run_mode&gt;/&lt;experiment_id&gt;/</code> gồm <code>config.json</code>, <code>environment.json</code>, <code>history.csv</code>, <code>metrics.json</code>, <code>predictions.npz</code> cùng <code>last.pt</code> và <code>best.pt</code>. Checkpoint được ghi qua file tạm <code>.tmp</code> rồi thay thế nguyên tử (atomic replace) kèm toàn bộ trạng thái bộ sinh số ngẫu nhiên (<code>rng_state</code>) và <code>StatefulRandomSampler</code> (ở A2).
+            Mỗi run lưu tại <code>&lt;output_root&gt;/&lt;assignment&gt;/&lt;run_mode&gt;/&lt;experiment_id&gt;/</code> gồm <code>config.json</code>, <code>environment.json</code>, <code>history.csv</code>, <code>metrics.json</code>, <code>predictions.npz</code> cùng <code>last.pt</code> và <code>best.pt</code>. Checkpoint được ghi qua file tạm <code>.tmp</code> rồi thay thế nguyên tử (atomic replace) kèm toàn bộ trạng thái bộ sinh số ngẫu nhiên (<code>rng_state</code>) và vị trí dữ liệu. A2 dùng namespace <code>A2/dcgan_diffaugment_v1</code>, checkpoint <code>last.pt</code>/<code>previous.pt</code> và final EMA.
           </p>
         </div>
       </div>
@@ -333,9 +333,9 @@ python3 tools/validate_site.py</code></pre>
         <a href="exercises.html">Bài tập E1–E3</a>
         <a href="a1.html">Bài tập lớn A1</a>
         <a href="a2.html">Bài tập lớn A2</a>
-        <a href="reports/exercises.pdf" target="_blank" rel="noopener">exercises.pdf</a>
-        <a href="reports/assignment1.pdf" target="_blank" rel="noopener">assignment1.pdf</a>
-        <a href="reports/assignment2.pdf" target="_blank" rel="noopener">assignment2.pdf</a>
+        <a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener">exercises.pdf</a>
+        <a class="btn btn-outline" href="reports/assignment1.pdf" data-report-pdf="assignment1.pdf">Báo cáo A1 PDF</a>
+        <a class="btn btn-outline" href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo A2 PDF</a>
       </div>
     </div>
   </footer>
@@ -345,7 +345,8 @@ python3 tools/validate_site.py</code></pre>
   <script defer src="assets/js/icons.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-  <script defer src="assets/js/site.js"></script>
+  <script defer src="assets/js/a2.js"></script>
+  <script defer src="assets/js/site.js?v=a2-dashboard-1"></script>
 </body>
 </html>
 

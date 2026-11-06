@@ -1,0 +1,26 @@
+{
+  "checks": {
+    "exercises": {
+      "source_hashes_verified": true,
+      "zip_matches_folder": true,
+      "reference_pdf_sha256": "e40bf746050ce641cbd2e23107525f3b4b426534c6add2edbfbed34d1e46a356",
+      "reference_pages": 20,
+      "two_authors_verified": true
+    },
+    "assignment1": {
+      "source_hashes_verified": true,
+      "zip_matches_folder": true,
+      "reference_pdf_sha256": "2deb00603ba82b1c9a13574398b61d97293d13eb5191b648d2b9410e506f01ee",
+      "reference_pages": 22,
+      "two_authors_verified": true
+    },
+    "assignment2": {
+      "source_hashes_verified": true,
+      "zip_matches_folder": true,
+      "reference_pdf_sha256": "da4898973f6914aa5a477e934e2006d0d5d9d43778fabab1546e71bf240a53fa",
+      "reference_pages": 20,
+      "two_authors_verified": true
+    }
+  },
+  "method": "Updated canonical sources rebuilt with pdfLaTeX/latexmk, all PDF pages visually reviewed; exported ZIP inventories, source hashes, author metadata and project-local source files checked."
+}

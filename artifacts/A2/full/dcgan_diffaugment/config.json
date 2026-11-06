@@ -1,0 +1,66 @@
+{
+  "run_mode": "full",
+  "seed": 42,
+  "experiment_ids": [
+    "dcgan_baseline",
+    "dcgan_diffaugment"
+  ],
+  "effective_batch": 64,
+  "data": {
+    "val_size": 2000,
+    "test_size": 5000,
+    "image_size": 64
+  },
+  "model": {
+    "latent": 128,
+    "width": 64,
+    "lr": 0.0002,
+    "betas": [
+      0.5,
+      0.999
+    ],
+    "ema": 0.999
+  },
+  "training": {
+    "max_steps": 20000,
+    "microbatch": 64,
+    "amp": true,
+    "amp_init_scale": 1024.0,
+    "amp_max_retries": 8,
+    "save_every": 1000,
+    "preview_every": 1000,
+    "workers": 2
+  },
+  "runtime": {
+    "devices": {
+      "dcgan_baseline": 0,
+      "dcgan_diffaugment": 1
+    },
+    "sequential": false,
+    "cpu": false,
+    "heartbeat_seconds": 100
+  },
+  "augmentation": {
+    "policy": "color,translation,cutout",
+    "upstream_sha256": "d61fed24900fea3be17e3cd10d8880f895905732fd53f1f9b3013673b36fa0e2"
+  },
+  "evaluation": {
+    "samples": 5000,
+    "batch_size": 64,
+    "kid_subsets": 100,
+    "kid_subset_size": 1000,
+    "is_splits": 10,
+    "knn_k": 3,
+    "chunk": 256,
+    "benchmark_batches": [
+      1,
+      64
+    ],
+    "benchmark_repeats": 30
+  },
+  "evaluate_only": false,
+  "pilot": false,
+  "assignment": "A2",
+  "experiment_id": "dcgan_diffaugment",
+  "protocol": "dcgan_diffaugment_v1"
+}

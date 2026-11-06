@@ -1,0 +1,23 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Sáu cặp nhầm có hướng đứng đầu mỗi model full, trên test.}\label{tab:A1errors}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrr}
+\toprule
+Model & Nhãn thật & Dự đoán & Số ảnh \\
+\midrule
+resnet18 & girl & woman & 16 \\
+resnet18 & willow\_tree & maple\_tree & 15 \\
+resnet18 & seal & otter & 15 \\
+resnet18 & oak\_tree & maple\_tree & 15 \\
+resnet18 & woman & girl & 14 \\
+resnet18 & boy & girl & 14 \\
+deit\_tiny & oak\_tree & maple\_tree & 19 \\
+deit\_tiny & girl & woman & 18 \\
+deit\_tiny & man & boy & 15 \\
+deit\_tiny & maple\_tree & oak\_tree & 15 \\
+deit\_tiny & pine\_tree & oak\_tree & 13 \\
+deit\_tiny & woman & man & 13 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

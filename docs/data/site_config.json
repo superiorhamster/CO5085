@@ -45,11 +45,13 @@
       "e3_dir": "E3",
       "e3_notebook": "E3/e3_sequence_models.ipynb",
       "a1_dir": "A1",
-      "a1_notebook": "A1/a1_cnn_vs_transformer.ipynb",
+      "a1_notebook": "A1/a1_cifar100_resnet18_vs_deit.ipynb",
       "a2_dir": "A2",
-      "a2_notebook": "A2/a2_diffusion_schedules.ipynb",
+      "a2_notebook": "A2/a2_dcgan_diffaugment.ipynb",
       "conventions": "plans/00_conventions.md",
-      "requirements": "requirements-notebooks.txt"
+      "requirements": "requirements-notebooks.txt",
+      "a2_executed_notebook": "A2/dcgan-vs-augmenteddcgan-dl-assignment-2.ipynb",
+      "a1_executed_notebook": "A1/resnet18-vs-deit-tiny-on-cifar100.ipynb"
     },
     "reports": {
       "exercises_pdf": "reports/exercises.pdf",
@@ -62,7 +64,7 @@
     "a1_demo_caption": "Video demo quy trình huấn luyện & suy luận ResNet-18 vs DeiT-Tiny trên CIFAR-100 (cập nhật URL YouTube/Drive tại docs/data/site_config.json).",
     "a2_demo_video_url": "",
     "a2_presentation_video_url": "",
-    "a2_demo_caption": "Video demo quá trình khử nhiễu ngược (Reverse Denoising Trace 250 bước) và video thuyết trình phân tích bài báo ICML 2021."
+    "a2_demo_caption": "Demo sinh anime faces từ final EMA, so sánh DCGAN baseline và DiffAugment; video chưa được cung cấp."
   },
   "timeline": [
     {
@@ -97,7 +99,7 @@
       "date": "2026-11-02",
       "date_display": "02/11/2026",
       "title": "Bài tập E1 & E2 + Mốc A2.1",
-      "deliverable": "Nộp mã nguồn + Báo cáo PDF phần E1, E2; Chốt đề tài DDPM Schedule Ablation + Paper ICML 2021 + CelebA cho A2.1",
+      "deliverable": "Nộp mã nguồn + Báo cáo PDF phần E1, E2; A2.1: DCGAN baseline và DiffAugment, anime faces, paper NeurIPS 2020",
       "status": "pending",
       "target_page": "exercises.html#e1-section"
     },
@@ -115,10 +117,9 @@
       "date": "2026-11-16",
       "date_display": "16/11/2026",
       "title": "Mốc A2.2 (75% điểm A2)",
-      "deliverable": "Hoàn tất Pipeline DDPM Linear vs Cosine, phân tích Paper ICML 2021, báo cáo assignment2.pdf, video demo & hoàn thiện web",
+      "deliverable": "Hoàn tất DCGAN baseline và DiffAugment, metrics và phân tích paper NeurIPS 2020; hoàn thiện assignment2.pdf, video demo và web",
       "status": "pending",
       "target_page": "a2.html#paper-analysis"
     }
   ]
 }
-

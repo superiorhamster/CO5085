@@ -17,7 +17,7 @@ EXPECTED_PAGES = {
     "index.html": ["CO5085", "E1", "A1", "A2", "timeline-container"],
     "exercises.html": ["e1-section", "e2-section", "e3-section", "ScratchMSA", "StratifiedShuffleSplit"],
     "a1.html": ["milestone-a1-1", "milestone-a1-2", "freeze-inspector", "resnet18", "deit_tiny"],
-    "a2.html": ["paper-analysis", "schedule-math", "pipeline-results", "Nichol", "squaredcos_cap_v2"],
+    "a2.html": ["paper-analysis", "pipeline-results", "DiffAugment", "dcgan_baseline", "dcgan_diffaugment"],
 }
 EXPECTED_COUNTS = {"E1": 3, "E2": 6, "E3": 4, "A1": 8, "A2": 2}
 PLACEHOLDER_MARKERS = ("2XXXXXX", "2YYYYYY", "student1@", "student2@", "AllInOneAssignment")
@@ -146,6 +146,22 @@ def main() -> None:
         completed_count = sum(bool(exp["has_full_metrics"]) for exp in assignment_data["experiments"])
         assert assignment_data["completed_full_count"] == completed_count
 
+    a1 = manifest['assignments']['A1']
+    assert a1['protocol'] == 'cifar100_resnet18_deit_v1'
+    assert len(a1['augmentation']['controls']) == 2
+    assert a1['augmentation']['completed_count'] == 2
+    for assignment in ('A1', 'A2'):
+        entries = manifest['assignments'][assignment]['experiments']
+        if assignment == 'A1': entries = entries + a1['augmentation']['controls']
+        for entry in entries:
+            if not entry['has_full_metrics']: continue
+            for image in entry['images'].values():
+                assert (DOCS / image).is_file(), f'Missing published image: {image}'
+            if assignment == 'A1':
+                assert len(entry['history']) == entry['metrics']['epochs_completed'] == a1['epochs']
+    for image in [*a1['eda']['images'].values(), a1['augmentation']['image']]:
+        assert (DOCS / image).is_file(), f'Missing EDA/ablation image: {image}'
+
     for pdf_name in ("exercises.pdf", "assignment1.pdf", "assignment2.pdf"):
         source = ROOT / "reports" / pdf_name
         published = DOCS / "reports" / pdf_name
@@ -155,6 +171,10 @@ def main() -> None:
                 f"Invalid PDF header in {pdf_path.relative_to(ROOT)}"
             )
         assert source.read_bytes() == published.read_bytes(), f"Published report is stale: {pdf_name}"
+    from report_publication import check_publication
+    verified_reports = check_publication(ROOT)
+    for name, status in verified_reports.items():
+        assert manifest['reports'][name] == status, f'Stale report status: {name}'
 
     for page_name, required_tokens in EXPECTED_PAGES.items():
         page_path = DOCS / page_name

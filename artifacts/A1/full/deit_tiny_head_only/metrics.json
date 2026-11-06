@@ -1,0 +1,45 @@
+{
+  "experiment_id": "deit_tiny_head_only",
+  "fingerprint": "dadd6abf52ee0c41b8c93bc60e8e59759b759e723aa332b116186d7ab9f6f41a",
+  "run_mode": "full",
+  "checkpoint_sha256": "b9f432c36d17a9df3bf85fbd8a67973f36b7c14c593146ef086daefbfcf3209e",
+  "epochs_completed": 25,
+  "best_epoch": 20,
+  "precision": "fp32",
+  "train_precision": "amp_fp16",
+  "train_accuracy": 0.7558666666666667,
+  "val_accuracy": 0.7256,
+  "test_accuracy": 0.7223,
+  "macro_f1": 0.7209058660105464,
+  "generalization_gap": 0.030266666666666664,
+  "evaluated_sizes": {
+    "train": 45000,
+    "val": 5000,
+    "test": 10000
+  },
+  "scores": {
+    "train": {
+      "loss": 0.8202985561794705,
+      "accuracy": 0.7558666666666667,
+      "items": 45000,
+      "macro_f1": 0.7542683751585425
+    },
+    "val": {
+      "loss": 0.9241415729522705,
+      "accuracy": 0.7256,
+      "items": 5000,
+      "macro_f1": 0.7246702733251277
+    },
+    "test": {
+      "loss": 0.9566168372154236,
+      "accuracy": 0.7223,
+      "items": 10000,
+      "macro_f1": 0.7209058660105464
+    }
+  },
+  "training_seconds": 3877.2716024719994,
+  "parameters": 5543716,
+  "trainable_parameters": 19300,
+  "peak_training_memory_mb": 141.71142578125,
+  "training_execution": "dual"
+}

@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "project": "assignment2",
+  "main": "main.tex",
+  "compiler": "pdflatex",
+  "reference_pdf_sha256": "da4898973f6914aa5a477e934e2006d0d5d9d43778fabab1546e71bf240a53fa",
+  "reference_pages": 20,
+  "files": {
+    "README.md": "29276a52cdbf642ca7db511cea2f6539ba2bfa8b465ef671b5f18b2c96b3dff7",
+    "generated/A2_bench.tex": "920df2f18b2f3b3ef8998e313b062c70dfaf0d10a7fb7cac6160a9980eab04af",
+    "generated/A2_cost.tex": "5c8612570ec4c058061bc839f201797cd57903ed262eed6b2b0722ded3105bc6",
+    "generated/A2_dcgan_baseline_curves.png": "319ac730be2f18c53d168bdc99b57042da23364343801330df8f9aab3a533e5b",
+    "generated/A2_dcgan_baseline_interpolation.png": "bd159ec428d86cf57610afe8306a1b65ac6d865e9096512c053852dfd6246b1e",
+    "generated/A2_dcgan_baseline_nearest_neighbors.png": "4a90a972369abb20bee95eda3c7bfb85fc400b30980ff287ae3d08f1a368df50",
+    "generated/A2_dcgan_baseline_samples.png": "9bd647fde752ff83296ca8dffd2a4050d5f413a82c997a29a7a94cf8f5197742",
+    "generated/A2_dcgan_diffaugment_curves.png": "659b479781c5ca177e5d124dc97a5550410567d38b3ca119d6d851ca46cb93c7",
+    "generated/A2_dcgan_diffaugment_interpolation.png": "9b7e91cf9f9d49823a9b6e5e89e4c8dfa4e01a9cd05646f4a409e3037fa36acd",
+    "generated/A2_dcgan_diffaugment_nearest_neighbors.png": "60a759f60306c3e597ab7843b2f19c02eacf68e594d5aab500009be1cccc905a",
+    "generated/A2_dcgan_diffaugment_samples.png": "0500704a1d3756aa7054c37ebadd98ad5c95896b223bf95f400cc00ffcd06ff0",
+    "generated/A2_eda.tex": "ffc6b5d067982ba3bec18949839b5217b18ca7d34f2a64ab1627dac3f083b03e",
+    "generated/A2_quality.tex": "71d039076271a5a761e0bdac592702339cab5964da9b8a51b947f330c27ab469",
+    "generated/anime_train_grid.png": "3514b9558de1ce34b45026b7beba60fc6523c4788bfd1b6523ee1fae970eb704",
+    "latexmkrc": "9c54bca59294e46b81bc05d252258879252e6a0b1a00e16f9792ba8a08fe8ff1",
+    "main.tex": "983c93380d8d823a1f67fffe25c399e9c49bb013ea09b2f793069447d8082ee6",
+    "shared/hcmut.png": "370a473c28b0a76b64a0d9518483ddf196c18a6f096445c4a878db6adafb9e31",
+    "shared/metadata.tex": "a5e0f7685750475bf518e52088d61134a98cfa654e2e244b054028b3938c3e9f",
+    "shared/preamble.tex": "bd1494bb689d3453dd966095d2b0d4ffe79e34ecaba3ab65cf2956ddf63815da",
+    "shared/references.bib": "90ac22342401c2100ba1ff2e199233b4eec1124f447f126f430f8eb48e201409"
+  }
+}

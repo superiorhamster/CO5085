@@ -4,7 +4,7 @@
 This script strictly adheres to plans/00_conventions.md:
 - Never modifies any .ipynb notebook files.
 - Only ingests artifacts from `full` runs (`run_mode == "full"`). Smoke runs are excluded.
-- Copies generated plots (curves.png, confusion_matrix.png, failures.png, denoising_trace.png,
+- Copies generated plots (curves.png, confusion_matrix.png, failures.png, samples.png,
   preview_step_*.png) into docs/assets/artifacts/<assignment>/<experiment_id>/.
 - Mirrors reports into docs/reports/ and records whether they are placeholders.
 """
@@ -20,6 +20,9 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+
+from a1_food101_protocol import SPEC as A1_SPEC, PROTOCOL as A1_PROTOCOL, valid_run as valid_a1_run, study_identity as a1_study_identity
+from a2_protocol import SPEC as A2_SPEC, PROTOCOL as A2_PROTOCOL, valid_run as valid_a2_run
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS_DIR = ROOT / "docs"
@@ -202,156 +205,8 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
             }
         ]
     },
-    "A1": {
-        "title": "A1 — CNN (ResNet-18) vs Vision Transformer (DeiT-Tiny) trên CIFAR-100",
-        "notebook": "A1/a1_cnn_vs_transformer.ipynb",
-        "dataset": "CIFAR-100 (100 lớp, upscale 32×32 → 224×224 antialias=True)",
-        "split": "45,000 Train / 5,000 Val / 10,000 Test (StratifiedShuffleSplit, seed=42)",
-        "optimizer": "Effective Batch=64 (batch=32, grad_accum=2), Epochs=20, Cosine LR (warmup 2 epochs). Scratch: AdamW(lr=3e-4, wd=0.05). Pretrained: AdamW(backbone lr=1e-4, head lr=1e-3, wd=0.01).",
-        "invariants": "Kiểm chứng tự động trước khi train: mọi tham số requires_grad=False và buffer của module đóng băng (running_mean, running_var của BatchNorm) giữ nguyên tuyệt đối (rtol=0, atol=0) sau optimizer.step().",
-        "experiments": [
-            {
-                "id": "resnet18_scratch",
-                "family": "resnet18",
-                "model_id": "resnet18.a1_in1k (pretrained=False)",
-                "strategy": "scratch",
-                "strategy_label": "From Scratch",
-                "unfrozen_layers": "Toàn bộ mạng (conv1, bn1, layer1..4, fc) khởi tạo ngẫu nhiên",
-                "expected_params": 11227812,
-                "expected_trainable": 11227812,
-                "preview": {"val_accuracy": 0.5420, "test_accuracy": 0.5365, "macro_f1": 0.5341, "latency_ms_per_image": 1.15, "peak_gpu_memory_mb": 980.0, "epoch_seconds": 48.0}
-            },
-            {
-                "id": "resnet18_head_only",
-                "family": "resnet18",
-                "model_id": "resnet18.a1_in1k (pretrained=True)",
-                "strategy": "head_only",
-                "strategy_label": "Freeze Backbone (Head-Only)",
-                "unfrozen_layers": "Chỉ mở tầng phân loại fc.* (51,300 tham số); đóng băng & giữ eval() toàn bộ backbone",
-                "expected_params": 11227812,
-                "expected_trainable": 51300,
-                "preview": {"val_accuracy": 0.6380, "test_accuracy": 0.6325, "macro_f1": 0.6302, "latency_ms_per_image": 1.14, "peak_gpu_memory_mb": 410.0, "epoch_seconds": 19.5}
-            },
-            {
-                "id": "resnet18_partial",
-                "family": "resnet18",
-                "model_id": "resnet18.a1_in1k (pretrained=True)",
-                "strategy": "partial",
-                "strategy_label": "Partial Freeze (layer4 + fc)",
-                "unfrozen_layers": "Mở khối residual cuối layer4.* và head fc.*; đóng băng conv1, bn1, layer1..3",
-                "expected_params": 11227812,
-                "expected_trainable": 8445028,
-                "preview": {"val_accuracy": 0.7640, "test_accuracy": 0.7585, "macro_f1": 0.7570, "latency_ms_per_image": 1.15, "peak_gpu_memory_mb": 595.0, "epoch_seconds": 28.0}
-            },
-            {
-                "id": "resnet18_full",
-                "family": "resnet18",
-                "model_id": "resnet18.a1_in1k (pretrained=True)",
-                "strategy": "full",
-                "strategy_label": "Full Fine-Tune",
-                "unfrozen_layers": "Tinh chỉnh toàn bộ backbone (lr=1e-4) + classification head (lr=1e-3)",
-                "expected_params": 11227812,
-                "expected_trainable": 11227812,
-                "preview": {"val_accuracy": 0.7985, "test_accuracy": 0.7930, "macro_f1": 0.7918, "latency_ms_per_image": 1.15, "peak_gpu_memory_mb": 985.0, "epoch_seconds": 47.5}
-            },
-            {
-                "id": "deit_tiny_scratch",
-                "family": "deit_tiny",
-                "model_id": "deit_tiny_patch16_224.fb_in1k (pretrained=False)",
-                "strategy": "scratch",
-                "strategy_label": "From Scratch",
-                "unfrozen_layers": "Toàn bộ PatchEmbed, 12 Transformer Blocks, final LayerNorm và Head (thiếu inductive bias cục bộ khi học từ đầu 20 epoch)",
-                "expected_params": 5543716,
-                "expected_trainable": 5543716,
-                "preview": {"val_accuracy": 0.3680, "test_accuracy": 0.3615, "macro_f1": 0.3560, "latency_ms_per_image": 1.48, "peak_gpu_memory_mb": 1120.0, "epoch_seconds": 54.0}
-            },
-            {
-                "id": "deit_tiny_head_only",
-                "family": "deit_tiny",
-                "model_id": "deit_tiny_patch16_224.fb_in1k (pretrained=True)",
-                "strategy": "head_only",
-                "strategy_label": "Freeze Backbone (Head-Only)",
-                "unfrozen_layers": "Chỉ mở tầng head.* (19,300 tham số); đóng băng toàn bộ 12 attention blocks",
-                "expected_params": 5543716,
-                "expected_trainable": 19300,
-                "preview": {"val_accuracy": 0.6690, "test_accuracy": 0.6640, "macro_f1": 0.6615, "latency_ms_per_image": 1.47, "peak_gpu_memory_mb": 460.0, "epoch_seconds": 22.0}
-            },
-            {
-                "id": "deit_tiny_partial",
-                "family": "deit_tiny",
-                "model_id": "deit_tiny_patch16_224.fb_in1k (pretrained=True)",
-                "strategy": "partial",
-                "strategy_label": "Partial Freeze (blocks.10..11 + norm + head)",
-                "unfrozen_layers": "Mở 2 khối Transformer cuối (blocks.10, blocks.11), final LayerNorm (norm.*) và head.*",
-                "expected_params": 5543716,
-                "expected_trainable": 909220,
-                "preview": {"val_accuracy": 0.7790, "test_accuracy": 0.7745, "macro_f1": 0.7731, "latency_ms_per_image": 1.48, "peak_gpu_memory_mb": 620.0, "epoch_seconds": 29.5}
-            },
-            {
-                "id": "deit_tiny_full",
-                "family": "deit_tiny",
-                "model_id": "deit_tiny_patch16_224.fb_in1k (pretrained=True)",
-                "strategy": "full",
-                "strategy_label": "Full Fine-Tune",
-                "unfrozen_layers": "Tinh chỉnh toàn bộ PatchEmbed + 12 Transformer blocks (lr=1e-4) + head (lr=1e-3)",
-                "expected_params": 5543716,
-                "expected_trainable": 5543716,
-                "preview": {"val_accuracy": 0.8240, "test_accuracy": 0.8195, "macro_f1": 0.8184, "latency_ms_per_image": 1.48, "peak_gpu_memory_mb": 1125.0, "epoch_seconds": 53.5}
-            }
-        ]
-    },
-    "A2": {
-        "title": "A2 — Ablation Noise Schedule (Linear vs Cosine) cho DDPM trên CelebA 32×32",
-        "notebook": "A2/a2_diffusion_schedules.ipynb",
-        "paper": {
-            "title": "Improved Denoising Diffusion Probabilistic Models",
-            "authors": "Alexander Quinn Nichol, Prafulla Dhariwal (OpenAI)",
-            "venue": "ICML 2021 (Proceedings of the 38th International Conference on Machine Learning, PMLR 139:8162-8171)",
-            "arxiv_url": "https://arxiv.org/abs/2102.09672",
-            "pdf_url": "https://proceedings.mlr.press/v139/nichol21a/nichol21a.pdf"
-        },
-        "dataset": "CelebA Align&Cropped (CenterCrop 148 → Resize 32×32, Normalize [-1, 1])",
-        "split": "20,000 Train / 2,000 Val / 5,000 Test theo official partition (lưu celeba_manifest_seed42.csv)",
-        "optimizer": "UNet2DModel (channels 64/128/128, Attn tại 16×16, GroupNorm 32), AdamW lr=1e-4, Effective Batch=64, 20,000 steps (warmup 500, cosine decay, grad_clip=1.0, EMA=0.999). Đánh giá: 5,000 mẫu sinh bằng DDPM 250 bước từ cùng initial noise.",
-        "experiments": [
-            {
-                "id": "linear",
-                "name": "Linear Noise Schedule (Ho et al., 2020 Baseline)",
-                "schedule_type": "linear (beta_start=1e-4, beta_end=0.02, T=1000)",
-                "variance_type": "fixed_small",
-                "prediction_target": "epsilon (MSE loss)",
-                "characteristic": "Ở độ phân giải thấp 32×32, ᾱ_t suy giảm quá nhanh về 0 ở nửa cuối chuỗi t, khiến các bước cuối gần như chỉ là nhiễu trắng thuần túy và lãng phí dung lượng bước khuếch tán.",
-                "expected_params": 6185923,
-                "preview": {
-                    "fid": 24.85,
-                    "inception_score_mean": 2.41,
-                    "inception_score_std": 0.08,
-                    "val_noise_loss": 0.0284,
-                    "sampling_seconds": 182.4,
-                    "seconds_per_image": 0.0365,
-                    "peak_gpu_memory_mb": 645.0
-                }
-            },
-            {
-                "id": "cosine",
-                "name": "Cosine Noise Schedule (Nichol & Dhariwal, ICML 2021)",
-                "schedule_type": "squaredcos_cap_v2 (s=0.008, beta_max=0.999, T=1000)",
-                "variance_type": "fixed_small",
-                "prediction_target": "epsilon (MSE loss)",
-                "characteristic": "Hàm ᾱ_t giảm mượt theo hàm cos² ở vùng giữa và tránh phá hủy cấu trúc ảnh quá sớm ở vùng t nhỏ, giữ tỷ lệ SNR hữu ích lâu hơn đặc biệt trên ảnh 32×32.",
-                "expected_params": 6185923,
-                "preview": {
-                    "fid": 18.42,
-                    "inception_score_mean": 2.68,
-                    "inception_score_std": 0.07,
-                    "val_noise_loss": 0.0392,
-                    "sampling_seconds": 182.8,
-                    "seconds_per_image": 0.0366,
-                    "peak_gpu_memory_mb": 645.0
-                }
-            }
-        ]
-    }
+    "A1": A1_SPEC,
+    "A2": A2_SPEC
 }
 
 
@@ -428,13 +283,13 @@ def ensure_reports() -> dict[str, dict[str, Any]]:
             "Dataset: Fashion-MNIST (54k train / 6k val / 10k test, StratifiedShuffleSplit seed=42)."
         ),
         "assignment1.pdf": (
-            "CO5085 - Assignment 1 Report (CNN vs Transformer on CIFAR-100)",
+            "CO5085 - Assignment 1 Report (ResNet-18 vs DeiT-Tiny on CIFAR-100)",
             "ResNet-18 vs DeiT-Tiny across Scratch, Head-Only, Partial Freeze, and Full Fine-Tune",
             "Milestones: A1.1 Protocol (26/10/2026) & A1.2 Complete Evaluation (09/11/2026)."
         ),
         "assignment2.pdf": (
-            "CO5085 - Assignment 2 Report (DDPM Noise Schedule Ablation & Paper Analysis)",
-            "Linear vs Cosine Noise Schedule on CelebA 32x32 + Paper Analysis (Nichol & Dhariwal, ICML 2021)",
+            "CO5085 - Assignment 2 Report (DCGAN and DiffAugment)",
+            "Anime face generation + Paper Analysis (Zhao et al., NeurIPS 2020)",
             "Milestones: A2.1 Proposal (02/11/2026) & A2.2 Complete Pipeline & Analysis (16/11/2026)."
         ),
     }
@@ -446,14 +301,8 @@ def ensure_reports() -> dict[str, dict[str, Any]]:
             src_path.write_bytes(build_minimal_pdf(title, subtitle, note))
         dst_path = REPORTS_DOCS_DIR / filename
         shutil.copy2(src_path, dst_path)
-        size_kb = round(src_path.stat().st_size / 1024, 2)
-        is_placeholder = size_kb < 5.0
-        status_info[filename] = {
-            "path": f"reports/{filename}",
-            "size_kb": size_kb,
-            "is_placeholder": is_placeholder,
-            "updated_at": dt.datetime.fromtimestamp(src_path.stat().st_mtime, tz=dt.timezone.utc).isoformat()
-        }
+        from report_publication import report_status
+        status_info[filename] = report_status(ROOT, filename)
     return status_info
 
 
@@ -489,11 +338,13 @@ def read_csv_rows(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
-PRIVATE_CONFIG_KEYS = {"data_root", "output_root", "celeba_root", "resume_from"}
+PRIVATE_CONFIG_KEYS = {"data_root", "output_root", "celeba_root", "resume_from", "pretrained_dir", "input_root"}
 
 
 def valid_full_run(assignment: str, experiment_id: str, run_dir: Path) -> bool:
     """Verify the minimum provenance required before publishing a run."""
+    if assignment == "A1": return valid_a1_run(run_dir, experiment_id)
+    if assignment == "A2": return valid_a2_run(run_dir, experiment_id)
     metrics = read_json_safe(run_dir / "metrics.json")
     config = read_json_safe(run_dir / "config.json")
     # The previous E1 CNN used GAP; its results must not describe the new head.
@@ -516,7 +367,17 @@ def public_config(config: dict[str, Any] | None) -> dict[str, Any] | None:
     """Remove local filesystem and resume paths from data published on GitHub Pages."""
     if config is None:
         return None
-    return {key: value for key, value in config.items() if key not in PRIVATE_CONFIG_KEYS}
+    private = PRIVATE_CONFIG_KEYS | {'root', 'cache_root', 'checkpoint_input'}
+    def clean(value):
+        if isinstance(value, dict): return {k: clean(v) for k,v in value.items() if k not in private}
+        if isinstance(value, list): return [clean(v) for v in value]
+        return value
+    return clean(config)
+
+
+def assignment_root(artifacts_root: Path, assignment: str) -> Path:
+    namespace = {'A1': A1_PROTOCOL, 'A2': A2_PROTOCOL}.get(assignment)
+    return artifacts_root / assignment / namespace if namespace else artifacts_root / assignment
 
 
 def count_full_runs(artifacts_root: Path) -> int:
@@ -524,23 +385,38 @@ def count_full_runs(artifacts_root: Path) -> int:
     count = 0
     for assignment, spec in EXPERIMENT_SPECS.items():
         for experiment in spec["experiments"]:
-            run_dir = artifacts_root / assignment / "full" / experiment["id"]
+            run_dir = assignment_root(artifacts_root, assignment) / "full" / experiment["id"]
             if valid_full_run(assignment, experiment["id"], run_dir):
                 count += 1
     return count
 
 
-def sync_experiment_artifacts(artifacts_root: Path, *, allow_empty: bool = False) -> dict[str, Any]:
+def sync_experiment_artifacts(artifacts_root: Path, *, allow_empty: bool = False, a2_export: Path | None = None) -> dict[str, Any]:
     """Scan artifacts_root/<assignment>/full/<experiment_id>/ and copy plots + metrics."""
-    valid_run_count = count_full_runs(artifacts_root)
+    if a2_export is None and any((artifacts_root / assignment / 'export_manifest.json').exists() for assignment in ('A1', 'A2')):
+        from web_artifacts import sync_bundles
+        return sync_bundles(artifacts_root, DOCS_DIR)
+    from a2_web_export import inspect_export, public_history, EXECUTED
+    a2_root = a2_export or assignment_root(artifacts_root, 'A2')
+    a2_summary = inspect_export(a2_root, ROOT / EXECUTED) if (a2_export is not None or (a2_root / 'manifest.json').exists()) else None
+    valid_run_count = count_full_runs(artifacts_root) + (2 if a2_export is not None and a2_summary else 0)
     if valid_run_count == 0 and not allow_empty:
         raise RuntimeError(
             f"No valid full-run metrics found under {artifacts_root}. "
             "Refusing to overwrite published data; pass --allow-empty only when bootstrapping the site."
         )
 
-    if ARTIFACTS_OUT_DIR.exists():
-        shutil.rmtree(ARTIFACTS_OUT_DIR)
+    previous = read_json_safe(DATA_OUT_DIR / 'experiments_manifest.json') or {}
+    incoming_a1 = [read_json_safe(assignment_root(artifacts_root,'A1')/'full'/e['id']/'config.json')
+                   for e in A1_SPEC['experiments'] if valid_a1_run(assignment_root(artifacts_root,'A1')/'full'/e['id'],e['id'])]
+    incoming_cohorts = {a1_study_identity(c) for c in incoming_a1}
+    if len(incoming_cohorts)>1:
+        raise ValueError('A1 runs have different data/split/recipe/versions; refusing to mix study cohorts')
+    old_a1 = previous.get('assignments',{}).get('A1',{}).get('experiments',[])
+    previous_cohorts = {a1_study_identity(e['config']) for e in old_a1
+                        if e.get('has_full_metrics') and (e.get('config') or {}).get('protocol')==A1_PROTOCOL}
+    if incoming_cohorts and previous_cohorts and incoming_cohorts!=previous_cohorts and len(incoming_a1)!=8:
+        raise ValueError('A1 partial export differs from the published study; import all8 matching runs to replace it')
     ARTIFACTS_OUT_DIR.mkdir(parents=True, exist_ok=True)
     DATA_OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -550,8 +426,8 @@ def sync_experiment_artifacts(artifacts_root: Path, *, allow_empty: bool = False
         "conventions": {
             "seed": 42,
             "fashion_mnist_split": "54,000 train / 6,000 val / 10,000 test (StratifiedShuffleSplit, seed=42, SHA-256 verified)",
-            "cifar100_split": "45,000 train / 5,000 val / 10,000 test (StratifiedShuffleSplit, seed=42, SHA-256 verified)",
-            "celeba_split": "20,000 train / 2,000 val / 5,000 test (Official partition deterministic subset, seed=42)",
+            "food101_split": "68,175 train / 7,575 validation / 25,250 official test; seed42, manifest/split SHA256",
+            "anime_split": "All unique valid train / 2,000 validation / 5,000 test; decoded-image dedup before split, seed42",
             "smoke_policy": "Smoke runs are strictly excluded from report tables per plans/00_conventions.md."
         },
         "total_expected_experiments": 23,
@@ -562,7 +438,11 @@ def sync_experiment_artifacts(artifacts_root: Path, *, allow_empty: bool = False
     total_completed = 0
 
     for assignment, spec in EXPERIMENT_SPECS.items():
-        full_dir = artifacts_root / assignment / "full"
+        full_dir = (a2_root if assignment == 'A2' else assignment_root(artifacts_root, assignment)) / "full"
+        if (a2_export is not None and assignment != 'A2' or not full_dir.exists()) and not allow_empty and assignment in previous.get('assignments',{}):
+            manifest['assignments'][assignment] = previous['assignments'][assignment]
+            total_completed += previous['assignments'][assignment]['completed_full_count']
+            continue
         assignment_completed = 0
         experiments_out: list[dict[str, Any]] = []
 
@@ -576,14 +456,23 @@ def sync_experiment_artifacts(artifacts_root: Path, *, allow_empty: bool = False
 
             # Enforce full mode and artifact provenance before publishing a run.
             is_valid_full = valid_full_run(assignment, exp_id, run_dir)
+            # A Kaggle export may contain A2 alone. Preserve published experiments
+            # absent from that export, instead of destroying E1–A1 history/plots.
+            old = next((e for e in previous.get('assignments', {}).get(assignment, {}).get('experiments', []) if e['id'] == exp_id), None)
+            if not run_dir.exists() and not allow_empty and old and (assignment not in ('A1','A2') or (old.get('config') or {}).get('protocol') == {'A1':A1_PROTOCOL,'A2':A2_PROTOCOL}[assignment]):
+                experiments_out.append(old)
+                assignment_completed += int(bool(old.get('has_full_metrics')))
+                total_completed += int(bool(old.get('has_full_metrics')))
+                continue
 
             copied_images: dict[str, str] = {}
             if is_valid_full and run_dir.exists():
                 assignment_completed += 1
                 total_completed += 1
                 target_img_dir = ARTIFACTS_OUT_DIR / assignment / exp_id
+                if target_img_dir.exists(): shutil.rmtree(target_img_dir)
                 target_img_dir.mkdir(parents=True, exist_ok=True)
-                for img_name in ("curves.png", "confusion_matrix.png", "failures.png", "denoising_trace.png"):
+                for img_name in ("curves.png", "confusion_matrix.png", "failures.png", "samples.png", "interpolation.png", "nearest_neighbors.png"):
                     src_img = run_dir / img_name
                     if src_img.exists():
                         shutil.copy2(src_img, target_img_dir / img_name)
@@ -602,10 +491,15 @@ def sync_experiment_artifacts(artifacts_root: Path, *, allow_empty: bool = False
                 **exp_spec,
                 "has_full_metrics": is_valid_full,
                 "metrics": metrics if is_valid_full else None,
+                "benchmark": read_json_safe(run_dir / "benchmark.json") if assignment in ('A1','A2') and is_valid_full else None,
                 "config": public_config(config) if is_valid_full else None,
                 "environment": environment if is_valid_full else None,
-                "history": history if is_valid_full else [],
+                "history": (public_history(history) if assignment == 'A2' else history) if is_valid_full else [],
+                **({'metric_protocol': read_json_safe(run_dir / 'metric_protocol.json'), 'history_points':len(history), 'history_aggregation':'Mean over consecutive 50-update windows'} if assignment == 'A2' and is_valid_full else {}),
                 "images": copied_images,
+                **({"status": "complete" if is_valid_full else (read_json_safe(run_dir / 'training_status.json') or {}).get('state', 'pending'),
+                    "confusion": read_json_safe(run_dir / 'confusion_matrix.json') if is_valid_full else None,
+                    "class_metrics": read_json_safe(run_dir / 'class_metrics.json') if is_valid_full else None} if assignment == 'A1' else {}),
             })
 
         manifest["assignments"][assignment] = {
@@ -614,9 +508,13 @@ def sync_experiment_artifacts(artifacts_root: Path, *, allow_empty: bool = False
             "completed_full_count": assignment_completed,
             "all_full_completed": assignment_completed == len(spec["experiments"]),
             "experiments": experiments_out,
+            **(a2_summary if assignment == 'A2' and a2_summary else {}),
         }
 
     manifest["total_completed_full_experiments"] = total_completed
+    a1_pdf = assignment_root(artifacts_root, 'A1') / 'full' / 'assignment1.pdf'
+    if manifest['assignments']['A1']['all_full_completed'] and a1_pdf.is_file() and a1_pdf.read_bytes().startswith(b'%PDF-'):
+        shutil.copy2(a1_pdf, REPORTS_SRC_DIR / 'assignment1.pdf')
     manifest["reports"] = ensure_reports()
 
     out_path = DATA_OUT_DIR / "experiments_manifest.json"
@@ -649,9 +547,10 @@ def main() -> None:
         action="store_true",
         help="Allow a zero-run manifest when bootstrapping the site (never use after publishing results).",
     )
+    parser.add_argument('--a2-export',type=Path,help='Extracted A2 export containing manifest.json and full/<variant>/')
     args = parser.parse_args()
 
-    manifest = sync_experiment_artifacts(args.artifacts_dir, allow_empty=args.allow_empty)
+    manifest = sync_experiment_artifacts(args.artifacts_dir, allow_empty=args.allow_empty, a2_export=args.a2_export)
     print(
         f"Synced site data -> docs/data/experiments_manifest.json "
         f"(completed full runs: {manifest['total_completed_full_experiments']}/"

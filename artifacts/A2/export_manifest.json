@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "assignment": "A2",
+  "identity": {
+    "executed_notebook": "A2/dcgan-vs-augmenteddcgan-dl-assignment-2.ipynb",
+    "worker_sha256": "7e449e38eeb39bb09bfee691a70a4df015dda59889683ce58fdf5aaeb3d709de",
+    "manifest_sha256": "3cb3d13301f9d37539352fd2f9a0ba3bc31d61706612d14870908adb4ebb202d",
+    "metric_protocol_hash": "809e2315a2f44c2e5ff266ed254e049f829f3c3119eac8355b83124a62c108f8",
+    "eda": {
+      "unique": 41522,
+      "duplicates": 22043,
+      "corrupt": 0,
+      "inspected": 63565,
+      "splits": {
+        "train": 34522,
+        "val": 2000,
+        "test": 5000
+      },
+      "widths": {
+        "labels": [
+          "0–64",
+          "64–96",
+          "96–128",
+          "128–192",
+          "192–256",
+          "256–512"
+        ],
+        "counts": [
+          4284,
+          20910,
+          15275,
+          1047,
+          6,
+          0
+        ]
+      },
+      "heights": {
+        "labels": [
+          "0–64",
+          "64–96",
+          "96–128",
+          "128–192",
+          "192–256",
+          "256–512"
+        ],
+        "counts": [
+          4285,
+          20909,
+          15275,
+          1047,
+          6,
+          0
+        ]
+      },
+      "aspect_ratios": {
+        "labels": [
+          "0–0.75",
+          "0.75–0.9",
+          "0.9–1.01",
+          "1.01–1.1",
+          "1.1–1.5",
+          "1.5–2"
+        ],
+        "counts": [
+          0,
+          0,
+          41516,
+          6,
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "source_validation": {
+    "passed": true,
+    "checkpoint_hashes_verified": true,
+    "predictions_verified": false,
+    "note": "Verified at packaging from original export; checkpoints/predictions intentionally omitted. Bundle hashes are rechecked on import."
+  },
+  "files": {
+    "full/dcgan_baseline/benchmark.json": "a95412b37a0704ee32c40109c01c7da8e7676ee15fbe650f7509a8bed3315c7f",
+    "full/dcgan_baseline/benchmark_status.json": "b298c4c3b542529a67e9d859fff22653a51e52716af2b346d8002757362a2d90",
+    "full/dcgan_baseline/config.json": "bbfe5f58cd74fe0fe3caccb47a598d1526bb14239ed17a9287a11de763522195",
+    "full/dcgan_baseline/curves.png": "319ac730be2f18c53d168bdc99b57042da23364343801330df8f9aab3a533e5b",
+    "full/dcgan_baseline/environment.json": "b0404d72acc98b99f39ede0d8cf5b942fa0ff741f9d8507b1e08976f7bcf9314",
+    "full/dcgan_baseline/evaluation_status.json": "b298c4c3b542529a67e9d859fff22653a51e52716af2b346d8002757362a2d90",
+    "full/dcgan_baseline/history.csv": "2a10d5545d4dbc2d46ba6cdad10570450296ec58361542aa36bc03a477188927",
+    "full/dcgan_baseline/interpolation.png": "bd159ec428d86cf57610afe8306a1b65ac6d865e9096512c053852dfd6246b1e",
+    "full/dcgan_baseline/kid_subsets.json": "9ad565b86e0de8ac115bf306cc0ad8fb585d6340e5ae794cf7b63e737ed72868",
+    "full/dcgan_baseline/metric_protocol.json": "65a80c6e210436455eee1d849266ea6bc3839a087e1a9e1eb05e8c5de005935e",
+    "full/dcgan_baseline/metrics.json": "5d9354867d8b91de19a3f064b93464c801a6524ff843a1f36078b2c3780e9d31",
+    "full/dcgan_baseline/nearest_neighbors.png": "4a90a972369abb20bee95eda3c7bfb85fc400b30980ff287ae3d08f1a368df50",
+    "full/dcgan_baseline/samples.png": "9bd647fde752ff83296ca8dffd2a4050d5f413a82c997a29a7a94cf8f5197742",
+    "full/dcgan_baseline/trained.json": "ada8cfa507d6663e5f3a7ea239ffbc1aa13a6aa268f36b11ad694c2da5f6f3b6",
+    "full/dcgan_diffaugment/benchmark.json": "2ac38891a553a7744e83d96d3f9c66a437de7eb9ccb04b27c46cb9e8ca0a83f7",
+    "full/dcgan_diffaugment/benchmark_status.json": "f78cb2fda6ead3a5560c9496a0cb87932cdfaa9b733aeb54fb1c9297dc89a5b7",
+    "full/dcgan_diffaugment/config.json": "bf51f32bbabd3225645a93dbf581811e94d24e1917c8bbe286d9dc37e6aa5b87",
+    "full/dcgan_diffaugment/curves.png": "659b479781c5ca177e5d124dc97a5550410567d38b3ca119d6d851ca46cb93c7",
+    "full/dcgan_diffaugment/environment.json": "b0404d72acc98b99f39ede0d8cf5b942fa0ff741f9d8507b1e08976f7bcf9314",
+    "full/dcgan_diffaugment/evaluation_status.json": "f78cb2fda6ead3a5560c9496a0cb87932cdfaa9b733aeb54fb1c9297dc89a5b7",
+    "full/dcgan_diffaugment/history.csv": "d23010a356423e5f380b2ae3065c725527c45f2d7a10a63767e5b3439979ddd7",
+    "full/dcgan_diffaugment/interpolation.png": "9b7e91cf9f9d49823a9b6e5e89e4c8dfa4e01a9cd05646f4a409e3037fa36acd",
+    "full/dcgan_diffaugment/kid_subsets.json": "11da550af396eb7e9a9bd9850b20763a39242b1591c162f473dfad29c60f3838",
+    "full/dcgan_diffaugment/metric_protocol.json": "65a80c6e210436455eee1d849266ea6bc3839a087e1a9e1eb05e8c5de005935e",
+    "full/dcgan_diffaugment/metrics.json": "4d5affa15837a3689bf148c41e80e52b1d3e79383c1b4049cddc050cc95410e7",
+    "full/dcgan_diffaugment/nearest_neighbors.png": "60a759f60306c3e597ab7843b2f19c02eacf68e594d5aab500009be1cccc905a",
+    "full/dcgan_diffaugment/samples.png": "0500704a1d3756aa7054c37ebadd98ad5c95896b223bf95f400cc00ffcd06ff0",
+    "full/dcgan_diffaugment/trained.json": "6e41bdfdbf536b0b07054a782ccc464580b395d69f84f1891263f966547b2b2f",
+    "manifest.json": "4859257e7b7705ddd3df807fa20a6377dce980f27671c4a55e32c1711147d7ef"
+  }
+}

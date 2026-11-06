@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering\small
+\caption{E2: chi phí đo trên Tesla T4. Ký hiệu MB trong JSON được tính theo $2^{20}$ byte.}\label{tab:costE2}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrr}
+\toprule
+ID & VRAM train (MiB) & Weights (MiB) & ms/ảnh (B32) \\
+\midrule
+scratch\_patch & 64.34 & 0.274 & 0.0429 \\
+scratch\_row & 41.27 & 0.272 & 0.0359 \\
+scratch\_cnn & 68.36 & 0.342 & 0.0490 \\
+torch\_patch & 51.74 & 0.274 & 0.0343 \\
+torch\_row & 41.57 & 0.272 & 0.0272 \\
+torch\_cnn & 54.19 & 0.342 & 0.0381 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

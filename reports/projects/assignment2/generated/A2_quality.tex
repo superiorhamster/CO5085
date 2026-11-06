@@ -1,0 +1,13 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Đánh giá final EMA; KID ở thang gốc (không nhân 100 hay 1000).}\label{tab:A2quality}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrrrr}
+\toprule
+Biến thể & FID$\downarrow$ & KID$\downarrow$ & KID std & IS$\uparrow$ & IS std \\
+\midrule
+Baseline & 298.51 & 0.38419 & 0.00160 & 1.347 & 0.010 \\
++ DiffAugment & 41.84 & 0.03749 & 0.00131 & 2.000 & 0.071 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

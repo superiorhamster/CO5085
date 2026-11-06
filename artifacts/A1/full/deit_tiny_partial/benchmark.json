@@ -1,0 +1,28 @@
+{
+  "fingerprint": "9e86bb29a4b83cce9019d06288492a1d8e9242f7d111171688e186985cff9be9",
+  "checkpoint_sha256": "7f67bbc8bd1e222e43f4a6fe4fcce269625780606e710277cda023ca0da7120b",
+  "measurements": {
+    "1": {
+      "batch_size": 1,
+      "warmup": 10,
+      "repeats": 50,
+      "precision": "fp32",
+      "device": "cuda:0",
+      "device_name": "Tesla T4",
+      "latency_ms_per_image": 14.550094440055545,
+      "images_per_second": 68.72807624169499,
+      "peak_allocated_memory_mb": 56.47607421875
+    },
+    "32": {
+      "batch_size": 32,
+      "warmup": 10,
+      "repeats": 50,
+      "precision": "fp32",
+      "device": "cuda:0",
+      "device_name": "Tesla T4",
+      "latency_ms_per_image": 1.302639199375335,
+      "images_per_second": 767.6722767743654,
+      "peak_allocated_memory_mb": 127.95068359375
+    }
+  }
+}

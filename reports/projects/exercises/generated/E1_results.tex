@@ -1,0 +1,14 @@
+\begin{table}[htbp]
+\centering\small
+\caption{E1: kết quả đo; best epoch đổi từ chỉ số 0 sang thứ tự 1--20.}\label{tab:resultsE1}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrrrr}
+\toprule
+ID & Val (\%) & Test (\%) & Test loss & Best$^*$ & Tham số \\
+\midrule
+softmax & 86.50 & 84.10 & 0.450 & 16 & 7,850 \\
+mlp & 90.58 & 89.33 & 0.370 & 16 & 235,146 \\
+cnn & 92.98 & 91.95 & 0.253 & 13 & 50,186 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

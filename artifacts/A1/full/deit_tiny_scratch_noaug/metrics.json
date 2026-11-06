@@ -1,0 +1,45 @@
+{
+  "experiment_id": "deit_tiny_scratch_noaug",
+  "fingerprint": "2851d61e89d8844ce584f619b775a8b0260e6de5660ab47e1706b9cf70053999",
+  "run_mode": "full",
+  "checkpoint_sha256": "ca21f537e2a186e6cddef7025669ae603d959cf919281067bd352ac0b002cfe8",
+  "epochs_completed": 25,
+  "best_epoch": 15,
+  "precision": "fp32",
+  "train_precision": "amp_fp16",
+  "train_accuracy": 0.7723555555555556,
+  "val_accuracy": 0.4336,
+  "test_accuracy": 0.4414,
+  "macro_f1": 0.4403381575940829,
+  "generalization_gap": 0.3387555555555556,
+  "evaluated_sizes": {
+    "train": 45000,
+    "val": 5000,
+    "test": 10000
+  },
+  "scores": {
+    "train": {
+      "loss": 0.822074267662896,
+      "accuracy": 0.7723555555555556,
+      "items": 45000,
+      "macro_f1": 0.7720962955435177
+    },
+    "val": {
+      "loss": 2.348636162567139,
+      "accuracy": 0.4336,
+      "items": 5000,
+      "macro_f1": 0.4338087912217929
+    },
+    "test": {
+      "loss": 2.286176741027832,
+      "accuracy": 0.4414,
+      "items": 10000,
+      "macro_f1": 0.4403381575940829
+    }
+  },
+  "training_seconds": 3336.1989752290065,
+  "parameters": 5543716,
+  "trainable_parameters": 5543716,
+  "peak_training_memory_mb": 714.69580078125,
+  "training_execution": "dual"
+}

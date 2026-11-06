@@ -13,13 +13,33 @@ NOTEBOOKS = {
     "E1/e1_fashion_mnist_baselines.ipynb": 3,
     "E2/e2_attention_tokenization.ipynb": 6,
     "E3/e3_sequence_models.ipynb": 4,
-    "A1/a1_cnn_vs_transformer.ipynb": 8,
-    "A2/a2_diffusion_schedules.ipynb": 2,
+    "A1/a1_cifar100_resnet18_vs_deit.ipynb": 8,
+    "A2/a2_dcgan_diffaugment.ipynb": 2,
 }
 REQUIRED_TOPICS = ["Môi trường", "Cấu hình", "Dữ liệu", "mô hình", "Huấn luyện", "đánh giá"]
 
 
 def validate(path: Path, expected_experiments: int) -> None:
+    if path.name == 'a1_cifar100_resnet18_vs_deit.ipynb':
+        payload = json.loads(path.read_text())
+        code = []
+        for i, cell in enumerate(payload['cells']):
+            if cell['cell_type'] != 'code': continue
+            assert i and payload['cells'][i-1]['cell_type'] == 'markdown'
+            assert cell['execution_count'] is None and not cell['outputs']
+            source = ''.join(cell['source'])
+            if source.startswith('%%writefile'): source = source.split('\n',1)[1]
+            ast.parse(source)
+            code.append(source)
+        text = '\n'.join(code)
+        assert 'MAIN_IDS' in text and 'ALL_IDS' in text and 'scratch_noaug' in text
+        assert 'register_step_post_hook' in text and 'subprocess.Popen' in text
+        print(f'OK {path.relative_to(ROOT)} (8 main + 2 controls; visible Python parses)')
+        return
+    if path.name == 'a2_dcgan_diffaugment.ipynb':
+        from validate_a2_anime import validate as validate_anime
+        validate_anime()
+        return
     payload = json.loads(path.read_text(encoding="utf-8"))
     assert payload["nbformat"] == 4
     assert payload["cells"] and payload["cells"][0]["cell_type"] == "markdown"
@@ -55,8 +75,6 @@ def validate(path: Path, expected_experiments: int) -> None:
         assert "for recurrent in" in combined_code and "for representation in" in combined_code
     elif expected_experiments == 8:
         assert "for family in MODEL_NAMES" in combined_code and "for strategy in STRATEGIES" in combined_code
-    elif expected_experiments == 2:
-        assert 'EXPERIMENT_IDS = ["linear", "cosine"]' in combined_code
     print(f"OK {path.relative_to(ROOT)} ({len(payload['cells'])} cells, {expected_experiments} experiments)")
 
 

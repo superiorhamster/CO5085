@@ -1,0 +1,21 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Năm lớp có F1 test thấp nhất mỗi model full; support mỗi lớp là 100.}\label{tab:A1classes}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrrr}
+\toprule
+Model & Lớp & Precision\% & Recall\% & F1\% \\
+\midrule
+resnet18 & girl & 57.61 & 53.00 & 55.21 \\
+resnet18 & otter & 53.85 & 63.00 & 58.06 \\
+resnet18 & boy & 58.59 & 58.00 & 58.29 \\
+resnet18 & seal & 61.05 & 58.00 & 59.49 \\
+resnet18 & shrew & 60.38 & 64.00 & 62.14 \\
+deit\_tiny & boy & 56.36 & 62.00 & 59.05 \\
+deit\_tiny & girl & 66.67 & 56.00 & 60.87 \\
+deit\_tiny & seal & 65.26 & 62.00 & 63.59 \\
+deit\_tiny & woman & 64.29 & 63.00 & 63.64 \\
+deit\_tiny & pine\_tree & 68.54 & 61.00 & 64.55 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

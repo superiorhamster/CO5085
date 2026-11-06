@@ -1,0 +1,47 @@
+{
+  "review_date": "2026-11-06",
+  "method": "All62pages rendered at75dpi and inspected in6contact sheets; updated cover and AI declaration inspected separately at100dpi.",
+  "reports": {
+    "exercises.pdf": {
+      "sha256": "e40bf746050ce641cbd2e23107525f3b4b426534c6add2edbfbed34d1e46a356",
+      "pages": 20,
+      "pages_visually_reviewed": 20,
+      "external_link_annotations": 6,
+      "searchable_vietnamese": true,
+      "layout_review": "passed"
+    },
+    "assignment1.pdf": {
+      "sha256": "2deb00603ba82b1c9a13574398b61d97293d13eb5191b648d2b9410e506f01ee",
+      "pages": 22,
+      "pages_visually_reviewed": 22,
+      "external_link_annotations": 6,
+      "searchable_vietnamese": true,
+      "layout_review": "passed"
+    },
+    "assignment2.pdf": {
+      "sha256": "da4898973f6914aa5a477e934e2006d0d5d9d43778fabab1546e71bf240a53fa",
+      "pages": 20,
+      "pages_visually_reviewed": 20,
+      "external_link_annotations": 12,
+      "searchable_vietnamese": true,
+      "layout_review": "passed"
+    }
+  },
+  "checks": {
+    "unit_tests": 15,
+    "a1_a2_renderers": "passed, including missing PDF and file fallback states",
+    "site_links_and_notebook_syntax": "passed",
+    "overleaf_archives": "all3built with pdfLaTeX/latexmk",
+    "main_experiments": 23,
+    "a1_controls": 2,
+    "remaining_submission_gaps": [
+      "official group ID",
+      "A1/A2 video URLs",
+      "A1 dataset-change approval evidence"
+    ]
+  },
+  "author_metadata": [
+    "Phạm Duy Anh - 2310139",
+    "Nguyễn Phan Tuấn Duy - 2310491"
+  ]
+}

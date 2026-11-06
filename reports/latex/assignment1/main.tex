@@ -1,0 +1,269 @@
+\documentclass[11pt,a4paper]{article}
+\input{../shared/preamble}
+\begin{document}
+\reportcover{BÁO CÁO ASSIGNMENT 1}{ResNet-18 và DeiT-Tiny trên CIFAR-100\\Khởi tạo, fine-tuning và augmentation có đối chứng}
+
+\section{Câu hỏi nghiên cứu và nguồn bằng chứng}\label{sec:aim}
+Study so sánh một CNN và một Vision Transformer trên cùng CIFAR-100: ResNet-18 và DeiT-Tiny. Câu hỏi chính là pretraining và phạm vi cập nhật tham số ảnh hưởng thế nào tới chất lượng, chi phí và overfitting trong ngân sách cố định. Hai run scratch không augmentation kiểm chứng một quyết định xử lý dữ liệu rút ra sau EDA.
+
+Có tám cấu hình chính: hai kiến trúc nhân bốn chế độ scratch, head-only, partial và full fine-tune; thêm hai đối chứng scratch noaug. Export đã chạy đủ \textbf{25 epoch/run}, seed 42, không dùng mặc định 20 epoch trong notebook sạch để mô tả kết quả 25 epoch. Dataset và recipe của study này độc lập với các notebook Food-101 cũ.
+
+\begin{table}[htbp]\centering\small\caption{Truy vết yêu cầu từ \texttt{a1\_co5085.md} và bằng chứng hiện có.}
+\begin{tabularx}{\linewidth}{Xl}\toprule Yêu cầu / bằng chứng & Phần\\\midrule
+Lựa chọn dữ liệu, EDA, split và preprocessing & \ref{sec:data}, \ref{sec:eda}\\
+CNN và Transformer, scratch và pretrained, ba freeze strategies & \ref{sec:models}\\
+Huấn luyện, checkpoint và evaluation có kiểm soát & \ref{sec:train}\\
+Accuracy, macro-F1, chi phí, inference và lỗi & \ref{sec:results}--\ref{sec:errors}\\
+Đối chứng xử lý dữ liệu và hạn chế & \ref{sec:aug}, \ref{sec:limits}\\
+Nguồn reproducible và notebook đã chạy & \ref{sec:repro}\\
+Chấp thuận đổi dataset sau A1.1 & Chưa có bằng chứng xác nhận\\
+Video & Chưa cung cấp\\\bottomrule\end{tabularx}\end{table}
+
+Full fine-tune có validation accuracy cao nhất cho cả hai họ trong study này; test tương ứng 81,94\% và 82,59\%. Đó là kết luận theo bảng đã đo, không phải khẳng định full fine-tune luôn tốt nhất.
+\disclosure
+\clearpage
+
+\section{Dataset và protocol chia tập}\label{sec:data}
+\subsection{Nguồn và lý do chọn}
+CIFAR-100~\cite{cifar} có ảnh RGB$32\times 32$,100 nhãn fine và 20 superclass. Target là nhãn \emph{fine 100 lớp}; superclass chỉ phục vụ tổ chức EDA, không dùng làm target. Dataset có official train 50.000 và test 10.000 ảnh. Nguồn chính thức được trích dẫn nhưng không công bố rõ một giấy phép chuẩn cho dataset tại trang được tham chiếu; báo cáo không tự gán MIT/CC hay suy ra license từ thư viện tải dữ liệu.
+
+CIFAR-100 đủ số lớp để quan sát chuyển giao và lỗi giữa lớp gần nhau, quy mô phù hợp ngân sách hai GPU T 4. Hạn chế quan trọng là độ phân giải rất thấp, trong khi pretrained models nhận 224 pixel. Việc chọn dataset đáp ứng mục tiêu so sánh kiến trúc không đồng nghĩa đã có giảng viên phê duyệt việc đổi dataset sau mốc A1.1. Chưa có tài liệu chấp thuận trong nguồn hiện có.
+
+\subsection{Split và tính toàn vẹn}
+Official train được chia phân tầng seed 42 thành 45.000 train và 5.000 validation; official test 10.000 giữ nguyên. Mỗi lớp có 450/50/100 ảnh. Manifest lưu class mapping, chỉ số, hash dữ liệu và nhãn. Hai họ model và hai đối chứng dùng cùng manifest; không chọn augmentation, siêu tham số hay checkpoint bằng test.
+
+\begin{table}[htbp]\centering\caption{Split đã đăng ký cho A1.}
+\begin{tabular}{lrrr}\toprule & Train & Validation & Test\\\midrule
+Số ảnh &45.000&5.000&10.000\\
+Số lớp fine &100&100&100\\
+Ảnh/lớp &450&50&100\\\bottomrule\end{tabular}\end{table}
+
+\noindent\textbf{Study fingerprint:}\par
+{\footnotesize\path{5872fe326187fc5fd3117ca96362aee2a13f38d0990aad4d10a90616ff0baa58}}\par
+\noindent\textbf{Manifest hash:}\par
+{\footnotesize\path{cdd348321726fc1f3159f8e361b69ab5db18c5785e569e000b0ac9982a0617d2}}\par
+Đây là identity dùng để từ chối ghép các run khác split/recipe hoặc ngân sách. Hash checkpoint được ghi riêng cho từng model; bản bundle nhẹ không chứa checkpoint nên việc kiểm tra lại bundle không được mô tả như vừa đọc lại checkpoint gốc.
+\clearpage
+
+\section{EDA dẫn tới quyết định xử lý}\label{sec:eda}
+\subsection{Cân bằng lớp, định dạng và màu}
+Audit ghi ảnh shape$[32,32,3]$, dtype \texttt{uint8}, pixel 0--255; lớp train có min=max 450 ảnh. Vì vậy không dùng class weights hay weighted sampler. Dữ liệu không hợp lệ phải gây lỗi, không âm thầm bỏ mẫu làm thay đổi split.
+
+Mean RGB tính chỉ trên train là $(0{,}507056;0{,}486423;0{,}440584)$. Độ lệch chuẩn tương ứng là $(0{,}267242;0{,}256334;0{,}276031)$. Thống kê cho thấy các kênh không cùng phân bố. Tuy nhiên pipeline dùng ImageNet normalization chung cho cả hai model, nhằm tương thích checkpoint pretrained và giữ phép so sánh thống nhất. Không trình bày mean/std CIFAR này như normalization thực dùng.
+\fig{A1_eda_distribution.png}{Phân bố số lượng lớp/split từ EDA A1. Quyết định: không bù mất cân bằng lớp.}{counts}
+\fig{A1_eda_color.png}{Phân bố màu và thống kê train. Validation/test không dùng để quyết định transform.}{color}
+\clearpage
+
+\subsection{Lớp gần nhau và giới hạn độ phân giải}
+\fig{A1_eda_superclasses.png}{Mẫu train theo các nhóm superclass: hỗ trợ đặt giả thuyết nhầm lẫn, không đổi target 100 lớp.}{super}
+Nhiều lớp cây, người hoặc thú có bối cảnh và hình dáng gần nhau. Ở 32 pixel, khác biệt lá, khuôn mặt và texture có thể mất. EDA gợi ý xem nhóm lỗi này sau train; việc nhầm thực tế được xác minh bằng top confusion pairs ở Phần~\ref{sec:errors}, không coi trực giác từ ảnh là kết quả model.
+
+Resize 32$\to$224 tăng số pixel đầu vào nhưng không bổ sung thông tin gốc. Dùng chung 224 để tương thích pretrained DeiT patch 16 và ResNet, đổi lại chi phí lớn hơn. Không kết luận đây là độ phân giải tối ưu cho CIFAR-100 vì chưa có ablation input 32/64/224.
+\clearpage
+
+\subsection{Can thiệp dữ liệu được kiểm chứng}
+\fig{A1_eda_preprocessing.png}{Ảnh gốc, bicubic 224 và ba view augmentation từ cùng ảnh train. Up scale không tạo thêm chi tiết quan sát.}{preprocess}
+Baseline/evaluation: Resize 224 bicubic, ToTensor, ImageNet Normalize. Pipeline train đề xuất thêm crop và flip \emph{trước} up scale:
+\begin{lstlisting}
+train_aug = transforms.Compose([
+    transforms.RandomCrop(32, padding=4, padding_mode="reflect"),
+    transforms.RandomHorizontalFlip(0.5),
+    transforms.Resize(224, interpolation=InterpolationMode.BICUBIC),
+    transforms.ToTensor(),
+    transforms.Normalize([.485, .456, .406], [.229, .224, .225])])
+\end{lstlisting}
+Crop nhẹ ở độ phân giải gốc thay đổi vị trí mà vẫn giữ phần lớn nội dung; reflection tránh thêm viền đen mạnh. Flip tăng biến thiên hướng nhưng không chắc hợp mọi mẫu. Đây là giả thuyết cần kiểm chứng, không bảo đảm luôn tăng accuracy. Validation/test dùng baseline xác định; hai run noaug chỉ bỏ crop/flip, giữ seed, split, khởi tạo, optimizer và 25 epoch.
+
+\subsection{Audit ảnh trùng}
+Hash pixel ghi 26 nhóm trùng exact, trong đó 12 nhóm đi qua nhiều split và 17 nhóm có nhãn xung đột. Các số này là số \emph{nhóm}, không phải 26 ảnh hay 12 ảnh. Split đăng ký được giữ để tránh thay đổi đối chứng sau khi thấy kết quả. Báo cáo không khẳng định đã loại leakage; near-duplicate chưa được audit và overlap với pretraining ImageNet chưa được xác minh.
+
+Các lớp như aquarium\_fish và nhiều nhóm cây có thể xuất hiện nhiều lần hoặc có nhãn khó phân biệt; một phần nhầm lẫn không chỉ do model. Cần một study mới với chính sách dedup được đăng ký trước để định lượng tác động. Không được trừ một số ảnh sau train rồi dùng test score đó như cùng protocol ban đầu.
+\source{artifacts/A1/duplicate_audit.json}
+\clearpage
+
+\section{Kiến trúc, khởi tạo và freeze masks}\label{sec:models}
+\subsection{ResNet-18}
+ResNet-18~\cite{resnet} dùng residual blocks: $y=x+F(x)$ khi cùng shape, hoặc projection shortcut khi đổi stride/kênh. Global average pooling tạo vector 512; classifier \texttt{fc} đổi thành Linear$512\to 100$. ModelID \texttt{resnet18.a1\_in1k} xác định kiến trúc và metadata checkpoint trong timm 1.0.22~\cite{timm}, không tự nạp weights nếu \texttt{pretrained=False}.
+\begin{lstlisting}
+seed_all(seed)
+model = timm.create_model(
+    'resnet18.a1_in1k', pretrained=False,
+    num_classes=100, drop_rate=0., drop_path_rate=0.)
+if strategy != 'scratch':
+    timm.models.load_pretrained(model, pretrained_cfg={
+        **model.pretrained_cfg, 'file': pretrained_path},
+        num_classes=100)
+for name, p in model.named_parameters():
+    p.requires_grad = (
+        strategy in ('scratch', 'full') or name.startswith('fc.')
+        or (strategy == 'partial' and name.startswith('layer4.')))
+\end{lstlisting}
+\texttt{seed\_all} cố định RNG trước khởi tạo. Ở scratch, không gọi load pretrained, nên toàn bộ convolution, normalization và classifier bắt đầu bằng khởi tạo mới của implementation. Tên \texttt{in1k} trong ID không làm run scratch dùng tri thức ImageNet. Ở ba chế độ còn lại, timm nạp checkpoint ImageNet gốc đã cache/hash; classifier 1000 lớp không tương thích bị bỏ, classifier 100 lớp vẫn mới.
+
+\begin{table}[htbp]\centering\small\caption{Phạm vi trainable ResNet-18; tổng 11.227.812 tham số.}
+\begin{tabular}{llr}\toprule Strategy & Module được cập nhật & Số tham số\\\midrule
+scratch & Toàn bộ, khởi tạo mới &11.227.812\\
+head-only & \texttt{fc} &51.300\\
+partial & \texttt{layer4 + fc} &8.445.028\\
+full & Toàn bộ, có pretrained &11.227.812\\\bottomrule\end{tabular}\end{table}
+Mỗi run pretrained nạp độc lập từ checkpoint gốc, không tiếp tục từ model head-only hay partial đã train.
+\clearpage
+
+\subsection{DeiT-Tiny}
+DeiT-Tiny~\cite{deit} đang dùng là \texttt{deit\_tiny\_patch16\_224.fb\_in1k}. Patch embedding biến 224$\times$224 thành 14$\times$14=196 patch, mỗi embedding rộng 192; thêm class token và position embedding, qua 12 block Transformer. Classifier \texttt{head} là Linear$192\to 100$. Đây là biến thể \emph{không distilled}: pipeline không có teacher, distillation token hay loss distillation, dù paper DeiT có nghiên cứu cơ chế đó.
+\begin{lstlisting}
+seed_all(seed)
+model = timm.create_model(
+    'deit_tiny_patch16_224.fb_in1k', pretrained=False,
+    num_classes=100, drop_rate=0., drop_path_rate=0.)
+if strategy != 'scratch':
+    timm.models.load_pretrained(model, pretrained_cfg={
+        **model.pretrained_cfg, 'file': pretrained_path},
+        num_classes=100)
+for name, p in model.named_parameters():
+    p.requires_grad = (
+        strategy in ('scratch', 'full') or name.startswith('head.')
+        or (strategy == 'partial' and name.startswith(
+            ('blocks.10.', 'blocks.11.', 'norm.'))))
+\end{lstlisting}
+Scratch mở toàn bộ trọng số mới, kể cả patch projection, class token và positional embedding. Ba run pretrained lấy backbone ImageNet gốc rồi thay head 100 lớp. Partial chỉ mở hai block cuối (chỉ số 10 và 11), LayerNorm cuối và head; các block trước, patch embedding và token/position parameters đóng băng.
+
+\begin{table}[htbp]\centering\small\caption{Phạm vi trainable DeiT-Tiny; tổng 5.543.716 tham số.}
+\begin{tabular}{llr}\toprule Strategy & Module được cập nhật & Số tham số\\\midrule
+scratch & Toàn bộ, khởi tạo mới &5.543.716\\
+head-only & \texttt{head} &19.300\\
+partial & \texttt{blocks.10, blocks.11, norm, head} &909.412\\
+full & Toàn bộ, có pretrained &5.543.716\\\bottomrule\end{tabular}\end{table}
+So sánh ResNet/DeiT không giữ tổng tham số hoặc recipe pretraining bằng nhau; kết quả phản ánh hai model ID cụ thể, không tách riêng tác động convolution so với attention.
+\clearpage
+
+\subsection{Frozen BatchNorm và kiểm chứng invariants}
+\texttt{requires\_grad=False} ngăn gradient của tham số nhưng không tự ngăn BatchNorm cập nhật running mean/variance trong train mode. Trước mỗi epoch, code gọi \texttt{model.train()} rồi chuyển các module có toàn bộ tham số frozen sang \texttt{eval()}. Vì vậy head-only ResNet giữ backbone/BatchNorm cố định; partial chỉ cho vùng layer4 train. DeiT chủ yếu dùng LayerNorm; dropout/drop-path được cấu hình 0 nhưng chế độ frozen vẫn được xử lý thống nhất.
+\begin{lstlisting}
+def frozen_eval(model):
+    for module in model.modules():
+        params = list(module.parameters())
+        if params and not any(p.requires_grad for p in params):
+            module.eval()
+
+model.train()
+frozen_eval(model)
+\end{lstlisting}
+Probe snapshot \texttt{state\_dict}, RNG và training flags; thực hiện một bước SGD nhỏ trên batch thật; assert output shape$[B,100]$ và frozen weights/buffers giữ nguyên với \texttt{rtol=atol=0}. Trong \texttt{finally}, probe phục hồi toàn bộ weights, gradient, RNG và modes để không làm thay đổi điểm bắt đầu của run. Đây là kiểm chứng implementation; không phải một run được tính vào 8+2.
+
+\section{Huấn luyện, điều phối và checkpoint}\label{sec:train}
+\subsection{Recipe thực chạy}
+Recipe dùng AdamW với LR $3\cdot 10^{-4}$ và weight decay 0,05. Loss là cross-entropy, không label smoothing, mixup hoặc CutMix. Clip gradient norm 1, dropout/drop-path 0. Warmup 2 epoch rồi cosine trên ngân sách 25 epoch. Cùng recipe cho mọi run nhằm giảm nhiễu khi so pretraining; không khẳng định đây là recipe tối ưu riêng cho scratch.
+
+Microbatch 32, accumulation 2 đặt mục tiêu 64 ảnh/update. Hai process độc lập: GPU0 chạy tuần tự queue ResNet, GPU1 chạy queue DeiT, mỗi queue 5 run. Parent không giữ model trên GPU. Mỗi process sở hữu optimizer, scaler, loader và RNG riêng. Seed data order/worker được xác định theo seed/epoch; augmentation được gắn theo sample/epoch để RNG của model không làm thay đổi cặp dữ liệu được so sánh.
+\clearpage
+
+\subsection{Accumulation, AMP và scheduler}
+Với microbatch có $n_j$ ảnh, code cộng loss \texttt{reduction='sum'}, backward từng batch, sau đó chia gradient cho $N=\sum_jn_j$ trước optimizer step:
+\begin{equation}
+g=\frac 1 N\sum_j\sum_{i=1}^{n_j}\nabla_\theta\ell(x_{ji},y_{ji}).
+\end{equation}
+Cách này xử lý cả microbatch không đều và nhóm cuối thiếu batch. BatchNorm vẫn thống kê theo microbatch 32; accumulation không tương đương hoàn toàn forward batch 64.
+\begin{lstlisting}
+loss = F.cross_entropy(logits, labels, reduction='sum')
+scaler.scale(loss).backward()
+# At the end of an accumulation group:
+scaler.unscale_(optimizer)
+for p in model.parameters():
+    if p.grad is not None:
+        p.grad.div_(group_items)
+nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+# Post-step hook records whether GradScaler actually called optimizer.step.
+with optimizer.register_step_post_hook(record_update):
+    scaler.step(optimizer)
+scaler.update()
+optimizer.zero_grad(set_to_none=True)
+\end{lstlisting}
+Train dùng AMP FP16 trên CUDA; validation và final evaluation FP32, không autocast. GradScaler có thể bỏ optimizer update nếu gradient không hữu hạn. \texttt{AdamW.step()} thành công cũng có thể trả \texttt{None}, nên không dùng return value để nhận diện skipped update. Post-step hook ghi nhận step thực; mỗi epoch lưu \texttt{optimizer\_steps} và \texttt{skipped\_steps}.
+\begin{lstlisting}
+if train['optimizer_steps'] > 0:
+    scheduler.step()
+else:
+    print('No optimizer update: scheduler unchanged')
+\end{lstlisting}
+Scheduler bước theo epoch sau training, chỉ khi epoch có ít nhất một update thật; không bước theo từng microbatch hay từng update thành công. Histories đã lưu có update ở mọi epoch; các run vẫn có một số attempt bị AMP bỏ. Cơ chế này xử lý cảnh báo scheduler-before-optimizer mà không che warning hoặc làm scheduler chạy trước bước tối ưu thực.
+\clearpage
+
+\subsection{Checkpoint, resume và tính hoàn tất}
+Best được chọn bằng validation accuracy, hòa dùng loss. \texttt{last.pt} lưu model, optimizer, scheduler, scaler, RNG, history, next epoch và trạng thái best; \texttt{best.pt} giữ weights được chọn. Atomic save tránh file dở dang khi process dừng. Resume kiểm tra identity trước ghi đè; thay split, augmentation, ngân sách hoặc version phải tạo study khác.
+
+Resume hỗ trợ ranh giới epoch. Nếu dừng giữa epoch, chạy lại epoch chưa hoàn tất từ checkpoint gần nhất, không tuyên bố khôi phục chính xác giữa batch. Namespace gồm protocol/study fingerprint/full/experiment ID. Run chỉ complete sau đủ epoch, evaluation, benchmark và diagnostics; smoke không nhập vào bảng full. Bundle nhẹ chỉ giữ config, history, metrics và hình, không chứa weights/predictions/raw dataset.
+
+\subsection{Evaluation và đo chi phí}
+Sau khi cả hai worker kết thúc và giải phóng GPU, lần lượt nạp best checkpoint lên GPU0 để FP32 benchmark. Batch 1 và 32, warmup 10, đo 50 lần, synchronize đúng device trước/sau phép đo. Throughput là ảnh/giây; latency ghi ms/ảnh, không phải ms/batch. Peak allocated memory đo theo MiB, không phải toàn VRAM mà nvidia-smi hiển thị.
+
+Training time gồm data loading, forward, backward và optimizer, loại validation/checkpoint I/O. Vì hai queue chạy đồng thời và chia sẻ tài nguyên host/I/O, đây không phải tốc độ GPU cô lập. Environment thực: Python 3.13.16, PyTorch 2.11.0+cu130, torchvision 0.26.0+cu130, timm 1.0.22, NumPy 2.1.3, CUDA13.0, TeslaT 4.
+
+Accuracy, macro-F1 và confusion matrix dùng cùng predictions. Với $C=100$, $F 1_\text{macro}=C^{-1}\sum_c 2 TP_c/(2 TP_c+FP_c+FN_c)$, quy ước 0 khi mẫu số 0. Evaluation cuối chạy đủ 45.000 train,5.000 validation,10.000 test bằng transform xác định. Train accuracy cuối này khác accuracy trong history đo trên ảnh augmented khi model đang train.
+\clearpage
+
+\section{Kết quả tám cấu hình chính}\label{sec:results}
+\input{../generated/A1_results}
+\input{../generated/A1_cost}
+Bảng chọn full fine-tune theo validation cho cả hai kiến trúc. DeiT full đạt 82,66\% validation và 82,59\% test; ResNet full 82,08\%/81,94\%. Chênh lệch test 0,65 điểm nghiêng về DeiT, song chưa có lặp seed để kết luận khác biệt ổn định. Best epoch trong bảng dùng thứ tự 1--25 đúng như metrics JSON A1; history epoch bắt đầu từ 0 và được đối chiếu riêng.
+
+ResNet scratch 67,28\% test cao hơn DeiT scratch 51,23\% trong recipe cố định 25 epoch. Không suy ra Transformer không học được từ đầu: ngân sách ngắn, LR chung và input up scale có thể bất lợi, còn checkpoint pretrained thay đổi điểm xuất phát mạnh. Head-only DeiT 72,23\% cao hơn ResNet 65,09\%; partial tăng tới 75,44\% và 77,66\%. Partial ở hai kiến trúc mở tỷ lệ tham số khác nhau, nên không phải cùng mức compute hoặc capacity thích nghi.
+
+Full cải thiện so với scratch không chỉ phản ánh cập nhật tất cả tham số: cả hai cùng cập nhật toàn bộ, khác chủ yếu khởi tạo. Full so với head-only phản ánh khả năng thích nghi backbone với miền CIFAR. Chi phí training giảm ở head-only vì không backprop toàn bộ backbone; tổng weights và forward vẫn còn, nên không suy ra inference sẽ nhanh tương ứng với số trainable parameters.
+\clearpage
+
+\subsection{Learning curves của hai họ}
+\fig{A1_resnet18_full_curves.png}{ResNet-18 full fine-tune: train augmented và validation xác định.}{rfull}
+\fig{A1_deit_tiny_full_curves.png}{DeiT-Tiny full fine-tune; không dùng test để chọn mốc tốt nhất.}{dfull}
+Khoảng train--validation cần xem cùng loss để nhận diện overfitting. Train accuracy cao không đồng nghĩa checkpoint cuối tốt hơn best. Bảng train cuối đánh giá trên baseline transform, trong khi đường cong train lấy từ quá trình augmentation; không so hai loại train accuracy như cùng một đại lượng.
+\clearpage
+
+\subsection{Benchmark inference}
+\input{../generated/A1_benchmark}
+Tất cả số đo ở cùng GPU0 Tesla T4 và FP32, sau khi queues dừng. Batch 32 amortize chi phí dispatch tốt hơn batch 1 nên ms/ảnh thường giảm. Việc freeze chỉ ảnh hưởng training; model khi eval vẫn phải chạy backbone, vì vậy không mong head-only có inference nhỏ tương ứng với 19.300 hoặc 51.300 trainable parameters. Sai khác nhỏ giữa các strategy có thể do dao động đo; không diễn giải như thay đổi kiến trúc.
+
+VRAM training ở bảng trước có optimizer state, gradients, activation và AMP; benchmark memory chỉ đo inference với model được nạp. Hai giá trị không hoán đổi được. Ký hiệu MB trong source dùng chia$2^{20}$ nên báo cáo chuẩn hóa tên thành MiB, giữ nguyên giá trị.
+\clearpage
+
+\section{Đối chứng augmentation cho scratch}\label{sec:aug}
+\input{../generated/A1_ablation}
+\fig{A1_augmentation_delta.png}{Delta augmented--noaug từ hai cặp scratch đã chạy, cùng study.}{delta}
+Test tăng 7,17 điểm phần trăm với ResNet và 7,09 với DeiT. Validation tăng 5,70 và 6,52 điểm. Gap train--validation giảm tương ứng khoảng 21,51 và 6,10 điểm phần trăm. Đặc biệt noaug ResNet có train gần 100\% nhưng test 60,11\%, cho thấy fit train mạnh mà generalization kém hơn cấu hình aug.
+
+Macro-F1 thay đổi cùng hướng accuracy, hỗ trợ việc cải thiện không chỉ đến từ một vài lớp đông hơn (các lớp vốn cân bằng). Kết luận chỉ áp dụng cho hai cặp scratch đã đo. Không có noaug pretrained trong ma trận này, nên không khẳng định augmentation cải thiện mọi strategy. Giữ cùng seed không ước lượng được biến thiên qua seed; cũng không đủ cho tuyên bố ý nghĩa thống kê.
+\clearpage
+
+\section{Phân tích lỗi và lớp khó}\label{sec:errors}
+\input{../generated/A1_confusions}
+Các cặp cây và người xuất hiện trong top nhầm của model tốt nhất, phù hợp giả thuyết EDA về mất texture và chi tiết. Với DeiT full, oak\_tree$\to$maple\_tree có 19 ảnh; girl$\to$woman có 18 ảnh. Số đếm có hướng: maple$\to$oak không phải cùng ô với oak$\to$maple. Không cộng hai hướng rồi mô tả như một hướng dự đoán.
+
+\input{../generated/A1_classes}
+Bảng per-class giúp nhìn lớp yếu thay vì chỉ accuracy trung bình. Mỗi lớp test 100 ảnh; thay đổi vài ảnh đã làm recall thay đổi vài điểm phần trăm. Đây là mô tả mẫu test hữu hạn, chưa có interval. Nhãn fine có thể rất gần nhau và duplicate có nhãn xung đột khiến trần chất lượng không rõ; không quy mọi lỗi cho năng lực kiến trúc.
+\clearpage
+
+\fig[.96]{A1_deit_tiny_full_failures.png}{Failure grid DeiT-Tiny full, lấy trực tiếp artifact. Mẫu lỗi minh họa, không đại diện ngẫu nhiên toàn test.}{failure}
+Hình cho phép kiểm tra trực quan nhãn thật, dự đoán và độ tự tin ở các lỗi nổi bật. Confidence cao ở ảnh sai không phải bằng chứng xác suất đã được calibration. Việc chọn nhiều lỗi dễ quan sát không đủ để ước lượng tần suất kiểu lỗi; tần suất phải lấy từ confusion counts hoặc per-class metrics.
+
+Ma trận 100 lớp đầy đủ được đặt ở phụ lục để giữ bố cục chính dễ đọc. Bảng top confusions và per-class ở trên là cách đọc định lượng rõ hơn khi heatmap 100 lớp chỉ hiển thị class ID; bản JSON/CSV vẫn là nguồn tra cứu chính xác.
+\clearpage
+
+\section{Giới hạn và kết luận trong phạm vi study}\label{sec:limits}
+Cùng seed/split/recipe và budget giúp so sánh rõ ràng nhưng chưa tạo phép thử tuyệt đối về kiến trúc. ResNet và DeiT khác số tham số, cấu trúc và recipe pretraining. ImageNet có thể chứa nội dung gần CIFAR; chưa audit overlap, nên lợi thế pretrained không được diễn giải như học hoàn toàn trên nguồn độc lập.
+
+12 nhóm duplicate cross-split vẫn được giữ, near-duplicate chưa kiểm tra. Resize 32$\to$224 không tạo chi tiết. Một seed và 25 epoch không chứng minh hội tụ hay ý nghĩa thống kê. Training speed đo khi hai queue đồng thời, không đại diện GPU cô lập. Đổi dataset sau A1.1 cần xử lý theo yêu cầu giảng viên; chưa có bằng chứng đồng ý nên không đánh dấu thủ tục đó hoàn tất.
+
+Trong giới hạn này, full fine-tune được chọn theo validation cho cả hai họ và cho kết quả test cao nhất trong ma trận đã đo. Scratch ResNet thích nghi tốt hơn scratch DeiT ở recipe chung. Augmentation gốc 32 pixel giúp cả hai scratch trong đối chứng, nhưng chưa có dữ liệu cho các strategy khác. Hướng tiếp theo là nhiều seed, budget dài hơn được đăng ký trước, ablation input resolution và study đã dedup; không nhập các đề xuất vào kết quả hiện tại.
+
+\section{Tái lập và kiểm toán}\label{sec:repro}
+Notebook sạch: \path{A1/a1_cifar100_resnet18_vs_deit.ipynb}. Bằng chứng đã chạy: \path{A1/resnet18-vs-deit-tiny-on-cifar100.ipynb}. Module worker được tạo bằng các cell \texttt{\%\%writefile} đọc được, hai cell launch queue độc lập; notebook tự chứa khi chạy Kaggle, không cần clone repo.
+
+Artifact báo cáo dùng bundle \path{artifacts/A1/}; nguồn gốc từ export \texttt{A1/A1\_full}. Export manifest ghi validation checkpoint và prediction ở lần pack gốc. Lần tạo báo cáo này kiểm tra hash bundle, config, ngân sách và metrics; không huấn luyện lại hoặc đọc checkpoint đã loại khỏi bundle. Công cụ \texttt{prepare\_reports.py} sinh bảng/hình và provenance, còn \texttt{build\_reports.py} biên dịch PDF. Không đóng gói weights, predictions hay raw dataset vào LaTeX.
+\bibliographystyle{plain}\bibliography{../shared/references}
+\clearpage\appendix
+\section{Hình bổ sung: scratch và ma trận đầy đủ}
+\fig{A1_resnet18_scratch_curves.png}{Scratch ResNet với augmentation; đối chiếu noaug ở bảng đối chứng.}{rscratch}
+\fig{A1_deit_tiny_scratch_curves.png}{Scratch DeiT với cùng ngân sách 25 epoch; không tự tăng epoch riêng.}{dscratch}
+\clearpage
+\fig[1]{A1_resnet18_full_confusion_matrix.png}{Confusion matrix 100 lớp ResNet full. Trục dùng class ID; dùng \texttt{confusion\_matrix.json} để tra ô chính xác.}{rcm}
+\fig[1]{A1_deit_tiny_full_confusion_matrix.png}{Confusion matrix 100 lớp DeiT full; bảng top confusions trong phần chính giúp đọc định lượng.}{dcm}
+\end{document}

@@ -1,0 +1,102 @@
+[
+  {
+    "true": "oak_tree",
+    "predicted": "maple_tree",
+    "count": 24
+  },
+  {
+    "true": "girl",
+    "predicted": "woman",
+    "count": 21
+  },
+  {
+    "true": "willow_tree",
+    "predicted": "maple_tree",
+    "count": 20
+  },
+  {
+    "true": "maple_tree",
+    "predicted": "oak_tree",
+    "count": 20
+  },
+  {
+    "true": "plate",
+    "predicted": "bowl",
+    "count": 16
+  },
+  {
+    "true": "bed",
+    "predicted": "couch",
+    "count": 14
+  },
+  {
+    "true": "baby",
+    "predicted": "girl",
+    "count": 14
+  },
+  {
+    "true": "woman",
+    "predicted": "man",
+    "count": 14
+  },
+  {
+    "true": "boy",
+    "predicted": "girl",
+    "count": 14
+  },
+  {
+    "true": "bowl",
+    "predicted": "plate",
+    "count": 13
+  },
+  {
+    "true": "seal",
+    "predicted": "otter",
+    "count": 13
+  },
+  {
+    "true": "woman",
+    "predicted": "girl",
+    "count": 12
+  },
+  {
+    "true": "man",
+    "predicted": "girl",
+    "count": 12
+  },
+  {
+    "true": "bus",
+    "predicted": "streetcar",
+    "count": 11
+  },
+  {
+    "true": "man",
+    "predicted": "boy",
+    "count": 11
+  },
+  {
+    "true": "boy",
+    "predicted": "man",
+    "count": 11
+  },
+  {
+    "true": "pine_tree",
+    "predicted": "maple_tree",
+    "count": 11
+  },
+  {
+    "true": "couch",
+    "predicted": "bed",
+    "count": 11
+  },
+  {
+    "true": "girl",
+    "predicted": "boy",
+    "count": 11
+  },
+  {
+    "true": "worm",
+    "predicted": "snake",
+    "count": 10
+  }
+]

@@ -1,0 +1,19 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Tám cấu hình chính A1; R18 = ResNet-18, DeiT = DeiT-Tiny; F1 là macro-F1 test.}\label{tab:A1results}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrrrr}
+\toprule
+ID & Train\% & Val\% & Test\% & F1\% & Best \\
+\midrule
+R18\_scratch & 84.18 & 66.44 & 67.28 & 67.06 & 24 \\
+R18\_head\_only & 67.62 & 65.04 & 65.09 & 64.84 & 22 \\
+R18\_partial & 97.56 & 78.14 & 77.66 & 77.64 & 20 \\
+R18\_full & 99.38 & 82.08 & 81.94 & 81.95 & 23 \\
+DeiT\_scratch & 77.66 & 49.88 & 51.23 & 50.99 & 25 \\
+DeiT\_head\_only & 75.59 & 72.56 & 72.23 & 72.09 & 20 \\
+DeiT\_partial & 98.86 & 76.72 & 75.44 & 75.42 & 22 \\
+DeiT\_full & 99.97 & 82.66 & 82.59 & 82.56 & 25 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

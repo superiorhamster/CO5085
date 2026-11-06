@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Đối chứng augmentation. Delta = augmented trừ noaug, tính bằng điểm phần trăm; gap = train trừ validation.}\label{tab:A1ablation}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrrr}
+\toprule
+Scratch & Val\% & Test\% & F1\% & Gap (pp) \\
+\midrule
+resnet18 noaug & 60.74 & 60.11 & 60.13 & 39.24 \\
+resnet18 aug & 66.44 & 67.28 & 67.06 & 17.74 \\
+resnet18 delta & 5.70 & 7.17 & 6.93 & -21.51 \\
+deit\_tiny noaug & 43.36 & 44.14 & 44.03 & 33.88 \\
+deit\_tiny aug & 49.88 & 51.23 & 50.99 & 27.78 \\
+deit\_tiny delta & 6.52 & 7.09 & 6.96 & -6.10 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

@@ -1,0 +1,13 @@
+\begin{table}[htbp]
+\centering\small
+\caption{Độ phủ trong không gian Inception và chi phí training.}\label{tab:A2cost}
+\begin{lrbox}{\reporttable}\begin{tabular}{lrrrr}
+\toprule
+Biến thể & Precision\% & Recall\% & Train (s) & VRAM (MiB) \\
+\midrule
+Baseline & 52.90 & 0.00 & 921.84 & 210.64 \\
++ DiffAugment & 59.38 & 5.84 & 928.05 & 210.64 \\
+\bottomrule
+\end{tabular}\end{lrbox}
+\ifdim\wd\reporttable>\linewidth\resizebox{\linewidth}{!}{\usebox{\reporttable}}\else\usebox{\reporttable}\fi
+\end{table}

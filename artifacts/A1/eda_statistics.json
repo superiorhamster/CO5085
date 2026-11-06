@@ -1,0 +1,25 @@
+{
+  "train_rgb_mean": [
+    0.5070556501906319,
+    0.48642345571214607,
+    0.44058432589528845
+  ],
+  "train_rgb_std": [
+    0.26724204446200944,
+    0.25633431814684404,
+    0.27603129561732587
+  ],
+  "shape": [
+    32,
+    32,
+    3
+  ],
+  "dtype": "uint8",
+  "pixel_range": [
+    0,
+    255
+  ],
+  "class_count_min": 450,
+  "class_count_max": 450,
+  "test_use": "Integrity/counts/duplicates only; no test EDA used to choose transforms"
+}

@@ -34,6 +34,24 @@ jobs:
       - name: Validate GitHub Pages structure and links
         run: python3 tools/validate_site.py
 
+      - name: Verify compiled report publication and numerical traceability
+        run: python3 -m unittest tools.test_reports
+
+      - name: Verify lightweight A1 and A2 bundles
+        run: python3 tools/web_artifacts.py check --artifacts-dir artifacts
+
+      - name: Validate web bundle imports and preservation
+        run: python3 -m unittest tools.test_web_artifacts
+
+      - name: Validate A1 dashboard states
+        run: node tools/test_a1_dashboard.cjs
+
+      - name: Validate A2 artifact publishing contract
+        run: python3 -m unittest tools.test_a2_site_contract tools.test_a2_web_export
+
+      - name: Validate A2 dashboard renderer
+        run: node tools/test_a2_dashboard.cjs
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
