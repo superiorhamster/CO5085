@@ -10,7 +10,7 @@ for(const count of [0,1,2]){
  const document={getElementById:id=>elements[id],querySelectorAll:s=>s==='[data-a2-tab]'?buttons:[]};
  const window={addEventListener(k,fn){handlers[k]=fn;}};
  const history={pushState(a,b,hash){location.hash=hash;}};
- vm.runInNewContext(source,{window,document,location,history,console});
+ const context={window,document,location,history,console};vm.createContext(context);vm.runInContext(fs.readFileSync('docs/assets/js/ui.js','utf8'),context);vm.runInContext(source,context);
  const m=structuredClone(manifest);m.reports['assignment2.pdf']={available:false,is_placeholder:true};m.assignments.A2.experiments.forEach((e,i)=>{e.has_full_metrics=i<count;if(i>=count){e.metrics=null;e.benchmark=null;}});
  window.renderAnimeA2({manifest:m,siteConfig});
  assert.equal(elements['a2-tab-paper'].attrs['aria-selected'],'true');
@@ -39,7 +39,7 @@ for(const count of [0,1,2]){
  vm.createContext(context);
  vm.runInContext(fs.readFileSync('docs/assets/js/fallback_data.js','utf8'),context);
  assert.deepEqual(JSON.parse(JSON.stringify(window.FALLBACK_EXPERIMENTS_MANIFEST)),manifest);
- vm.runInContext(source,context);vm.runInContext(fs.readFileSync('docs/assets/js/site.js','utf8'),context);
+ vm.runInContext(fs.readFileSync('docs/assets/js/ui.js','utf8'),context);vm.runInContext(source,context);vm.runInContext(fs.readFileSync('docs/assets/js/site.js','utf8'),context);
  await new Promise(resolve=>setImmediate(resolve));
  assert.match(elements['a2-completion'].textContent,/2\/2/);
  assert.match(elements['a2-conclusion'].textContent,/41,84/);

@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="assets/css/a2.css" />
+  <link rel="stylesheet" href="assets/css/ui.css" />
 </head>
 <body>
   <!-- Sticky Header -->
@@ -44,13 +45,13 @@
   </nav>
 
   <main class="container a2-dashboard" id="a2-dashboard">
-    <header class="a2-intro">
+    <header class="ui-intro">
       <div><h1 class="serif-heading">Sinh ảnh anime với DCGAN và DiffAugment</h1>
-      <p class="a2-lead">Augmentation khả vi thay đổi chất lượng và độ phủ ảnh sinh như thế nào, khi giữ nguyên kiến trúc, dữ liệu và ngân sách huấn luyện?</p>
-      <div class="a2-links"><a class="btn btn-primary" href="https://www.kaggle.com/code/anhphmduy/dcgan-vs-augmenteddcgan-dl-assignment-2" target="_blank" rel="noopener noreferrer">Mở trên Kaggle <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a><a class="btn btn-outline" data-repo-path="A2/dcgan-vs-augmenteddcgan-dl-assignment-2.ipynb" href="https://github.com/superiorhamster/CO5085/blob/main/A2/dcgan-vs-augmenteddcgan-dl-assignment-2.ipynb">Notebook đã chạy</a><a class="btn btn-outline" data-repo-path="A2/a2_dcgan_diffaugment.ipynb" href="https://github.com/superiorhamster/CO5085/blob/main/A2/a2_dcgan_diffaugment.ipynb">Notebook nguồn</a><a class="btn btn-outline" href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo PDF</a></div></div>
-      <aside class="a2-study"><h2>Thực nghiệm đối chứng</h2><p id="a2-completion" role="status">Đang đọc artifact…</p><p>Anime faces · RGB 64×64<br>Seed 42 · batch 64 · final EMA</p><p>Paper: <a href="https://arxiv.org/abs/2006.10738">Zhao, Liu, Lin, Zhu &amp; Han. <em>Differentiable Augmentation for Data-Efficient GAN Training.</em> NeurIPS 2020.</a></p><p class="a2-muted">Hai biến thể cùng một họ GAN đáp ứng yêu cầu so sánh của A2.</p></aside>
+      <p class="ui-lead">Augmentation khả vi thay đổi chất lượng và độ phủ ảnh sinh như thế nào, khi giữ nguyên kiến trúc, dữ liệu và ngân sách huấn luyện?</p>
+      <div class="ui-links"><a class="btn btn-primary" href="https://www.kaggle.com/code/anhphmduy/dcgan-vs-augmenteddcgan-dl-assignment-2" target="_blank" rel="noopener noreferrer">Mở trên Kaggle <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a><a class="btn btn-outline" data-repo-path="A2/dcgan-vs-augmenteddcgan-dl-assignment-2.ipynb" href="https://github.com/superiorhamster/CO5085/blob/main/A2/dcgan-vs-augmenteddcgan-dl-assignment-2.ipynb">Notebook đã chạy</a><a class="btn btn-outline" data-repo-path="A2/a2_dcgan_diffaugment.ipynb" href="https://github.com/superiorhamster/CO5085/blob/main/A2/a2_dcgan_diffaugment.ipynb">Notebook nguồn</a><a class="btn btn-outline" href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo PDF</a></div></div>
+      <aside class="ui-study"><h2>Thực nghiệm đối chứng</h2><p id="a2-completion" role="status">Đang đọc artifact…</p><p>Anime faces · RGB 64×64<br>Seed 42 · batch 64 · final EMA</p><p>Paper: <a href="https://arxiv.org/abs/2006.10738">Zhao, Liu, Lin, Zhu &amp; Han. <em>Differentiable Augmentation for Data-Efficient GAN Training.</em> NeurIPS 2020.</a></p><p class="a2-muted">Hai biến thể cùng một họ GAN đáp ứng yêu cầu so sánh của A2.</p></aside>
     </header>
-    <nav class="a2-tabs" role="tablist" aria-label="Nội dung báo cáo A2">
+    <nav class="ui-tabs" role="tablist" aria-label="Nội dung báo cáo A2">
       <button id="a2-tab-overview" role="tab" aria-selected="true" aria-controls="a2-panel-overview" tabindex="0" data-a2-tab="overview">Tổng quan</button>
       <button id="a2-tab-data" role="tab" aria-selected="false" aria-controls="a2-panel-data" tabindex="-1" data-a2-tab="data">Dữ liệu</button>
       <button id="a2-tab-paper" role="tab" aria-selected="false" aria-controls="a2-panel-paper" tabindex="-1" data-a2-tab="paper">Paper</button>
@@ -59,14 +60,14 @@
     </nav>
     <section id="a2-panel-overview" role="tabpanel" aria-labelledby="a2-tab-overview" tabindex="0">
       <h2>Cùng latent, khác augmentation</h2><p class="a2-measure">Mô hình sinh ảnh không điều kiện: nhận vector nhiễu Gaussian, không nhận nhãn hay ảnh đầu vào. Mỗi grid có 64 ảnh từ cùng seed latent; ảnh hiển thị là output final EMA, không chọn riêng mẫu đẹp.</p>
-      <div id="a2-overview-pair" class="a2-pair"></div>
+      <div id="a2-overview-pair" class="ui-pair"></div>
       <p id="a2-conclusion" class="a2-finding" role="status">Chờ hai export full tương thích.</p>
       <h2>Sản phẩm nộp và khả năng tái lập</h2><div id="a2-deliverables"></div>
       <p class="a2-muted">Huấn luyện hoàn tất không đồng nghĩa đã đủ PDF, demo và sản phẩm nộp. Trạng thái này không tự đánh dấu milestone đã hoàn thành.</p>
     </section>
     <section id="a2-panel-data" role="tabpanel" aria-labelledby="a2-tab-data" tabindex="0" hidden>
       <h2>Dữ liệu thực sự được sử dụng</h2><p class="a2-measure"><a href="https://www.kaggle.com/datasets/splcher/animefacedataset">Anime Face Dataset — splcher</a>, ảnh khuôn mặt anime công khai. Số lượng dưới đây được tính từ manifest đã xuất, không lấy từ dataset card. <a href="https://github.com/bchao1/Anime-Face-Dataset">Nguồn gốc và lưu ý phân phối của tác giả</a>; website không phân phối dataset gốc/cache.</p>
-      <div id="a2-data-summary"></div><div class="a2-pair"><figure><figcaption>Phân bố kích thước ảnh unique, trước resize</figcaption><div id="a2-dimensions"></div></figure><figure><figcaption>Tỷ lệ rộng / cao của ảnh unique</figcaption><div id="a2-ratios"></div></figure></div>
+      <div id="a2-data-summary"></div><div class="ui-pair"><figure><figcaption>Phân bố kích thước ảnh unique, trước resize</figcaption><div id="a2-dimensions"></div></figure><figure><figcaption>Tỷ lệ rộng / cao của ảnh unique</figcaption><div id="a2-ratios"></div></figure></div>
       <h3>Dataset, DataLoader và tiền xử lý</h3><ol class="a2-steps"><li>Giải mã RGB, ghi nhận ảnh hỏng và hash pixel cùng kích thước; loại trùng trước khi chia tập.</li><li>Chia cố định bằng seed 42: validation 2.000, test 5.000; toàn bộ ảnh unique còn lại dùng train. Các split không giao nhau theo hash.</li><li>Resize/center crop bằng nội suy bilinear về 64×64; cache uint8 memory-map chỉ đọc. Dataset trả tensor (3,64,64) trong [−1,1].</li><li>Train shuffle theo epoch, drop_last và horizontal flip xác định theo seed/epoch/ảnh; validation/test không flip. Hai worker đọc cùng manifest, thứ tự ảnh và flip.</li></ol>
       <div class="table-wrapper"><table><caption>Phân biệt hai tầng augmentation</caption><thead><tr><th>Phép biến đổi</th><th>Baseline</th><th>DiffAugment</th><th>Vai trò</th></tr></thead><tbody><tr><td>Horizontal flip</td><td>Có, train</td><td>Có, train</td><td>Tiền xử lý dùng chung</td></tr><tr><td>Color, translation, cutout</td><td>Không</td><td>Có, real/fake ở D; fake ở G</td><td>Biến thực nghiệm, RNG riêng</td></tr><tr><td>Augmentation khi đánh giá</td><td>Không</td><td>Không</td><td>Giữ cùng phân phối tham chiếu</td></tr></tbody></table></div>
       <p class="a2-muted">Dữ liệu không có nhãn lớp phục vụ bài toán này; không trình bày class balance như bài phân loại. Exact dedup không bảo đảm đã loại near-duplicate hoặc ảnh cùng nhân vật.</p>
@@ -81,9 +82,9 @@
     </section>
     <section id="a2-panel-training" role="tabpanel" aria-labelledby="a2-tab-training" tabindex="0" hidden>
       <h2>Hai nhánh, một protocol</h2><p><code>dcgan_baseline</code> và <code>dcgan_diffaugment</code> khác nhau ở augmentation khả vi.</p><div id="a2-training-config"></div>
-      <h3>Kiến trúc trong notebook đã chạy</h3><div class="a2-pair"><article><h4>Generator</h4><p>z:(B,128,1,1) → ConvTranspose 512×4×4 →256×8×8 →128×16×16 →64×32×32 →3×64×64.</p><p>BatchNorm + ReLU sau bốn tầng đầu; Tanh cuối. Kernel 4; stride 1 ở tầng đầu, stride 2 ở các tầng còn lại.</p><p id="a2-generator-parameters"></p></article><article><h4>Discriminator</h4><p>x:(B,3,64,64) → Conv 64×32×32 →128×16×16 →256×8×8 →512×4×4 →1 logit/ảnh.</p><p>LeakyReLU 0,2; BatchNorm ở các block 128/256/512. Không sigmoid trước BCEWithLogits. Đây không phải classifier có accuracy nghiệm thu.</p></article></div>
+      <h3>Kiến trúc trong notebook đã chạy</h3><div class="ui-pair"><article><h4>Generator</h4><p>z:(B,128,1,1) → ConvTranspose 512×4×4 →256×8×8 →128×16×16 →64×32×32 →3×64×64.</p><p>BatchNorm + ReLU sau bốn tầng đầu; Tanh cuối. Kernel 4; stride 1 ở tầng đầu, stride 2 ở các tầng còn lại.</p><p id="a2-generator-parameters"></p></article><article><h4>Discriminator</h4><p>x:(B,3,64,64) → Conv 64×32×32 →128×16×16 →256×8×8 →512×4×4 →1 logit/ảnh.</p><p>LeakyReLU 0,2; BatchNorm ở các block 128/256/512. Không sigmoid trước BCEWithLogits. Đây không phải classifier có accuracy nghiệm thu.</p></article></div>
       <h3>Huấn luyện, AMP và tái lập</h3><p class="a2-measure">Mỗi vòng hoàn tất một cập nhật D và một cập nhật G. D nhận cả real và fake tách gradient; pha G đóng băng tham số và running statistics của D. EMA cập nhật sau vòng thành công. Hai nhánh giữ cùng khởi tạo, seed, thứ tự ảnh, flip và chuỗi latent; RNG augmentation độc lập.</p><p class="a2-measure">Hai subprocess có CUDA_VISIBLE_DEVICES riêng. Preview chạy trong worker; evaluation và benchmark chạy sau train. AMP overflow giảm loss scale và thử lại cùng pha, khôi phục BatchNorm; không đếm lần overflow là update. Checkpoint mỗi 1.000 updates và khi dừng an toàn, gồm G/D/EMA, optimizer/scaler, RNG, epoch/offset; last/previous ghi nguyên tử.</p>
-      <div class="a2-pair"><figure><figcaption>Generator loss theo update</figcaption><div id="a2-g-history"></div></figure><figure><figcaption>Discriminator loss theo update</figcaption><div id="a2-d-history"></div></figure></div><p class="a2-muted">Đường hiển thị là trung bình từng 50 updates; history nguồn giữ đủ 20.000 dòng. Không suy luận chất lượng ảnh chỉ từ loss. Baseline màu xám; DiffAugment màu xanh.</p>
+      <div class="ui-pair"><figure><figcaption>Generator loss theo update</figcaption><div id="a2-g-history"></div></figure><figure><figcaption>Discriminator loss theo update</figcaption><div id="a2-d-history"></div></figure></div><p class="a2-muted">Đường hiển thị là trung bình từng 50 updates; history nguồn giữ đủ 20.000 dòng. Không suy luận chất lượng ảnh chỉ từ loss. Baseline màu xám; DiffAugment màu xanh.</p>
     </section>
     <section id="a2-panel-results" role="tabpanel" aria-labelledby="a2-tab-results" tabindex="0" hidden>
       <div id="pipeline-results"><h2>Đánh giá final EMA</h2><p id="a2-metric-protocol" class="a2-measure"></p><div id="a2-quality-table"></div><h3>Chi phí train</h3><div id="a2-cost-table"></div><p class="a2-muted">Wall time gồm I/O, checkpoint và preview khi hai job chạy đồng thời. Không dùng chênh lệch nhỏ giữa hai nhánh để khẳng định hiệu năng GPU riêng biệt.</p><h3>Benchmark inference</h3><div id="a2-inference-table"></div><p class="a2-muted">FP32, cùng T4, batch 1/64, warmup và đồng bộ CUDA; thời gian không gồm DataLoader. Peak VRAM là allocated memory, không phải toàn bộ bộ nhớ hiển thị bởi nvidia-smi.</p>
@@ -122,6 +123,7 @@
   </footer>
 
   <script src="assets/js/fallback_data.js"></script>
+  <script defer src="assets/js/ui.js"></script>
   <script defer src="assets/js/icons.js"></script>
   <script defer src="assets/js/a2.js"></script>
   <script defer src="assets/js/site.js?v=a2-dashboard-1"></script>

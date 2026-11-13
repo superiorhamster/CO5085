@@ -107,3 +107,9 @@ The small `a1_food101_protocol.py` module is retained because the existing
 artifact importer imports its legacy compatibility contract. Its training
 runtime, notebook builder and dedicated legacy CI tests are archived; the active
 A1 website and linked notebooks use CIFAR-100 only.
+
+### Shared website interface
+
+All four pages use `docs/assets/css/ui.css` and `docs/assets/js/ui.js`. E1–E3, A1 and A2 share accessible tabs with hash navigation, browser history and Arrow/Home/End keys. Existing E1–E3 section links open their containing tab; E2 filters persist while switching tabs. Only verified full-run measurements are published; missing values stay unavailable and measured zero values are retained. Old Preview localStorage flags are ignored. GAN sample preview images remain actual experimental evidence.
+
+Run `node tools/test_shared_ui.cjs` alongside the A1/A2 renderer checks. `python tools/sync_site_data.py --artifacts-dir artifacts` regenerates the real-only public manifest and `file://` fallback without modifying source artifacts or PDFs.

@@ -8,30 +8,19 @@
   const put=(id,html)=>{const e=document.getElementById(id);if(e)e.innerHTML=html;};
   const text=(id,value)=>{const e=document.getElementById(id);if(e)e.textContent=value;};
   function table(caption,headers,rows){return `<div class="table-wrapper"><table><caption>${esc(caption)}</caption><thead><tr>${headers.map(h=>`<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map((x,i)=>i?`<td>${esc(x)}</td>`:`<th scope="row">${esc(x)}</th>`).join('')}</tr>`).join('')}</tbody></table></div>`;}
-  function active(name,update=false,focus=false){
-    if(!tabs.includes(name))name='overview';
-    tabs.forEach(t=>{const b=document.getElementById('a2-tab-'+t),p=document.getElementById('a2-panel-'+t);if(!b||!p)return;b.setAttribute('aria-selected',String(t===name));b.tabIndex=t===name?0:-1;p.hidden=t!==name;if(focus&&t===name)b.focus();});
-    if(update&&location.hash!=='#a2-'+name)history.pushState(null,'','#a2-'+name);
-  }
-  function hashTab(){return aliases[location.hash]||location.hash.replace('#a2-','');}
+  let tabController;
   function bindTabs(){
-    document.querySelectorAll('[data-a2-tab]').forEach((button,i)=>{
-      if(button.dataset.bound)return;button.dataset.bound='true';
-      button.addEventListener('click',()=>active(tabs[i],true));
-      button.addEventListener('keydown',event=>{let n=i;if(event.key==='ArrowRight')n=(i+1)%tabs.length;else if(event.key==='ArrowLeft')n=(i+tabs.length-1)%tabs.length;else if(event.key==='Home')n=0;else if(event.key==='End')n=tabs.length-1;else return;event.preventDefault();active(tabs[n],true,true);});
-    });active(hashTab());
+    if (!tabController) tabController=window.CourseworkUI.tabs({
+      names:tabs,button:n=>document.getElementById('a2-tab-'+n),panel:n=>document.getElementById('a2-panel-'+n),hash:n=>'#a2-'+n,aliases
+    });
+    else tabController.refresh();
   }
-  window.addEventListener('hashchange',()=>active(hashTab()));
-  window.addEventListener('popstate',()=>active(hashTab()));
   function figure(exp,key,caption){
     const path=exp.images?.[key];if(!path)return `<p class="a2-muted">Chưa có hình ${esc(caption)}.</p>`;
     return `<figure><figcaption>${esc(exp.name)} · ${esc(caption)}</figcaption><button class="a2-figure" type="button" data-a2-image="${esc(path)}" data-caption="${esc(exp.name+' — '+caption)}" aria-label="Phóng to ${esc(exp.name+' '+caption)}"><img src="${esc(path)}" alt="${esc(exp.name+' — '+caption)}" loading="lazy" width="512" height="512"></button></figure>`;
   }
-  function bindFigures(){document.querySelectorAll('[data-a2-image]').forEach(button=>button.addEventListener('click',()=>{
-    const dialog=document.getElementById('artifact-lightbox'),container=document.getElementById('lightbox-image-container');
-    if(!dialog||!container)return;const image=document.createElement('img');image.src=button.dataset.a2Image;image.alt=button.dataset.caption;container.replaceChildren(image);text('lightbox-title',button.dataset.caption);dialog.showModal();
-    dialog.addEventListener('close',()=>button.focus(),{once:true});
-  }));}
+  function bindFigures(){document.querySelectorAll('[data-a2-image]').forEach(b=>b.addEventListener('click',()=>
+    window.CourseworkUI.openImage(b.dataset.a2Image,b.dataset.caption,b)));}
   function plot(target,series,labels,line=false){
     if(!series.length)return;const w=560,h=280,left=58,bottom=225,top=20,width=480;
     const max=Math.max(1,...series.flatMap(s=>s.values));
@@ -68,7 +57,7 @@
     put('a2-cost-table',table('Chi phí train đo trong các worker',['Biến thể','Train (s)','Updates/s','Ảnh thật/s','Host peak MB','GPU peak MB','Tham số G'],rows(['training_seconds','updates_per_second','real_images_per_second','peak_host_memory_mb','peak_training_gpu_memory_mb','parameters'])));
     put('a2-inference-table',table('Benchmark inference của generator EMA, FP32',['Biến thể','Batch','ms/ảnh','Ảnh/s','GPU peak MB','Thiết bị'],experiments.flatMap(e=>[1,64].map(n=>{const b=e.has_full_metrics?e.benchmark?.[n]:null;return [e.name,n,num(b?.latency_ms_per_image,4),num(b?.images_per_second),num(b?.peak_gpu_memory_mb),b?.device||'Chờ full run'];}))));
     const captions={samples:'64 latent cố định',interpolation:'Nội suy giữa hai latent',curves:'Loss G/D từ history',nearest_neighbors:'Generated / nearest train / nearest test'};
-    put('a2-result-gallery',Object.entries(captions).map(([key,label])=>`<h4>${label}</h4><div class="a2-pair">${experiments.map(e=>figure(e,key,label)).join('')}</div>${key==='nearest_neighbors'?'<p class="a2-caption">Mỗi hàng: generated / nearest trong fixed 5.000 train / nearest test, đo khoảng cách Inception. Đây là chẩn đoán, không chứng nhận không ghi nhớ.</p>':''}`).join(''));bindFigures();
+    put('a2-result-gallery',Object.entries(captions).map(([key,label])=>`<h4>${label}</h4><div class="ui-pair">${experiments.map(e=>figure(e,key,label)).join('')}</div>${key==='nearest_neighbors'?'<p class="a2-caption">Mỗi hàng: generated / nearest trong fixed 5.000 train / nearest test, đo khoảng cách Inception. Đây là chẩn đoán, không chứng nhận không ghi nhớ.</p>':''}`).join(''));bindFigures();
     const e=a.eda;if(e){
       put('a2-data-summary',table('Kiểm tra ảnh trước split',['Đã kiểm tra','Bản trùng loại bỏ','Ảnh hỏng','Unique','Train','Validation','Test'],[[e.inspected,e.duplicates,e.corrupt,e.unique,e.splits.train,e.splits.val,e.splits.test].map(v=>num(v,0))]));
       plot('a2-dimensions',[{name:'Chiều rộng',values:e.widths.counts},{name:'Chiều cao',values:e.heights.counts}],{title:'Số ảnh theo khoảng kích thước',x:e.widths.labels,unit:'Khoảng kích thước (pixel) · số ảnh'});

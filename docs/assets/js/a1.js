@@ -6,21 +6,15 @@
   const labels = { scratch: 'Scratch', head_only: 'Head-only', partial: 'Partial', full: 'Full fine-tune' };
   const names = { resnet18: 'ResNet-18', deit_tiny: 'DeiT-Tiny' };
   const colors = { resnet18: '#0b57d0', deit_tiny: '#b45309' };
-  let snapshot, report, selected = 'overview', initialized = false;
+  let snapshot, report, selected = 'overview', tabController;
   const charts = {};
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const metric = (e, k) => e?.has_full_metrics && Number.isFinite(e.metrics?.[k]) ? e.metrics[k] : null;
   const fmt = (v, kind) => v == null || !Number.isFinite(v) ? '—' : kind === 'pct' ? `${(v * 100).toFixed(2)}%` : kind === 'int' ? v.toLocaleString('vi-VN') : v.toFixed(3);
   const find = (family, strategy) => snapshot.experiments.find(e => e.family === family && e.strategy === strategy);
   function activate(tab, updateHash = true) {
-    selected = tabs.includes(tab) ? tab : 'overview';
-    document.querySelectorAll('[data-a1-tab]').forEach(b => {
-      const active = b.dataset.a1Tab === selected;
-      b.setAttribute('aria-selected', String(active)); b.tabIndex = active ? 0 : -1;
-    });
-    tabs.forEach(t => { document.getElementById(`a1-panel-${t}`).hidden = t !== selected; });
-    if (updateHash) history.replaceState(null, '', `#a1-${selected}`);
-    Object.values(charts).forEach(c => c.resize());
+    if (tabController) tabController.select(tab, {update:updateHash});
+    selected = tabController?.selected || 'overview';
   }
   function plot(id, type, data, extra = {}) {
     if (charts[id]) charts[id].destroy();
@@ -76,7 +70,7 @@
     const a=find('resnet18',strategy),b=find('deit_tiny',strategy);
     const x=metric(a,'test_accuracy'),y=metric(b,'test_accuracy');
     const delta=x===null||y===null?'Chưa đủ hai full run để so sánh.':`DeiT − ResNet: <strong>${((y-x)*100).toFixed(2)} điểm phần trăm test accuracy</strong>, seed42, ${snapshot.epochs} epoch.`;
-    document.getElementById(`a1-panel-${strategy}`).innerHTML=`<div class="a1-delta">${delta}</div><div class="a1-pair">${[a,b].filter(Boolean).map(modelCard).join('')}</div>`;
+    document.getElementById(`a1-panel-${strategy}`).innerHTML=`<div class="a1-delta">${delta}</div><div class="ui-pair">${[a,b].filter(Boolean).map(modelCard).join('')}</div>`;
   }
   function eda() {
     const data=snapshot.eda;
@@ -93,7 +87,7 @@
       const a=find(f,'scratch'),b=aug.controls.find(e=>e.family===f),d=aug.deltas.find(e=>e.family===f);
       const complete=a?.has_full_metrics&&b?.has_full_metrics&&d;
       return `<tr><th>${names[f]}</th><td>${fmt(metric(a,'test_accuracy'),'pct')}</td><td>${fmt(metric(b,'test_accuracy'),'pct')}</td><td>${complete?fmt(d.delta_test_accuracy*100):'—'}</td><td>${complete?fmt(d.delta_val_accuracy*100):'—'}</td><td>${complete?fmt(d.delta_macro_f1):'—'}</td><td>${complete?fmt(d.delta_generalization_gap*100):'—'}</td></tr>`;
-    }).join('')}</tbody></table></div><p>Δ = augmented − noaug; generalization gap = FP32 train-eval accuracy − validation accuracy của cùng best checkpoint. Gap giảm không đồng nghĩa đã chứng minh ý nghĩa thống kê. Kết luận này chỉ áp dụng scratch tại seed42, không mở rộng sang tất cả pretrained strategies.</p>${figure(aug.image,'Delta augmentation · accuracy/F1/gap')}<div class="a1-pair">${aug.controls.map(e=>modelCard(e)).join('')}</div>`;
+    }).join('')}</tbody></table></div><p>Δ = augmented − noaug; generalization gap = FP32 train-eval accuracy − validation accuracy của cùng best checkpoint. Gap giảm không đồng nghĩa đã chứng minh ý nghĩa thống kê. Kết luận này chỉ áp dụng scratch tại seed42, không mở rộng sang tất cả pretrained strategies.</p>${figure(aug.image,'Delta augmentation · accuracy/F1/gap')}<div class="ui-pair">${aug.controls.map(e=>modelCard(e)).join('')}</div>`;
   }
   window.renderCifarA1 = state => {
     if(!document.getElementById('a1-dashboard')||!state.manifest?.assignments?.A1)return;
@@ -103,25 +97,13 @@
       document.getElementById('a1-completion').textContent='Protocol A1 chưa tương thích; nhập bundle CIFAR-100.';return;
     }
     overview();eda();strategies.forEach(pair);augmentation();
-    document.querySelectorAll('[data-a1-image]').forEach(b=>b.addEventListener('click',()=>{
-      const img=document.createElement('img');img.src=b.dataset.a1Image;img.alt=b.dataset.title;
-      document.getElementById('lightbox-image-container').replaceChildren(img);
-      document.getElementById('lightbox-title').textContent=img.alt;document.getElementById('artifact-lightbox').showModal();
-    }));
-    if(!initialized){
-      initialized=true;
-      document.querySelectorAll('[data-a1-tab]').forEach(b=>{
-        b.addEventListener('click',()=>activate(b.dataset.a1Tab));
-        b.addEventListener('keydown',event=>{
-          if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
-          event.preventDefault();const index=tabs.indexOf(selected);
-          const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
-          activate(tabs[next]);document.getElementById(`a1-tab-${selected}`).focus();
-        });
-      });
-      const readHash=()=>{const t=location.hash.replace('#a1-','');if(tabs.includes(t))activate(t,false);};
-      window.addEventListener('hashchange',readHash);readHash();
-    }
-    activate(selected,false);
+    document.querySelectorAll('[data-a1-image]').forEach(b=>b.addEventListener('click',()=>
+      window.CourseworkUI.openImage(b.dataset.a1Image,b.dataset.title,b)));
+    if (!tabController) tabController = window.CourseworkUI.tabs({
+      names:tabs, button:n=>document.getElementById('a1-tab-'+n), panel:n=>document.getElementById('a1-panel-'+n), hash:n=>'#a1-'+n,
+      onActivate:n=>{selected=n;Object.values(charts).forEach(c=>c.resize());}
+    });
+    else tabController.refresh();
+    selected=tabController.selected;
   };
 }());

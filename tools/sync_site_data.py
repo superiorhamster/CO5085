@@ -49,19 +49,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "inductive_bias": "Tuyến tính toàn cục trên từng điểm ảnh độc lập, không có tầng ẩn hay cấu trúc lân cận 2D",
                 "expected_params": 7850,
                 "expected_weight_mb": 0.030,
-                "preview": {
-                    "val_accuracy": 0.8482,
-                    "test_accuracy": 0.8415,
-                    "val_loss": 0.4310,
-                    "test_loss": 0.4485,
-                    "best_epoch": 17,
-                    "latency_ms_per_image": 0.018,
-                    "peak_gpu_memory_mb": 18.4,
-                    "train_curve_acc": [0.785, 0.828, 0.841, 0.848, 0.852, 0.855, 0.858, 0.860, 0.861, 0.862],
-                    "val_curve_acc": [0.812, 0.831, 0.838, 0.841, 0.843, 0.845, 0.846, 0.847, 0.848, 0.848],
-                    "train_curve_loss": [0.625, 0.492, 0.455, 0.438, 0.426, 0.418, 0.412, 0.408, 0.404, 0.401],
-                    "val_curve_loss": [0.532, 0.478, 0.456, 0.447, 0.441, 0.437, 0.435, 0.433, 0.432, 0.431]
-                }
             },
             {
                 "id": "mlp",
@@ -70,19 +57,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "inductive_bias": "Phi tuyến đa tầng toàn cục trên vector phẳng, chưa khai thác tính bất biến dịch chuyển không gian",
                 "expected_params": 235146,
                 "expected_weight_mb": 0.897,
-                "preview": {
-                    "val_accuracy": 0.8945,
-                    "test_accuracy": 0.8878,
-                    "val_loss": 0.3120,
-                    "test_loss": 0.3340,
-                    "best_epoch": 14,
-                    "latency_ms_per_image": 0.031,
-                    "peak_gpu_memory_mb": 24.6,
-                    "train_curve_acc": [0.821, 0.868, 0.885, 0.898, 0.909, 0.918, 0.927, 0.935, 0.942, 0.948],
-                    "val_curve_acc": [0.854, 0.873, 0.882, 0.887, 0.890, 0.892, 0.894, 0.894, 0.893, 0.895],
-                    "train_curve_loss": [0.495, 0.362, 0.315, 0.280, 0.251, 0.226, 0.203, 0.182, 0.164, 0.148],
-                    "val_curve_loss": [0.402, 0.352, 0.331, 0.320, 0.315, 0.313, 0.312, 0.318, 0.325, 0.331]
-                }
             },
             {
                 "id": "cnn",
@@ -91,7 +65,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "inductive_bias": "Trường tiếp nhận cục bộ (local receptive field), chia sẻ trọng số (weight sharing) và bất biến dịch chuyển qua MaxPool",
                 "expected_params": 50186,
                 "expected_weight_mb": 0.191,
-                "preview": {}
             }
         ]
     },
@@ -111,7 +84,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "token_count": 49,
                 "token_desc": "4×4 non-overlapping patches (F.unfold k=4, s=4) → 49 tokens × 16D → Linear(16→64)",
                 "expected_params": 69834,
-                "preview": {"val_accuracy": 0.8840, "test_accuracy": 0.8785, "val_loss": 0.332, "test_loss": 0.348, "latency_ms_per_image": 0.165, "peak_gpu_memory_mb": 54.2}
             },
             {
                 "id": "torch_patch",
@@ -120,7 +92,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "token_count": 49,
                 "token_desc": "4×4 non-overlapping patches (F.unfold k=4, s=4) → 49 tokens × 16D → Linear(16→64)",
                 "expected_params": 69834,
-                "preview": {"val_accuracy": 0.8842, "test_accuracy": 0.8786, "val_loss": 0.331, "test_loss": 0.347, "latency_ms_per_image": 0.142, "peak_gpu_memory_mb": 49.8}
             },
             {
                 "id": "scratch_row",
@@ -129,7 +100,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "token_count": 28,
                 "token_desc": "Mỗi hàng ngang là 1 token → 28 tokens × 28D → Linear(28→64)",
                 "expected_params": 69258,
-                "preview": {"val_accuracy": 0.8765, "test_accuracy": 0.8710, "val_loss": 0.351, "test_loss": 0.366, "latency_ms_per_image": 0.118, "peak_gpu_memory_mb": 41.5}
             },
             {
                 "id": "torch_row",
@@ -138,7 +108,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "token_count": 28,
                 "token_desc": "Mỗi hàng ngang là 1 token → 28 tokens × 28D → Linear(28→64)",
                 "expected_params": 69258,
-                "preview": {"val_accuracy": 0.8766, "test_accuracy": 0.8712, "val_loss": 0.350, "test_loss": 0.365, "latency_ms_per_image": 0.104, "peak_gpu_memory_mb": 38.9}
             },
             {
                 "id": "scratch_cnn",
@@ -147,7 +116,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "token_count": 49,
                 "token_desc": "CNN-stem: Conv(1→32, k=3, s=2)+ReLU → Conv(32→64, k=3, s=2)+ReLU → 7×7=49 spatial tokens × 64D",
                 "expected_params": 87562,
-                "preview": {"val_accuracy": 0.9145, "test_accuracy": 0.9092, "val_loss": 0.249, "test_loss": 0.264, "latency_ms_per_image": 0.196, "peak_gpu_memory_mb": 62.4}
             },
             {
                 "id": "torch_cnn",
@@ -156,7 +124,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "token_count": 49,
                 "token_desc": "CNN-stem: Conv(1→32, k=3, s=2)+ReLU → Conv(32→64, k=3, s=2)+ReLU → 7×7=49 spatial tokens × 64D",
                 "expected_params": 87562,
-                "preview": {"val_accuracy": 0.9148, "test_accuracy": 0.9094, "val_loss": 0.248, "test_loss": 0.263, "latency_ms_per_image": 0.174, "peak_gpu_memory_mb": 57.6}
             }
         ]
     },
@@ -174,7 +141,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "sequence_shape": "T=28, D=28",
                 "architecture": "Row Sequence (28×28) → 1-layer Unidirectional LSTM(input=28, hidden=128) → h_T → Linear(128→10)",
                 "expected_params": 82186,
-                "preview": {"val_accuracy": 0.8860, "test_accuracy": 0.8805, "val_loss": 0.324, "test_loss": 0.341, "latency_ms_per_image": 0.095, "peak_gpu_memory_mb": 34.2}
             },
             {
                 "id": "lstm_patch",
@@ -183,7 +149,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "sequence_shape": "T=49, D=16",
                 "architecture": "Patch 4×4 Raster Sequence (49×16) → 1-layer Unidirectional LSTM(input=16, hidden=128) → h_T → Linear(128→10)",
                 "expected_params": 76042,
-                "preview": {"val_accuracy": 0.8745, "test_accuracy": 0.8690, "val_loss": 0.354, "test_loss": 0.371, "latency_ms_per_image": 0.138, "peak_gpu_memory_mb": 39.5}
             },
             {
                 "id": "gru_row",
@@ -192,7 +157,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "sequence_shape": "T=28, D=28",
                 "architecture": "Row Sequence (28×28) → 1-layer Unidirectional GRU(input=28, hidden=128) → h_T → Linear(128→10)",
                 "expected_params": 61962,
-                "preview": {"val_accuracy": 0.8885, "test_accuracy": 0.8824, "val_loss": 0.319, "test_loss": 0.336, "latency_ms_per_image": 0.082, "peak_gpu_memory_mb": 31.8}
             },
             {
                 "id": "gru_patch",
@@ -201,7 +165,6 @@ EXPERIMENT_SPECS: dict[str, dict[str, Any]] = {
                 "sequence_shape": "T=49, D=16",
                 "architecture": "Patch 4×4 Raster Sequence (49×16) → 1-layer Unidirectional GRU(input=16, hidden=128) → h_T → Linear(128→10)",
                 "expected_params": 57354,
-                "preview": {"val_accuracy": 0.8780, "test_accuracy": 0.8725, "val_loss": 0.345, "test_loss": 0.362, "latency_ms_per_image": 0.119, "peak_gpu_memory_mb": 36.1}
             }
         ]
     },
@@ -488,7 +451,7 @@ def sync_experiment_artifacts(artifacts_root: Path, *, allow_empty: bool = False
                     )
 
             experiments_out.append({
-                **exp_spec,
+                **{k:v for k,v in exp_spec.items() if k != "preview"},
                 "has_full_metrics": is_valid_full,
                 "metrics": metrics if is_valid_full else None,
                 "benchmark": read_json_safe(run_dir / "benchmark.json") if assignment in ('A1','A2') and is_valid_full else None,
@@ -510,6 +473,10 @@ def sync_experiment_artifacts(artifacts_root: Path, *, allow_empty: bool = False
             "experiments": experiments_out,
             **(a2_summary if assignment == 'A2' and a2_summary else {}),
         }
+
+    for assignment in manifest["assignments"].values():
+        for experiment in assignment["experiments"]:
+            experiment.pop("preview", None)
 
     manifest["total_completed_full_experiments"] = total_completed
     a1_pdf = assignment_root(artifacts_root, 'A1') / 'full' / 'assignment1.pdf'

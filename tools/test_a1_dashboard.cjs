@@ -20,8 +20,8 @@ for (const count of [0, 1, 8]) {
   const observed = {}, location = {hash:'#a1-partial'};
   function Chart(target,config) { observed[target.id]=config;this.destroy=()=>{};this.resize=()=>{}; }
   const window = { Chart,addEventListener() {},FALLBACK_EXPERIMENTS_MANIFEST:{reports:{'assignment1.pdf':{is_placeholder:true}}} };
-  const context = {window,document,location,history:{replaceState(a,b,hash){location.hash=hash;}},console};
-  vm.createContext(context);vm.runInContext(source,context);
+  const context = {window,document,location,history:{pushState(a,b,hash){location.hash=hash;}},console};
+  vm.createContext(context);vm.runInContext(fs.readFileSync(path.join(root,'docs/assets/js/ui.js'),'utf8'),context);vm.runInContext(source,context);
   const a1=structuredClone(base);
   a1.experiments.forEach((e,i)=>{
     e.has_full_metrics=i<count;

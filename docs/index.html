@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/ui.css" />
 </head>
 <body>
   <!-- Sticky Header -->
@@ -30,11 +31,8 @@
         <a href="a2.html" class="nav-link">Bài tập lớn A2</a>
       </nav>
       <div class="nav-actions">
-        <button type="button" class="mode-toggle-btn js-preview-toggle" title="Chuyển đổi giữa chế độ Chính thức (chỉ hiện số liệu từ artifacts/*/full/) và Xem thử bố cục biểu đồ">
-          <span class="icon-slot" data-icon="lock" aria-hidden="true"></span> Chế độ: Chính thức
-        </button>
         <button type="button" id="theme-toggle-btn" class="theme-btn" aria-label="Đổi giao diện Sáng/Tối" title="Đổi giao diện Sáng / Tối"><span class="icon-slot" data-icon="moon" aria-hidden="true"></span></button>
-        <a href="https://github.com/superiorhamster/CO5085" data-bind="repo-link" target="_blank" rel="noopener" class="btn btn-primary btn-sm"><span class="icon-slot" data-icon="github" aria-hidden="true"></span> GitHub Repo</a>
+        <a href="https://github.com/superiorhamster/CO5085" data-bind="repo-link" target="_blank" rel="noopener" class="btn btn-outline btn-sm"><span class="icon-slot" data-icon="github" aria-hidden="true"></span> GitHub Repo</a>
       </div>
     </div>
   </header>
@@ -47,54 +45,30 @@
     <a href="a2.html" class="nav-link">Bài tập lớn A2</a>
   </nav>
 
-  <!-- Preview Mode Warning Banner -->
-  <div id="preview-mode-banner" class="preview-banner" role="status">
-    <div class="preview-banner-inner">
-      <span>
-        <strong><span class="icon-slot" data-icon="eye" aria-hidden="true"></span> Đang bật Chế độ Xem thử Bố cục (Preview Demo Mode):</strong>
-        Các biểu đồ và ô đánh dấu <code>[Demo]</code> dùng số liệu minh họa để kiểm tra trực quan hóa. Theo <a href="https://github.com/superiorhamster/CO5085/blob/main/plans/00_conventions.md" data-repo-path="plans/00_conventions.md" target="_blank" rel="noopener"><code>plans/00_conventions.md</code></a>, báo cáo chính thức chỉ nạp từ <code>artifacts/*/full/metrics.json</code>.
-      </span>
-      <button type="button" class="btn btn-outline btn-sm js-preview-toggle">Chuyển về Chế độ Chính thức</button>
-    </div>
-  </div>
-
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-eyebrow">
-        <span>Đại học Bách Khoa – ĐHQG TP.HCM • Khoa Khoa học &amp; Kỹ thuật Máy tính</span>
-      </div>
-      <h1 class="serif-heading">Học Sâu và Ứng Dụng trong Thị Giác Máy Tính (CO5085)</h1>
-      <p class="hero-lead">
+  <section class="container">
+    <div class="ui-intro">
+      <div><h1 class="serif-heading">Học sâu và ứng dụng trong thị giác máy tính</h1>
+        <p class="ui-lead">CO5085 · HCMUT · Học kỳ 261. Khám phá thực nghiệm E1–E3, A1 và A2 qua kết quả đã xác minh, notebook và báo cáo.</p>
+        <div class="ui-links"><a href="exercises.html" class="btn btn-primary">Bài tập E1–E3</a><a href="a1.html" class="btn btn-outline">Bài tập lớn A1</a><a href="a2.html" class="btn btn-outline">Bài tập lớn A2</a></div>
+        <details class="ui-details"><summary>Về hệ thống thực nghiệm</summary><p>
         Hệ thống bài tập thực hành <strong>E1–E3</strong> và bài tập lớn <strong>A1, A2</strong> được thiết kế theo kiến trúc tự chứa (self-contained), kiểm chứng toàn vẹn dữ liệu bằng hàm băm SHA-256, lưu trữ checkpoint nguyên tử (atomic checkpointing) và xuất bản tự động qua GitHub Pages.
-      </p>
-
-      <div style="display:flex;flex-wrap:wrap;gap:0.65rem;margin-bottom:1.5rem;">
-        <a href="exercises.html" class="btn btn-primary">Khám phá Bài tập E1–E3 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
-        <a href="a1.html" class="btn btn-outline">Bài tập lớn A1 (CNN vs ViT) <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
-        <a href="a2.html" class="btn btn-outline">Bài tập lớn A2 (DCGAN &amp; DiffAugment) <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
-        <a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> exercises.pdf</a>
-        <a class="btn btn-outline" href="reports/assignment1.pdf" data-report-pdf="assignment1.pdf">Báo cáo A1 PDF</a>
-        <a class="btn btn-outline" href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo A2 PDF</a>
+      </p></details>
       </div>
-
-      <!-- Group & Instructor Info Cards -->
+      <aside class="ui-study"><h2>Kết quả đã công bố</h2><dl><div><dt>Ma trận chính</dt><dd data-bind="artifact-progress">Đang đọc kết quả…</dd></div><div><dt>Đối chứng A1</dt><dd id="home-controls">Đang đọc kết quả…</dd></div><div><dt>Tài liệu</dt><dd>5 notebooks · 3 báo cáo</dd></div><div><dt>Dữ liệu</dt><dd>3 datasets · seed 42</dd></div></dl><div class="ui-links"><a href="reports/exercises.pdf" data-report-pdf="exercises.pdf">Báo cáo PDF E1–E3</a><a href="reports/assignment1.pdf" data-report-pdf="assignment1.pdf">Báo cáo PDF A1</a><a href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo PDF A2</a></div></aside>
+    </div>
+    <section class="ui-people" aria-label="Nhóm thực hiện và giảng viên">      <!-- Group & Instructor Info Cards -->
       <div class="hero-meta-grid">
         <div class="meta-card">
           <div class="meta-label">Tên Nhóm Thực Hiện</div>
           <div class="meta-value" data-bind="group-name">Nhóm CO5085 — Vision &amp; Deep Learning Lab</div>
           <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;">Cấu hình tại <code>docs/data/site_config.json</code></div>
         </div>
-        <div class="meta-card">
-          <div class="meta-label">Trạng Thái Thực Nghiệm Toàn Hệ Thống</div>
-          <div class="meta-value" data-bind="artifact-progress">0 / 23 cấu hình Full-Run đã đồng bộ</div>
-          <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.2rem;">5 Notebooks • 3 Datasets • Seed = 42</div>
-        </div>
+
       </div>
 
       <div class="hero-meta-grid" id="instructors-container" style="margin-top:0.85rem;"></div>
       <div class="hero-meta-grid" id="team-members-container" style="margin-top:0.85rem;"></div>
-    </div>
+</section>
   </section>
 
   <!-- Main Content -->
@@ -103,7 +77,7 @@
     <section id="overview" class="section">
       <div class="section-header">
         <div>
-          <h2 class="section-title">I. Bản đồ 23 cấu hình thực nghiệm (E1–E3, A1, A2)</h2>
+          <h2 class="section-title">Bản đồ 23 cấu hình thực nghiệm (E1–E3, A1, A2)</h2>
           <p class="section-desc">
             Phần bài tập quá trình (Coursework) chiếm <strong>40% tổng điểm môn học</strong>: Chuỗi E1–E3 chiếm 40% Coursework, Bài tập lớn A1 chiếm 30% và Bài tập lớn A2 chiếm 30%.
           </p>
@@ -130,7 +104,7 @@
             <li><strong>E3 (4 cấu hình + 2 baseline):</strong> Мо hình hóa ảnh thành chuỗi tuần tự với <code>LSTM</code> và <code>GRU</code> theo hàng (<code>row</code>) và lưới (<code>patch</code>), đối chiếu trực tiếp với baseline E1.</li>
           </ul>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;">
-            <a href="exercises.html" class="btn btn-primary btn-sm">Trang chi tiết E1–E3 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
+            <a href="exercises.html" class="btn btn-outline btn-sm">Trang chi tiết E1–E3 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
             <a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline btn-sm"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> Báo cáo PDF</a>
           </div>
         </article>
@@ -153,7 +127,7 @@
             <li><strong>Đánh giá đa chiều:</strong> Accuracy, Macro-F1, Trainable Params, Latency (ms/ảnh), Peak GPU VRAM, Confusion Matrix 100 lớp &amp; Failure Cases.</li>
           </ul>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;">
-            <a href="a1.html" class="btn btn-primary btn-sm">Trang chi tiết A1 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
+            <a href="a1.html" class="btn btn-outline btn-sm">Trang chi tiết A1 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
             <a class="btn btn-outline" href="reports/assignment1.pdf" data-report-pdf="assignment1.pdf">Báo cáo A1 PDF</a>
           </div>
         </article>
@@ -176,7 +150,7 @@
             <li>FID, KID, IS, precision/recall, chi phí train và benchmark FP32 trên cùng GPU. Chờ full run hợp lệ.</li>
           </ul>
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:auto;">
-            <a href="a2.html" class="btn btn-primary btn-sm">Trang chi tiết A2 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
+            <a href="a2.html" class="btn btn-outline btn-sm">Trang chi tiết A2 <span class="icon-slot" data-icon="arrowRight" aria-hidden="true"></span></a>
             <a class="btn btn-outline" href="reports/assignment2.pdf" data-report-pdf="assignment2.pdf">Báo cáo A2 PDF</a>
           </div>
         </article>
@@ -187,7 +161,7 @@
     <section id="timeline" class="section">
       <div class="section-header">
         <div>
-          <h2 class="section-title">II. Các mốc thời gian quan trọng (Timeline W1 – W11)</h2>
+          <h2 class="section-title">Các mốc thời gian quan trọng (Timeline W1 – W11)</h2>
           <p class="section-desc">
             Toàn bộ sản phẩm được quản lý tập trung trên GitHub Repository và GitHub Pages theo đúng hạn chót 23:59 GMT+7 của từng tuần.
           </p>
@@ -202,7 +176,7 @@
     <section id="notebooks" class="section">
       <div class="section-header">
         <div>
-          <h2 class="section-title">III. Truy cập trực tiếp Notebooks, Kế hoạch &amp; Báo cáo PDF</h2>
+          <h2 class="section-title">Truy cập trực tiếp Notebooks, Kế hoạch &amp; Báo cáo PDF</h2>
           <p class="section-desc">
             Mỗi notebook trong repository hoàn toàn độc lập (self-contained), hỗ trợ chạy tuần tự từ kernel sạch trên Google Colab / Kaggle với 2 chế độ <code>run_mode="smoke"</code> và <code>run_mode="full"</code>.
           </p>
@@ -282,7 +256,7 @@
     <section id="reproducibility" class="section" style="border-bottom:none;">
       <div class="section-header">
         <div>
-          <h2 class="section-title">IV. Đảm bảo tính toàn vẹn thực nghiệm (Reproducibility Protocol)</h2>
+          <h2 class="section-title">Đảm bảo tính toàn vẹn thực nghiệm (Reproducibility Protocol)</h2>
           <p class="section-desc">
             Tuân thủ nghiêm ngặt quy ước trong <a href="https://github.com/superiorhamster/CO5085/blob/main/plans/00_conventions.md" data-repo-path="plans/00_conventions.md" target="_blank" rel="noopener"><code>plans/00_conventions.md</code></a> nhằm đảm bảo mọi kết quả trên trang web và báo cáo PDF hoàn toàn truy vết được.
           </p>
@@ -290,6 +264,7 @@
         <span class="badge badge-ready">Quy ước tái lập &amp; Artifact Contract</span>
       </div>
 
+      <details class="protocol-details"><summary>Đọc thêm: split, checkpoint và đồng bộ kết quả</summary>
       <div class="grid-2">
         <div class="callout callout-teal" style="margin:0;">
           <div class="callout-title"><span class="icon-slot" data-icon="shieldCheck" aria-hidden="true"></span> 1. Kiểm soát Ngẫu nhiên &amp; Toàn vẹn Dữ liệu (SHA-256 Split Verification)</div>
@@ -315,6 +290,7 @@ python3 tools/sync_site_data.py --artifacts-dir ./artifacts
 python3 tools/validate_notebooks.py
 python3 tools/validate_site.py</code></pre>
       </div>
+      </details>
     </section>
   </main>
 
@@ -342,6 +318,7 @@ python3 tools/validate_site.py</code></pre>
 
   <!-- Scripts -->
   <script src="assets/js/fallback_data.js"></script>
+  <script defer src="assets/js/ui.js"></script>
   <script defer src="assets/js/icons.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>

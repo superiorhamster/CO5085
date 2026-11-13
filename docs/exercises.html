@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/ui.css" />
 </head>
 <body>
   <!-- Sticky Header -->
@@ -30,9 +31,8 @@
         <a href="a2.html" class="nav-link">Bài tập lớn A2</a>
       </nav>
       <div class="nav-actions">
-        <button type="button" class="mode-toggle-btn js-preview-toggle"><span class="icon-slot" data-icon="lock" aria-hidden="true"></span> Chế độ: Chính thức</button>
         <button type="button" id="theme-toggle-btn" class="theme-btn" aria-label="Đổi giao diện Sáng/Tối"><span class="icon-slot" data-icon="moon" aria-hidden="true"></span></button>
-        <a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener" class="btn btn-primary btn-sm"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> exercises.pdf <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
+        <a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> exercises.pdf <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
       </div>
     </div>
   </header>
@@ -44,33 +44,23 @@
     <a href="a2.html" class="nav-link">Bài tập lớn A2</a>
   </nav>
 
-  <!-- Preview Mode Banner -->
-  <div id="preview-mode-banner" class="preview-banner" role="status">
-    <div class="preview-banner-inner">
-      <span>
-        <strong><span class="icon-slot" data-icon="eye" aria-hidden="true"></span> Đang bật Chế độ Xem thử Bố cục (Preview Demo Mode):</strong>
-        Các số liệu gắn nhãn <code>[Demo]</code> dùng để kiểm tra biểu đồ tương tác. Số liệu chính thức sẽ tự động nạp từ <code>artifacts/{E1,E2,E3}/full/</code>.
-      </span>
-      <button type="button" class="btn btn-outline btn-sm js-preview-toggle">Chuyển về Chế độ Chính thức</button>
-    </div>
-  </div>
-
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-eyebrow">Chuỗi bài tập thực hành E1 – E3 • 40% điểm Coursework</div>
-      <h1 class="serif-heading">Từ Bộ Phân Loại Tuyến Tính, CNN đến Self-Attention và Chuỗi Tuần Tự RNN trên Fashion-MNIST</h1>
-      <p class="hero-lead">
-        Ba bài tập thực hành sử dụng chung một phân chia dữ liệu phân tầng <strong>Fashion-MNIST (54,000 Train / 6,000 Val / 10,000 Test)</strong> có đối chiếu hàm băm SHA-256 và vòng lặp huấn luyện PyTorch chuẩn tự cài đặt.
-      </p>
-
-      <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
-        <a href="#e1-section" class="btn btn-primary">1. Bài tập E1 (Softmax, MLP, CNN)</a>
-        <a href="#e2-section" class="btn btn-outline">2. Bài tập E2 (MSA &amp; Tokenization)</a>
-        <a href="#e3-section" class="btn btn-outline">3. Bài tập E3 (LSTM / GRU Sequence)</a>
-        <a href="reports/exercises.pdf" data-report-pdf="exercises.pdf" target="_blank" rel="noopener" class="btn btn-outline"><span class="icon-slot" data-icon="fileText" aria-hidden="true"></span> Báo cáo chung exercises.pdf</a>
+  <main class="container exercises-dashboard" id="exercises-dashboard">
+    <section class="ui-intro">
+      <div><h1 class="serif-heading">Phân loại ảnh trên Fashion-MNIST</h1>
+        <p class="ui-lead">Từ Softmax và CNN đến self-attention, LSTM và GRU. Mười ba cấu hình cùng seed 42 và cùng phân chia dữ liệu để đối chiếu chất lượng, chi phí và lỗi.</p>
+        <div class="ui-links"><a class="btn btn-outline" href="reports/exercises.pdf" data-report-pdf="exercises.pdf">Báo cáo PDF</a><a class="btn btn-outline" href="#e1-section">E1</a><a class="btn btn-outline" href="#e2-section">E2</a><a class="btn btn-outline" href="#e3-section">E3</a></div>
       </div>
-
+      <aside class="ui-study"><h2>Thiết kế đối chiếu</h2><dl><div><dt>Dữ liệu</dt><dd>Fashion-MNIST · 10 lớp</dd></div><div><dt>Train / Val / Test</dt><dd>54.000 / 6.000 / 10.000</dd></div><div><dt>Ngân sách</dt><dd>20 epoch · seed 42</dd></div><div><dt>Ma trận</dt><dd>E1: 3 · E2: 6 · E3: 4</dd></div></dl><p id="exercises-completion" role="status">Đang đọc kết quả…</p></aside>
+    </section>
+    <nav class="ui-tabs" role="tablist" aria-label="Bài tập thực hành">
+      <button type="button" id="exercise-tab-overview" role="tab" aria-controls="exercises-overview" aria-selected="true" tabindex="0">Tổng quan</button>
+      <button type="button" id="exercise-tab-e1" role="tab" aria-controls="e1-section" aria-selected="false" tabindex="-1">E1</button>
+      <button type="button" id="exercise-tab-e2" role="tab" aria-controls="e2-section" aria-selected="false" tabindex="-1">E2</button>
+      <button type="button" id="exercise-tab-e3" role="tab" aria-controls="e3-section" aria-selected="false" tabindex="-1">E3</button>
+    </nav>
+    <section id="exercises-overview" role="tabpanel" aria-labelledby="exercise-tab-overview" tabindex="0">
+      <h2>Từ Bộ Phân Loại Tuyến Tính, CNN đến Self-Attention và Chuỗi Tuần Tự RNN trên Fashion-MNIST</h2>
+      <p>Ba bài tập thực hành sử dụng chung một phân chia dữ liệu phân tầng <strong>Fashion-MNIST (54,000 Train / 6,000 Val / 10,000 Test)</strong> có đối chiếu hàm băm SHA-256 và vòng lặp huấn luyện PyTorch chuẩn tự cài đặt. Chuỗi E1–E3 chiếm 40% điểm Coursework.</p>
       <!-- Shared Protocol Summary -->
       <div class="hero-meta-grid">
         <div class="meta-card">
@@ -94,14 +84,16 @@
           <div style="font-size:0.8rem;color:var(--text-secondary);">Nếu bằng nhau chọn Validation Loss thấp hơn; chỉ mở Test 1 lần</div>
         </div>
       </div>
-    </div>
-  </section>
 
-  <main class="container">
+      <h3>So sánh 13 cấu hình chính</h3>
+      <div class="table-wrapper"><table><caption>Chỉ sử dụng metrics của full run đã xác minh</caption><thead><tr><th>Bài / cấu hình</th><th>Val accuracy</th><th>Test accuracy</th><th>Tham số</th><th>Latency B32 (ms/ảnh)</th></tr></thead><tbody id="exercises-summary"></tbody></table></div>
+      <p>Notebook nguồn, mô tả kiến trúc, learning curves và chẩn đoán được giữ trong từng tab E1, E2, E3. PDF chung có thể tải ở đầu trang.</p>
+    </section>
+
     <!-- ==================================================================
          SECTION E1: SOFTMAX, MLP, CNN
          ================================================================== -->
-    <section id="e1-section" class="section">
+    <section id="e1-section" class="exercise-panel" role="tabpanel" aria-labelledby="exercise-tab-e1" tabindex="0" hidden>
       <div class="section-header">
         <div>
           <h2 class="section-title">E1 — Phân loại ảnh cơ bản: Softmax, MLP và CNN</h2>
@@ -111,7 +103,7 @@
         </div>
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
           <span class="badge badge-ready">Hạn nộp: 02/11/2026 (W9) • 3 cấu hình</span>
-          <a href="https://github.com/superiorhamster/CO5085/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-repo-path="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Mã nguồn E1/ <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
+          <a href="https://github.com/superiorhamster/CO5085/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-repo-path="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Notebook nguồn <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
           <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/E1/e1_fashion_mnist_baselines.ipynb" data-colab-notebook="E1/e1_fashion_mnist_baselines.ipynb" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Chạy trên Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
         </div>
       </div>
@@ -207,7 +199,7 @@
     <!-- ==================================================================
          SECTION E2: MULTI-HEAD SELF-ATTENTION & TOKENIZATION
          ================================================================== -->
-    <section id="e2-section" class="section">
+    <section id="e2-section" class="exercise-panel" role="tabpanel" aria-labelledby="exercise-tab-e2" tabindex="0" hidden>
       <div class="section-header">
         <div>
           <h2 class="section-title">E2 — Multi-Head Self-Attention (Scratch vs PyTorch) &amp; Chiến lược Tokenization</h2>
@@ -217,7 +209,7 @@
         </div>
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
           <span class="badge badge-ready">Hạn nộp: 02/11/2026 (W9) • 6 cấu hình (2 × 3 Matrix)</span>
-          <a href="https://github.com/superiorhamster/CO5085/blob/main/E2/e2_attention_tokenization.ipynb" data-repo-path="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Mã nguồn E2/ <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
+          <a href="https://github.com/superiorhamster/CO5085/blob/main/E2/e2_attention_tokenization.ipynb" data-repo-path="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Notebook nguồn <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
           <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/E2/e2_attention_tokenization.ipynb" data-colab-notebook="E2/e2_attention_tokenization.ipynb" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Chạy trên Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
         </div>
       </div>
@@ -312,12 +304,13 @@
           <canvas id="e2-chart-canvas"></canvas>
         </div>
       </div>
+      <h3>Đường cong và phân tích lỗi</h3><div id="e2-artifact-gallery" class="artifact-grid"></div>
     </section>
 
     <!-- ==================================================================
          SECTION E3: LSTM / GRU SEQUENCE MODELING
          ================================================================== -->
-    <section id="e3-section" class="section" style="border-bottom:none;">
+    <section id="e3-section" class="exercise-panel" role="tabpanel" aria-labelledby="exercise-tab-e3" tabindex="0" hidden>
       <div class="section-header">
         <div>
           <h2 class="section-title">E3 — Mô hình hóa ảnh dưới dạng chuỗi bằng LSTM &amp; GRU</h2>
@@ -327,7 +320,7 @@
         </div>
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
           <span class="badge badge-ready">Hạn nộp: 09/11/2026 (W10) • 4 cấu hình RNN + 2 Baseline E1</span>
-          <a href="https://github.com/superiorhamster/CO5085/blob/main/E3/e3_sequence_models.ipynb" data-repo-path="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Mã nguồn E3/ <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
+          <a href="https://github.com/superiorhamster/CO5085/blob/main/E3/e3_sequence_models.ipynb" data-repo-path="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Notebook nguồn <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
           <a href="https://colab.research.google.com/github/superiorhamster/CO5085/blob/main/E3/e3_sequence_models.ipynb" data-colab-notebook="E3/e3_sequence_models.ipynb" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Chạy trên Colab <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
         </div>
       </div>
@@ -382,6 +375,7 @@
           <canvas id="e3-chart-canvas"></canvas>
         </div>
       </div>
+      <h3>Đường cong và phân tích lỗi</h3><div id="e3-artifact-gallery" class="artifact-grid"></div>
     </section>
   </main>
 
@@ -414,6 +408,7 @@
   </footer>
 
   <script src="assets/js/fallback_data.js"></script>
+  <script defer src="assets/js/ui.js"></script>
   <script defer src="assets/js/icons.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>

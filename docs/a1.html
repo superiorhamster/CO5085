@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="assets/css/a1.css" />
+  <link rel="stylesheet" href="assets/css/ui.css" />
 </head>
 <body>
   <!-- Sticky Header -->
@@ -45,18 +46,18 @@
   </nav>
 
   <main class="container a1-dashboard" id="a1-dashboard">
-    <section class="a1-intro" aria-labelledby="a1-title">
+    <section class="ui-intro" aria-labelledby="a1-title">
       <div>
         <h1 class="serif-heading" id="a1-title">Hai kiến trúc.<br>Cùng một bộ dữ liệu.</h1>
-        <p class="a1-lead">ResNet-18 và DeiT-Tiny trên <strong>CIFAR-100</strong>. So sánh học từ đầu, chuyển giao và ba mức fine-tune qua tám thí nghiệm chính và hai đối chứng augmentation, cùng ngân sách 25 epoch.</p>
-        <div class="a1-links">
+        <p class="ui-lead">ResNet-18 và DeiT-Tiny trên <strong>CIFAR-100</strong>. So sánh học từ đầu, chuyển giao và ba mức fine-tune qua tám thí nghiệm chính và hai đối chứng augmentation, cùng ngân sách 25 epoch.</p>
+        <div class="ui-links">
           <a class="btn btn-primary" href="https://www.kaggle.com/code/anhphmduy/resnet18-vs-deit-tiny-on-cifar100" target="_blank" rel="noopener noreferrer">Mở trên Kaggle <span class="icon-slot" data-icon="externalLink" aria-hidden="true"></span></a>
           <a class="btn btn-outline" href="https://github.com/superiorhamster/CO5085/blob/main/A1/a1_cifar100_resnet18_vs_deit.ipynb" data-repo-path="A1/a1_cifar100_resnet18_vs_deit.ipynb">Notebook nguồn</a>
           <a class="btn btn-outline" href="#milestone-a1-1">Dataset &amp; protocol</a>
           <a class="btn btn-outline" href="https://github.com/superiorhamster/CO5085/blob/main/A1/resnet18-vs-deit-tiny-on-cifar100.ipynb" data-repo-path="A1/resnet18-vs-deit-tiny-on-cifar100.ipynb">Notebook đã chạy</a><a class="btn btn-outline" href="reports/assignment1.pdf" data-report-pdf="assignment1.pdf">Báo cáo PDF</a>
         </div>
       </div>
-      <aside class="a1-study-note" aria-label="Thiết kế thí nghiệm">
+      <aside class="ui-study" aria-label="Thiết kế thí nghiệm">
         <h2>Thiết kế đối chiếu</h2>
         <dl><div><dt>Dataset</dt><dd>100 lớp ảnh 32×32</dd></div><div><dt>Train / Val / Test</dt><dd>45.000 / 5.000 / 10.000</dd></div><div><dt>Mỗi cấu hình</dt><dd>25 epoch · batch32 × accum2</dd></div><div><dt>Chạy song song</dt><dd>T4 GPU0: CNN · T4 GPU1: DeiT</dd></div></dl>
         <p id="a1-completion" role="status">Đang đọc kết quả…</p>
@@ -65,7 +66,7 @@
 
     <section id="milestone-a1-2" class="a1-results" aria-label="Kết quả A1.2">
       <div class="a1-results-heading"><h2>So sánh thực nghiệm</h2><span class="a1-snapshot">Snapshot từ full runs đã xác minh</span></div>
-      <div class="a1-tabs" role="tablist" aria-label="Chế độ huấn luyện">
+      <div class="ui-tabs" role="tablist" aria-label="Chế độ huấn luyện">
         <button id="a1-tab-overview" role="tab" aria-selected="true" aria-controls="a1-panel-overview" tabindex="0" data-a1-tab="overview">Tổng quan</button>
         <button id="a1-tab-eda" role="tab" aria-selected="false" aria-controls="a1-panel-eda" tabindex="-1" data-a1-tab="eda">EDA & dữ liệu</button>
         <button id="a1-tab-scratch" role="tab" aria-selected="false" aria-controls="a1-panel-scratch" tabindex="-1" data-a1-tab="scratch">Scratch</button>
@@ -131,6 +132,7 @@ python tools/validate_site.py</code></pre></details>
   </footer>
 
   <script src="assets/js/fallback_data.js"></script>
+  <script defer src="assets/js/ui.js"></script>
   <script defer src="assets/js/icons.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>

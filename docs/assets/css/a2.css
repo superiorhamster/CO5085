@@ -1,26 +1,10 @@
 /* A2: evidence first, within the existing HCMUT academic system. */
 .a2-dashboard {padding-bottom:4rem;}
-.a2-dashboard [hidden] {display:none!important;}
-.a2-dashboard :focus-visible {outline:3px solid var(--brand-primary);outline-offset:4px;}
-.a2-dashboard ::selection {background:var(--brand-light);color:var(--text-primary);}
-.a2-intro {display:grid;grid-template-columns:1.5fr 1fr;gap:4rem;padding:3.5rem 0 2rem;}
-.a2-intro h1 {font-size:clamp(2.3rem,4vw,3.6rem);line-height:1.1;max-width:22ch;}
-.a2-lead {font-size:1.1rem;color:var(--text-secondary);max-width:58ch;}
-.a2-links {display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem;}
-.a2-study {padding-top:1rem;border-top:1px solid var(--brand-primary);}
-.a2-study h2 {font-size:1.1rem;}.a2-study p {font-size:.9rem;}
-.a2-dashboard .a2-study h2 {font-size:1.1rem;margin:.8rem 0;}
-.a2-tabs {display:flex;gap:1.5rem;overflow-x:auto;border-bottom:1px solid var(--border-strong);margin-bottom:2rem;scrollbar-color:var(--brand-primary) var(--bg-secondary);}
-.a2-tabs button {background:none;border:0;border-bottom:3px solid transparent;color:var(--text-secondary);padding:1rem .2rem;white-space:nowrap;cursor:pointer;font:inherit;}
-.a2-tabs button[aria-selected=true] {color:var(--brand-primary);border-bottom-color:var(--brand-primary);font-weight:700;}
-.a2-tabs button:hover {background:var(--brand-subtle);}
 .a2-dashboard h2 {font-size:1.65rem;margin:2.4rem 0 1rem;}.a2-dashboard section>h2:first-child {margin-top:0;}
 .a2-dashboard h3 {font-size:1.2rem;margin:2rem 0 .8rem;}.a2-dashboard h4 {font-size:1.05rem;margin:.8rem 0;}
-.a2-pair {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem;}
-.a2-pair>* {min-width:0;}.a2-dashboard figure {margin:1rem 0 1.8rem;}
+
+.a2-dashboard figure {margin:1rem 0 1.8rem;}
 .a2-dashboard figcaption {font-size:.9rem;font-weight:600;margin-bottom:.7rem;}
-.a2-figure {display:block;width:100%;padding:0;border:1px solid var(--border-color);border-radius:12px;overflow:hidden;cursor:zoom-in;background:var(--bg-secondary);}
-.a2-figure img {display:block;width:100%;height:auto;}
 .a2-muted,.a2-caption {font-size:.85rem;color:var(--text-secondary);max-width:75ch;}
 .a2-caption {margin-top:.6rem;}.a2-measure,.a2-prose {max-width:75ch;}
 .a2-finding {padding:1.25rem 1.5rem;background:var(--bg-tertiary);border-radius:12px;line-height:1.7;margin:1.3rem 0 2rem;}
@@ -40,6 +24,6 @@ body:has(.a2-dashboard) dialog.lightbox-dialog {box-shadow:none;}
 .a2-dashboard .table-wrapper {box-shadow:none;}
 .a2-dashboard summary {cursor:pointer;font-weight:600;margin-bottom:1rem;}
 .a2-dashboard code {overflow-wrap:anywhere;word-break:break-word;}.a2-report-state {font-size:.78rem;color:var(--text-secondary);}
-@media(max-width:800px) {.a2-intro,.a2-pair {grid-template-columns:1fr;gap:1.4rem;}.a2-intro {padding:2.5rem 0 1.5rem;}.a2-tabs {gap:1rem;}.a2-dashboard h2 {font-size:1.4rem;}}
+@media(max-width:800px) {.a2-dashboard h2 {font-size:1.4rem;}}
 @media(max-width:600px) {body:has(.a2-dashboard) .nav-inner {padding:0 1rem;gap:.5rem;}body:has(.a2-dashboard) .brand-title {font-size:.78rem;max-width:17ch;}body:has(.a2-dashboard) .brand-subtitle {display:none;}body:has(.a2-dashboard) .nav-actions {gap:.4rem;}.a2-report-state {display:none;}}
 @media(prefers-reduced-motion:reduce) {.a2-dashboard * {scroll-behavior:auto!important;transition:none!important;}}

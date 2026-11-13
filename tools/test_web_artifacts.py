@@ -46,9 +46,17 @@ class WebBundleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             docs=Path(temp)/'docs';(docs/'data').mkdir(parents=True);(docs/'assets/js').mkdir(parents=True)
             for name in ('experiments_manifest.json','site_config.json'):shutil.copy2(w.ROOT/'docs/data'/name,docs/'data'/name)
+            legacy=w.read(docs/'data/experiments_manifest.json')
+            for assignment in legacy['assignments'].values():
+                for experiment in assignment['experiments']:
+                    experiment['preview']={'test_accuracy':.99999}
+            w.write(docs/'data/experiments_manifest.json',legacy)
             first=w.sync_bundles(w.ROOT/'artifacts',docs)
             second=w.sync_bundles(w.ROOT/'artifacts',docs)
             self.assertEqual(first,second)
+            for assignment in first['assignments'].values():
+                for experiment in assignment['experiments']:
+                    self.assertNotIn('preview',experiment)
             for assignment in ('E1','E2','E3'):self.assertEqual(first['assignments'][assignment],previous['assignments'][assignment])
             self.assertEqual([e['metrics'] for e in first['assignments']['A2']['experiments']],
                              [e['metrics'] for e in previous['assignments']['A2']['experiments']])

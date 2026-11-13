@@ -1,26 +1,11 @@
 /* A1 inherits the site's academic identity; comparison is the primary task. */
 .a1-dashboard { padding-bottom: 4rem; }
-.a1-intro { display: grid; grid-template-columns: 1.4fr 1fr; gap: 4rem; padding: 4.5rem 0 3.5rem; align-items: start; }
-.a1-intro h1 { font-size: clamp(2.5rem, 5vw, 4.2rem); line-height: 1.05; margin-bottom: 1.4rem; max-width: 18ch; }
-.a1-lead { font-size: 1.1rem; max-width: 56ch; color: var(--text-secondary); }
-.a1-links { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:1.5rem; }
-.a1-study-note { padding: 1.5rem 0 0; border-top: 2px solid var(--brand-primary); }
-.a1-study-note h2 { font-size: 1rem; }
-.a1-study-note dl { margin:0; }
-.a1-study-note dl > div { display:flex; justify-content:space-between; gap:1rem; padding:.7rem 0; border-bottom:1px solid var(--border-color); font-size:.85rem; }
-.a1-study-note dt { color:var(--text-secondary); }
-.a1-study-note dd { margin:0; font-weight:600; text-align:right; font-variant-numeric:tabular-nums; }
+
 #a1-completion { font-size:.85rem; color:var(--brand-primary); font-weight:600; }
 .a1-results-heading { display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
 .a1-results-heading h2 { margin-bottom:.8rem; }
 .a1-snapshot, .a1-small { font-size:.8rem; color:var(--text-secondary); }
-.a1-tabs { display:flex; gap:1.6rem; border-bottom:1px solid var(--border-strong); overflow-x:auto; scrollbar-color:var(--brand-primary) var(--bg-tertiary); margin-bottom:1.8rem; }
-.a1-tabs button { background:none; border:0; border-bottom:3px solid transparent; border-radius:0; color:var(--text-secondary); font:inherit; font-size:.95rem; white-space:nowrap; padding:1rem .2rem; cursor:pointer; }
-.a1-tabs button[aria-selected=true] { border-color:var(--brand-primary); color:var(--brand-primary); font-weight:700; }
-.a1-tabs button:hover { color:var(--brand-primary); background:var(--brand-subtle); }
-.a1-dashboard :focus-visible { outline:3px solid var(--brand-primary); outline-offset:4px; }
-.a1-dashboard ::selection { background:var(--brand-light); color:var(--text-primary); }
-.a1-dashboard [hidden] { display:none !important; }
+
 .a1-matrix { display:grid; grid-template-columns:8rem repeat(4,minmax(0,1fr)); gap:1px; background:var(--border-color); border:1px solid var(--border-color); margin-bottom:1.5rem; overflow:hidden; border-radius:12px; }
 .a1-matrix > * { background:var(--bg-secondary); padding:1rem .8rem; min-width:0; }
 .a1-matrix .a1-axis { background:var(--bg-tertiary); font-size:.82rem; font-weight:600; }
@@ -40,7 +25,7 @@
 .a1-dashboard caption { text-align:left; color:var(--text-secondary); padding:1rem 0; font-size:.8rem; }
 .a1-dashboard td { font-variant-numeric:tabular-nums; }
 .a1-dashboard td:first-child { white-space:nowrap; }
-.a1-pair { display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
+
 .a1-model { min-width:0; }
 .a1-model header { display:flex; justify-content:space-between; align-items:baseline; gap:.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border-strong); }
 .a1-model h3 { font-size:1.45rem; margin:0; }
@@ -53,8 +38,6 @@
 .a1-metrics dd { margin:.25rem 0 0; font-size:1.05rem; font-weight:600; font-variant-numeric:tabular-nums; }
 .a1-model figure { margin:1.4rem 0; }
 .a1-model figcaption { font-size:.85rem; font-weight:600; margin-bottom:.6rem; }
-.a1-figure-button { display:block; width:100%; border:1px solid var(--border-color); border-radius:12px; padding:0; overflow:hidden; background:var(--bg-secondary); cursor:zoom-in; }
-.a1-figure-button img { width:100%; display:block; }
 .a1-stage-list { display:flex; flex-wrap:wrap; gap:.4rem; margin:.9rem 0; }
 .a1-stage-list span { padding:.3rem .6rem; border:1px solid var(--border-color); border-radius:6px; color:var(--text-secondary); font-size:.75rem; }
 .a1-stage-list [data-trainable=true] { color:var(--brand-primary); background:var(--brand-subtle); border-color:var(--brand-primary); }
@@ -68,10 +51,10 @@
 .a1-run-guide summary { font-weight:600; cursor:pointer; padding:.25rem 0; }.a1-run-guide li { margin:.6rem 0; color:var(--text-secondary); }
 .a1-limitations { margin-top:2rem; }
 @media (max-width:800px) {
-  .a1-intro { grid-template-columns:1fr; gap:1.5rem; padding:2.5rem 0; }
-  .a1-pair,.a1-chart-grid,.a1-protocol-grid,.a1-observations { grid-template-columns:1fr; gap:1.5rem; }
+
+
   .a1-matrix { grid-template-columns:5.2rem repeat(4,minmax(0,1fr)); }.a1-matrix > * { padding:.7rem .3rem; }.a1-matrix button strong { font-size:1rem; }.a1-matrix .a1-axis { font-size:.7rem; }
-  .a1-matrix button span { font-size:.66rem; }.a1-tabs { gap:1.2rem; }.a1-study-note dl > div { font-size:.8rem; }
+  .a1-matrix button span { font-size:.66rem; }
 }
 @media (prefers-reduced-motion:reduce) { .a1-dashboard * { transition:none !important; scroll-behavior:auto; } }
 @media (max-width:600px) {
@@ -84,8 +67,7 @@
   body:has(.a1-dashboard) .nav-actions > a { font-size:.7rem; padding:.5rem; }
 }
 /* Seven tabs stay local to their scroll container on narrow viewports. */
-.a1-intro > *, .a1-results, .a1-dashboard [role=tabpanel] { min-width:0; }
-.a1-tabs { max-width:100%; }
+
 .a1-eda-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2rem; }
 .a1-eda-grid figure { min-width:0; margin:1rem 0; }
 .a1-eda-grid figure:nth-child(3) { grid-column:1/-1; }

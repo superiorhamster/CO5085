@@ -277,6 +277,9 @@ def sync_bundles(artifacts_root, docs):
             folder=target/'eda';folder.mkdir()
             for p in root.glob('*.png'):shutil.copy2(p,folder/p.name)
     result['total_completed_full_experiments']=sum(a['completed_full_count'] for a in result['assignments'].values())
+    for assignment in result['assignments'].values():
+        for experiment in assignment['experiments']:
+            experiment.pop('preview', None)
     if previous.get('web_bundle_schema') != 1 or result['assignments'] != previous['assignments']:
         import datetime
         result['generated_at']=datetime.datetime.now(datetime.timezone.utc).isoformat()

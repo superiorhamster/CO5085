@@ -43,6 +43,11 @@ jobs:
       - name: Validate web bundle imports and preservation
         run: python3 -m unittest tools.test_web_artifacts
 
+      - name: Validate shared UI and real-only data
+        run: |
+          node tools/test_shared_ui.cjs
+          node tools/test_exercises_dashboard.cjs
+
       - name: Validate A1 dashboard states
         run: node tools/test_a1_dashboard.cjs
 

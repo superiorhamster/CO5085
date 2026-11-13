@@ -3,7 +3,6 @@
  * Shared Client-Side Controller for GitHub Pages
  * Strictly adheres to plans/00_conventions.md:
  * - Official mode displays only verified `run_mode == "full"` artifacts.
- * - Preview mode allows inspecting interactive charts & tables with explicit [Preview Demo] labels.
  */
 
 (function () {
@@ -13,11 +12,9 @@
     window.CO5085Icons ? window.CO5085Icons.render(name, className) : "";
 
   const STORAGE_THEME_KEY = "co5085_theme";
-  const STORAGE_PREVIEW_KEY = "co5085_preview_mode";
 
   const state = {
     theme: localStorage.getItem(STORAGE_THEME_KEY) || "light",
-    previewMode: localStorage.getItem(STORAGE_PREVIEW_KEY) === "true",
     siteConfig: null,
     manifest: null,
     charts: {},
@@ -59,11 +56,8 @@
   }
 
   function getMetric(exp, key) {
-    if (exp.has_full_metrics && exp.metrics && exp.metrics[key] !== undefined) {
+    if (exp.has_full_metrics && Number.isFinite(exp.metrics?.[key])) {
       return { value: exp.metrics[key], source: "full" };
-    }
-    if (state.previewMode && exp.preview && exp.preview[key] !== undefined) {
-      return { value: exp.preview[key], source: "preview" };
     }
     return { value: null, source: "pending" };
   }
@@ -74,9 +68,6 @@
       return `<span class="badge badge-pending" title="Chưa có artifact full run tại artifacts/*/full/">Pending Full Run</span>`;
     }
     const formatted = formatter(res.value);
-    if (res.source === "preview") {
-      return `<span class="mono" title="Số liệu minh họa bố cục (Preview Layout)">${formatted} <sup style="color:var(--accent-purple);font-weight:700;">[Demo]</sup></span>`;
-    }
     return `<span class="mono" style="font-weight:600;">${formatted}</span>`;
   }
 
@@ -100,30 +91,6 @@
       });
     }
 
-    const previewBtns = document.querySelectorAll(".js-preview-toggle");
-    const updatePreviewUI = () => {
-      previewBtns.forEach((btn) => {
-        btn.setAttribute("data-preview", state.previewMode ? "true" : "false");
-        btn.innerHTML = state.previewMode
-          ? `${icon("eye")}<span>Chế độ: Xem thử biểu đồ (Preview ON)</span>`
-          : `${icon("lock")}<span>Chế độ: Chính thức (Official Full-Run)</span>`;
-      });
-      const banner = document.getElementById("preview-mode-banner");
-      if (banner) {
-        banner.classList.toggle("visible", state.previewMode);
-      }
-    };
-
-    previewBtns.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        state.previewMode = !state.previewMode;
-        localStorage.setItem(STORAGE_PREVIEW_KEY, state.previewMode ? "true" : "false");
-        updatePreviewUI();
-        renderAllDynamicSections();
-      });
-    });
-
-    updatePreviewUI();
   }
 
   function injectSharedMetadata() {
@@ -212,12 +179,15 @@
         .join("");
     }
 
+    const controls = document.getElementById("home-controls");
+    if (controls && state.manifest) controls.textContent = `${state.manifest.assignments?.A1?.augmentation?.completed_count ?? 0} / 2`;
+
     // Global progress summary on index.html
     if (state.manifest) {
       const totalDone = state.manifest.total_completed_full_experiments || 0;
       const totalExp = state.manifest.total_expected_experiments || 23;
       document.querySelectorAll("[data-bind='artifact-progress']").forEach((el) => {
-        el.textContent = `${totalDone} / ${totalExp} cấu hình Full-Run đã đồng bộ`;
+        el.textContent = `${totalDone} / ${totalExp}`;
       });
     }
   }
@@ -227,17 +197,27 @@
      ======================================================================== */
   function renderExercisesPage() {
     if (!state.manifest || !state.manifest.assignments) return;
+    if (window.Chart?.defaults) {
+      const color = state.theme === 'dark' ? '#cbd5e1' : '#334155';
+      window.Chart.defaults.color = color;
+      window.Chart.defaults.borderColor = state.theme === 'dark' ? '#334155' : '#e2e8f0';
+    }
     const e1 = state.manifest.assignments.E1;
     const e2 = state.manifest.assignments.E2;
     const e3 = state.manifest.assignments.E3;
 
+    const summary = document.getElementById('exercises-summary');
+    if (summary) summary.innerHTML = [e1,e2,e3].filter(Boolean).flatMap((a,i) => a.experiments.map(e =>
+      `<tr><th scope="row">E${i+1} / ${e.id}</th><td>${renderMetricCell(e,'val_accuracy',formatPct)}</td><td>${renderMetricCell(e,'test_accuracy',formatPct)}</td><td>${renderMetricCell(e,'parameters',formatInt)}</td><td>${renderMetricCell(e,'latency_ms_per_image',formatNum)}</td></tr>`)).join('');
+    const completion = document.getElementById('exercises-completion');
+    if (completion) completion.textContent = `${[e1,e2,e3].filter(Boolean).flatMap(a=>a.experiments).filter(e=>e.has_full_metrics).length}/13 cấu hình đã xác minh`;
     // 1. E1 Table & Chart
     const e1Tbody = document.getElementById("e1-table-body");
     if (e1Tbody && e1) {
       e1Tbody.innerHTML = e1.experiments
         .map((exp) => {
-          const params = exp.metrics?.parameters || exp.expected_params;
-          const sizeMb = exp.metrics?.weight_size_mb || exp.expected_weight_mb;
+          const params = exp.has_full_metrics ? exp.metrics?.parameters : null;
+          const sizeMb = exp.has_full_metrics ? exp.metrics?.weight_size_mb : null;
           return `
             <tr>
               <td><code style="font-weight:700;">${exp.id}</code><div style="font-size:0.78rem;color:var(--text-muted);">${exp.name}</div></td>
@@ -271,7 +251,7 @@
 
       e2Tbody.innerHTML = filteredE2
         .map((exp) => {
-          const params = exp.metrics?.parameters || exp.expected_params;
+          const params = exp.has_full_metrics ? exp.metrics?.parameters : null;
           return `
             <tr>
               <td><code style="font-weight:700;">${exp.id}</code></td>
@@ -286,7 +266,8 @@
           `;
         })
         .join("");
-      renderE2Chart(e2.experiments);
+      renderE2Chart(filteredE2);
+      renderArtifactGallery('e2-artifact-gallery','E2',filteredE2,[{key:'curves',label:'Learning curves'},{key:'confusion_matrix',label:'Confusion matrix'}]);
     }
 
     // 3. E3 Table (including E1 MLP/CNN provenance baselines) & Chart
@@ -298,7 +279,7 @@
 
       [mlpBase, cnnBase].forEach((base) => {
         if (!base) return;
-        const params = base.metrics?.parameters || base.expected_params;
+        const params = base.has_full_metrics ? base.metrics?.parameters : null;
         rowsHtml.push(`
           <tr style="background:rgba(11, 87, 208, 0.04);">
             <td><code style="font-weight:700;">e1_${base.id}</code> <span class="badge badge-ready">Baseline E1</span></td>
@@ -313,7 +294,7 @@
       });
 
       e3.experiments.forEach((exp) => {
-        const params = exp.metrics?.parameters || exp.expected_params;
+        const params = exp.has_full_metrics ? exp.metrics?.parameters : null;
         rowsHtml.push(`
           <tr>
             <td><code style="font-weight:700;">${exp.id}</code></td>
@@ -329,6 +310,7 @@
 
       e3Tbody.innerHTML = rowsHtml.join("");
       renderE3Chart(e3.experiments, mlpBase, cnnBase);
+      renderArtifactGallery('e3-artifact-gallery','E3',e3.experiments,[{key:'curves',label:'Learning curves'},{key:'confusion_matrix',label:'Confusion matrix'}]);
     }
   }
 
@@ -337,11 +319,11 @@
     if (!canvas || typeof Chart === "undefined") return;
     destroyChart("e1");
 
-    const hasData = experiments.some((e) => e.has_full_metrics || state.previewMode);
+    const hasData = experiments.some((e) => e.has_full_metrics && e.history?.some(h => Number.isFinite(Number(h.val_accuracy))));
     const emptyNotice = document.getElementById("e1-chart-empty");
     if (emptyNotice) emptyNotice.style.display = hasData ? "none" : "block";
 
-    const labels = ["Ep 2", "Ep 4", "Ep 6", "Ep 8", "Ep 10", "Ep 12", "Ep 14", "Ep 16", "Ep 18", "Ep 20"];
+    const labels = [];
     const colors = { softmax: "#64748b", mlp: "#0b57d0", cnn: "#059669" };
 
     const datasets = [];
@@ -349,13 +331,12 @@
       experiments.forEach((exp) => {
         let curve = [];
         if (exp.has_full_metrics && exp.history && exp.history.length > 0) {
-          curve = exp.history.map((h) => Number(h.val_accuracy) * 100);
-        } else if (state.previewMode && exp.preview?.val_curve_acc) {
-          curve = exp.preview.val_curve_acc.map((v) => v * 100);
+          curve = exp.history.map((h, i) => ({x: Number(h.epoch ?? i) + 1, y: Number(h.val_accuracy) * 100}));
+
         }
         if (curve.length > 0) {
           datasets.push({
-            label: `${exp.name} (Val Acc %)${!exp.has_full_metrics ? " [Demo]" : ""}`,
+            label: `${exp.name} (Val Acc %)`,
             data: curve,
             borderColor: colors[exp.id] || "#0b57d0",
             backgroundColor: colors[exp.id] || "#0b57d0",
@@ -377,12 +358,11 @@
           legend: { position: "top" },
           title: {
             display: true,
-            text: state.previewMode
-              ? "Đường cong Validation Accuracy qua các Epoch (Chế độ Preview Minh họa)"
-              : "Đường cong Validation Accuracy qua các Epoch (Full Run)",
+            text: "Validation accuracy theo epoch · full runs",
           },
         },
         scales: {
+          x: {type: "linear", title: {display:true,text:"Epoch"}, ticks: {precision:0}},
           y: { title: { display: true, text: "Validation Accuracy (%)" }, suggestedMin: 75, suggestedMax: 95 },
         },
       },
@@ -398,12 +378,12 @@
     const scratchData = tokenizers.map((t) => {
       const exp = experiments.find((x) => x.backend === "scratch" && x.tokenizer === t);
       const m = exp ? getMetric(exp, "test_accuracy") : { value: null };
-      return m.value ? Number((m.value * 100).toFixed(2)) : 0;
+      return m.value === null ? null : Number((m.value * 100).toFixed(2));
     });
     const torchData = tokenizers.map((t) => {
       const exp = experiments.find((x) => x.backend === "torch" && x.tokenizer === t);
       const m = exp ? getMetric(exp, "test_accuracy") : { value: null };
-      return m.value ? Number((m.value * 100).toFixed(2)) : 0;
+      return m.value === null ? null : Number((m.value * 100).toFixed(2));
     });
 
     state.charts["e2"] = new Chart(canvas, {
@@ -467,7 +447,7 @@
             label: "Test Accuracy (%)",
             data: allModels.map((m) => {
               const res = getMetric(m.exp, "test_accuracy");
-              return res.value ? Number((res.value * 100).toFixed(2)) : 0;
+              return res.value === null ? null : Number((res.value * 100).toFixed(2));
             }),
             backgroundColor: allModels.map((m) => m.color),
             borderRadius: 6,
@@ -509,14 +489,14 @@
     const cards = [];
     experiments.forEach((exp) => {
       plotTypes.forEach((pt) => {
-        const imgUrl = exp.images ? exp.images[pt.key] : null;
+        const imgUrl = exp.has_full_metrics && exp.images ? exp.images[pt.key] : null;
         const expectedPath = `artifacts/${assignment}/${assignment==='A2'?'dcgan_diffaugment_v1/':''}full/${exp.id}/${pt.key === "latest_preview" ? "preview_step_020000.png" : pt.key + ".png"}`;
         if (imgUrl) {
           cards.push(`
             <div class="artifact-card">
-              <div class="artifact-thumb" data-lightbox-src="${imgUrl}" data-lightbox-title="${assignment} • ${exp.id} — ${pt.label}">
+              <button type="button" class="artifact-thumb" data-lightbox-src="${imgUrl}" data-lightbox-title="${assignment} • ${exp.id} — ${pt.label}">
                 <img src="${imgUrl}" alt="${exp.id} ${pt.label}" loading="lazy" />
-              </div>
+              </button>
               <div class="artifact-caption">
                 <span><code>${exp.id}</code> • ${pt.label}</span>
                 <span class="badge badge-completed">Full Artifact</span>
@@ -548,22 +528,26 @@
     // Bind lightbox clicks
     container.querySelectorAll("[data-lightbox-src]").forEach((el) => {
       el.addEventListener("click", () => {
-        openLightbox(el.getAttribute("data-lightbox-src"), el.getAttribute("data-lightbox-title"));
+        openLightbox(el.getAttribute("data-lightbox-src"), el.getAttribute("data-lightbox-title"), el);
       });
     });
   }
 
-  function openLightbox(src, title) {
-    const dialog = document.getElementById("artifact-lightbox");
-    const imageContainer = document.getElementById("lightbox-image-container");
-    const titleEl = document.getElementById("lightbox-title");
-    if (!dialog || !imageContainer || !src) return;
-    const img = document.createElement("img");
-    img.src = src;
-    img.alt = title || "Chi tiết biểu đồ thực nghiệm";
-    imageContainer.replaceChildren(img);
-    if (titleEl) titleEl.textContent = title || "Chi tiết biểu đồ thực nghiệm";
-    dialog.showModal();
+  function openLightbox(src, title, trigger) {
+    window.CourseworkUI.openImage(src,title,trigger);
+  }
+
+  let exerciseTabs;
+  function setupExerciseTabs() {
+    if (!document.getElementById('exercises-dashboard')) return;
+    if (!exerciseTabs) exerciseTabs = window.CourseworkUI.tabs({
+      names:['overview','e1','e2','e3'],
+      button:n=>document.getElementById('exercise-tab-'+n),
+      panel:n=>document.getElementById(n==='overview'?'exercises-overview':n+'-section'),
+      hash:n=>n==='overview'?'#exercises-overview':'#'+n+'-section',
+      onActivate:()=>Object.values(state.charts).forEach(c=>c.resize())
+    });
+    else exerciseTabs.refresh();
   }
 
   function setupInteractiveFilters() {
@@ -587,19 +571,13 @@
       });
     });
 
-    const closeBtn = document.getElementById("lightbox-close-btn");
-    const dialog = document.getElementById("artifact-lightbox");
-    if (closeBtn && dialog) {
-      closeBtn.addEventListener("click", () => dialog.close());
-      dialog.addEventListener("click", (e) => {
-        if (e.target === dialog) dialog.close();
-      });
-    }
+    window.CourseworkUI.bindLightbox();
   }
 
   function renderAllDynamicSections() {
     injectSharedMetadata();
     renderExercisesPage();
+    setupExerciseTabs();
     renderA1Page();
     renderA2Page();
     document.querySelectorAll('[data-report-pdf]').forEach(link => {
